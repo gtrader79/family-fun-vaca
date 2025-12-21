@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NFL Monte Carlo Matchup Simulator</title>
+
+    <!-- Layout & visual hierarchy only -->
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+    <!-- =========================
+         APPLICATION ROOT
+         ========================= -->
+    <div id="app-root">
+
+        <!-- =========================
+             LEFT PANEL — CONTROLS
+             Section W.3
+             ========================= -->
+        <aside id="control-panel">
+
+            <!-- Team A Controls -->
+            <section id="team-a-controls" class="control-section">
+                <header class="control-section-header">
+                    <h2>Team A</h2>
+                </header>
+                <div class="control-section-body">
+                    <!-- Team A inputs mounted here by app.js -->
+                </div>
+            </section>
+
+            <!-- Team B Controls -->
+            <section id="team-b-controls" class="control-section">
+                <header class="control-section-header">
+                    <h2>Team B</h2>
+                </header>
+                <div class="control-section-body">
+                    <!-- Team B inputs mounted here by app.js -->
+                </div>
+            </section>
+
+            <!-- Situational Adjustments -->
+            <section id="situational-controls" class="control-section">
+                <header class="control-section-header">
+                    <h2>Situational Adjustments</h2>
+                </header>
+                <div class="control-section-body">
+                    <!-- Situational controls mounted here -->
+                </div>
+            </section>
+
+            <!-- Variance Controls -->
+            <section id="variance-controls" class="control-section">
+                <header class="control-section-header">
+                    <h2>Variance Controls</h2>
+                </header>
+                <div class="control-section-body">
+                    <!-- Variance controls mounted here -->
+                </div>
+            </section>
+
+            <!-- Simulation Controls -->
+            <section id="simulation-controls" class="control-section">
+                <header class="control-section-header">
+                    <h2>Simulation</h2>
+                </header>
+                <div class="control-section-body">
+                    <button id="run-simulation-btn">Run Simulation</button>
+                    <button id="pause-simulation-btn" disabled>Pause</button>
+                    <button id="reset-simulation-btn" disabled>Reset</button>
+
+                    <div id="simulation-status">
+                        <!-- “Simulating…” indicator injected here -->
+                    </div>
+                </div>
+            </section>
+
+        </aside>
+
+        <!-- =========================
+             RIGHT PANEL — VISUALIZATION
+             Section W.4
+             ========================= -->
+        <main id="visualization-panel">
+
+            <!-- Simulation Controls Placement (Above Visuals) -->
+            <div id="visualization-header">
+                <!-- Reserved for simulation status / metadata -->
+            </div>
+
+            <!-- Visualization Tabs -->
+            <nav id="visualization-tabs">
+                <button data-tab="ball-drop-tab" class="tab-button active">
+                    Ball Drop
+                </button>
+                <button data-tab="distribution-tab" class="tab-button">
+                    Strength Distribution
+                </button>
+                <button data-tab="team-stats-tab" class="tab-button">
+                    Team Stats
+                </button>
+            </nav>
+
+            <!-- =========================
+                 TAB CONTENT CONTAINER
+                 ========================= -->
+            <section id="visualization-content">
+
+                <!-- Ball Drop Visualization -->
+                <div id="ball-drop-tab" class="tab-content active">
+
+                    <div id="ball-drop-container">
+
+                        <!-- Dot spawn zone -->
+                        <div id="dot-spawn-zone"></div>
+
+                        <!-- Buckets -->
+                        <div id="bucket-container">
+
+                            <div id="bucket-team-a" class="bucket">
+                                <div class="bucket-dots"></div>
+                                <div class="bucket-label">Team A</div>
+                            </div>
+
+                            <div id="bucket-gap"></div>
+
+                            <div id="bucket-team-b" class="bucket">
+                                <div class="bucket-dots"></div>
+                                <div class="bucket-label">Team B</div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Strength Differential Distribution -->
+                <div id="distribution-tab" class="tab-content">
+                    <canvas id="strength-distribution-canvas"></canvas>
+                </div>
+
+                <!-- Team Statistics Research View (Section AF) -->
+                <div id="team-stats-tab" class="tab-content">
+                    <div id="team-stats-container">
+                        <!-- Table injected here -->
+                    </div>
+
+                    <div id="team-stats-error" hidden>
+                        Failed to load team statistics.
+                    </div>
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- =========================
+         FOOTER — METADATA
+         Section W.9
+         ========================= -->
+    <footer id="app-footer">
+        <span id="spec-version">Spec Version: —</span>
+        <span id="data-version">Data Version: —</span>
+    </footer>
+
+    <!-- =========================
+         SCRIPT LOAD ORDER
+         ========================= -->
+    
+
+</body>
+</html>
