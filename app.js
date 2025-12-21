@@ -220,6 +220,27 @@ function resetSimulation() {
     document.dispatchEvent(new CustomEvent("simulationReset"));
 }
 
+function initializeTabs() {
+    const buttons = document.querySelectorAll(".tab-button");
+    const tabs = document.querySelectorAll(".tab-content");
+
+    buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const targetId = btn.getAttribute("data-tab");
+
+            // Deactivate all tabs and buttons
+            buttons.forEach(b => b.classList.remove("active"));
+            tabs.forEach(t => t.classList.remove("active"));
+
+            // Activate selected tab
+            btn.classList.add("active");
+            const target = document.getElementById(targetId);
+            if (target) {
+                target.classList.add("active");
+            }
+        });
+    });
+}
 
 /* ============================================================
    INIT
