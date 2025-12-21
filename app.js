@@ -242,6 +242,94 @@ function initializeTabs() {
     });
 }
 
+
+/* ============================================================
+   TEAM STATS — SECTION AF (READ-ONLY)
+   ============================================================ */
+
+let teamStatsData = null;
+let teamStatsSortKey = null;
+let teamStatsSortAsc = true;
+
+async function loadTeamStats() {
+    try {
+        const res = await fetch("teams.json");
+        if (!res.ok) throw new Error("HTTP error");
+
+        const json = await res.json();
+
+        // Section AF: informational only
+        teamStatsData = json.seasons[0];
+        renderTeamStatsTable(teamStatsData.teams);
+    } catch (err) {
+        const errorEl = document.getElementById("team-stats-error");
+        if (errorEl) {
+            errorEl.hidden = false;
+        }
+    }
+}
+
+function renderTeamStatsTable(teams) {
+    const container = document.getElementById("team-stats-container");
+    container.innerHTML = "";
+
+    if (!teams || !teams.length) return;
+
+    const table = document.createElement("table");
+    table.style.width = "100%";
+    table.border = "1";
+
+    const columns = Object.keys(teams[0]);
+
+    const thead = document.createElement("thead");
+    const headRow = document.createElement("tr");
+
+    columns.forEach(col => {
+        const th = document.createElement("th");
+        th.textContent = col;
+        th.style.cursor = "pointer";
+        th.addEventListener("click", () => sortTeamStats(col));
+        headRow.appendChild(th);
+    });
+
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+
+    teams.forEach(team => {
+        const tr = document.createElement("tr");
+        columns.forEach(col => {
+            const td = document.createElement("td");
+            td.textContent = team[col];
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+    container.appendChild(table);
+}
+
+function sortTeamStats(key) {
+    if (!teamStatsData) return;
+
+    teamStatsSortAsc =
+        teamStatsSortKey === key ? !teamStatsSortAsc : true;
+
+    teamStatsSortKey = key;
+
+    const sorted = [...teamStatsData.teams].sort((a, b) => {
+        if (a[key] === b[key]) return 0;
+        return (a[key] > b[key] ? 1 : -1) * (teamStatsSortAsc ? 1 : -1);
+    });
+
+    renderTeamStatsTable(sorted);
+}
+
+
+
+
 /* ============================================================
    INIT
    ============================================================ */
