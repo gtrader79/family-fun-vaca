@@ -349,7 +349,7 @@ function spawnBall(result) {
     dot.className = "ball-dot falling";
     
     const offset = Math.floor(Math.random() * 80) - 40;
-    dot.style.left = `${offset}px`;
+    dot.style.transform = `translateX(${offset}px)`;
 
     const target =
         result.winner === "A"
@@ -358,11 +358,12 @@ function spawnBall(result) {
 
     target.appendChild(dot);
 
-    //To avoid buckets becoming infinitely tall during large runs
+    // Avoid infinite DOM growth (visual only)
     if (target.children.length > 200) {
         target.removeChild(target.firstChild);
     }
 }
+
 
 function stepBallDrop() {
     if (ballDropPaused) return;
