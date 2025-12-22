@@ -390,8 +390,28 @@ document.addEventListener("DOMContentLoaded", () => {
     loadTeamStats();
 });
 
+document.getElementById("pause-simulation-btn")
+    .addEventListener("click", () => {
+        pauseBallDrop();
+    });
+
 document.getElementById("run-simulation-btn")
-    .addEventListener("click", runSimulation);
+    .addEventListener("click", () => {
+        resumeBallDrop();
+    });
 
 document.getElementById("reset-simulation-btn")
     .addEventListener("click", resetSimulation);
+
+/* ============================================================
+   BALL DROP EVENT WIRING
+   ============================================================ */
+
+document.addEventListener("simulationComplete", () => {
+    startBallDrop();
+});
+
+document.addEventListener("simulationReset", () => {
+    stopBallDrop();
+    clearBuckets();
+});
