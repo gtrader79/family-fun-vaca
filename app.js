@@ -395,10 +395,10 @@ document.getElementById("pause-simulation-btn")
         pauseBallDrop();
     });
 
-document.getElementById("resume-simulation-btn")
+/*document.getElementById("resume-simulation-btn")
     .addEventListener("click", () => {
         resumeBallDrop();
-    });
+    });*/
 
 document.getElementById("run-simulation-btn")
     .addEventListener("click", () => {
