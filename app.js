@@ -369,6 +369,8 @@ function stepBallDrop() {
 
     if (ballDropIndex >= simulationResults.length) {
         stopBallDrop();
+        document.getElementById("visualization-header").textContent =
+        "Simulation Complete";
         return;
     }
 
