@@ -395,9 +395,14 @@ document.getElementById("pause-simulation-btn")
         pauseBallDrop();
     });
 
-document.getElementById("run-simulation-btn")
+document.getElementById("resume-simulation-btn")
     .addEventListener("click", () => {
         resumeBallDrop();
+    });
+
+document.getElementById("run-simulation-btn")
+    .addEventListener("click", () => {
+        runSimulation();
     });
 
 document.getElementById("reset-simulation-btn")
