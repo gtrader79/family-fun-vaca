@@ -312,6 +312,21 @@ function initializeTabs() {
     });
 }
 
+/* ============================================================
+   BUTTON STATE MANAGEMENT — SECTION W
+   ============================================================ */
+
+function setButtonState({ run, pause, reset }) {
+    const runBtn = document.getElementById("run-simulation-btn");
+    const pauseBtn = document.getElementById("pause-simulation-btn");
+    const resetBtn = document.getElementById("reset-simulation-btn");
+
+    if (run !== undefined) runBtn.disabled = !run;
+    if (pause !== undefined) pauseBtn.disabled = !pause;
+    if (reset !== undefined) resetBtn.disabled = !reset;
+}
+
+
 
 /* ============================================================
    BALL DROP ANIMATION — SECTION V
@@ -388,6 +403,13 @@ document.addEventListener("DOMContentLoaded", () => {
     mountControlPanel();
     initializeTabs();
     loadTeamStats();
+
+    // Initial UI state
+    setButtonState({
+        run: true,
+        pause: false,
+        reset: false
+    });
 });
 
 document.getElementById("pause-simulation-btn")
@@ -402,21 +424,42 @@ document.getElementById("pause-simulation-btn")
 
 document.getElementById("run-simulation-btn")
     .addEventListener("click", () => {
+        setButtonState({
+            run: false,
+            pause: false,
+            reset: false
+        });
+
         runSimulation();
     });
 
 document.getElementById("reset-simulation-btn")
     .addEventListener("click", resetSimulation);
 
+
 /* ============================================================
    BALL DROP EVENT WIRING
    ============================================================ */
 
 document.addEventListener("simulationComplete", () => {
+    setButtonState({
+        run: false,
+        pause: true,
+        reset: true
+    });
+
     startBallDrop();
 });
+
 
 document.addEventListener("simulationReset", () => {
     stopBallDrop();
     clearBuckets();
+
+    setButtonState({
+        run: true,
+        pause: false,
+        reset: false
+    });
 });
+
