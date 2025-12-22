@@ -132,6 +132,15 @@ body {
     height: 100%;
 }
 
+.ball-dot {
+    width: 6px;
+    height: 6px;
+    margin: 2px auto;
+    border-radius: 50%;
+    background-color: #333;
+}
+
+
 #dot-spawn-zone {
     position: absolute;
     top: 0;
