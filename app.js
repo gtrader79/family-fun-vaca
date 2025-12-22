@@ -1,10 +1,15 @@
 /* ============================================================
    NFL Monte Carlo Matchup Simulator
-   app.js — System Orchestrator (Source of Truth)
+   app.js — SINGLE SOURCE OF TRUTH
 
-   References:
-   - Master Spec Sections X, V, W, AF, AE
+   Spec References:
+   - Section X  : Simulation Execution Order
+   - Section V  : Visualization Contract
+   - Section W  : Layout & Interaction
+   - Section AF : Team Stats Research View
+   - Section AE : Determinism & Guardrails
    ============================================================ */
+
 
 /* ============================================================
    GLOBAL APPLICATION STATE
@@ -13,13 +18,14 @@
 let simulationResults = [];
 let aggregateResults = null;
 let simulationState = "idle";
+
 let rng = null;
 let activeSeed = null;
 let animationPaused = false;
 
 
 /* ============================================================
-   RNG — SEEDED, DETERMINISTIC
+   RNG — DETERMINISTIC (SECTION AB)
    ============================================================ */
 
 function createSeededRNG(seed) {
@@ -32,8 +38,7 @@ function createSeededRNG(seed) {
 
 
 /* ============================================================
-   CONTROL PANEL — DOM CREATION
-   Section W.3
+   CONTROL PANEL — DOM CREATION (SECTION W.3)
    ============================================================ */
 
 function createNumberInput(id, label, min, max) {
@@ -78,7 +83,7 @@ function mountControlPanel() {
 
 
 /* ============================================================
-   INPUT SNAPSHOT (AUTHORITATIVE)
+   INPUT SNAPSHOT — AUTHORITATIVE (SECTION X.1)
    ============================================================ */
 
 function readValue(id) {
@@ -118,48 +123,36 @@ function captureInputSnapshot() {
 
 
 /* ============================================================
-   SIMULATION CORE (UNCHANGED)
+   SIMULATION CORE — SECTION X
    ============================================================ */
 
 function normalizeRank(rank) {
     return (16.5 - rank) / 15.5;
 }
 
-function runSingleSimulation(inputSnapshot, runIndex) {
-    const A = inputSnapshot.teamA;
-    const B = inputSnapshot.teamB;
+function runSingleSimulation(input, runIndex) {
+    const A = input.teamA.ranks;
+    const B = input.teamB.ranks;
 
-    const A_base = {
-        rushOff: normalizeRank(A.ranks.rushOffense),
-        passOff: normalizeRank(A.ranks.passOffense),
-        rushDef: normalizeRank(A.ranks.rushDefense),
-        passDef: normalizeRank(A.ranks.passDefense)
-    };
+    const A_off =
+        normalizeRank(A.rushOffense) - normalizeRank(B.rushDefense) +
+        normalizeRank(A.passOffense) - normalizeRank(B.passDefense);
 
-    const B_base = {
-        rushOff: normalizeRank(B.ranks.rushOffense),
-        passOff: normalizeRank(B.ranks.passOffense),
-        rushDef: normalizeRank(B.ranks.rushDefense),
-        passDef: normalizeRank(B.ranks.passDefense)
-    };
+    const B_off =
+        normalizeRank(B.rushOffense) - normalizeRank(A.rushDefense) +
+        normalizeRank(B.passOffense) - normalizeRank(A.passDefense);
 
-    const A_offense = (A_base.rushOff - B_base.rushDef) +
-                      (A_base.passOff - B_base.passDef);
+    const baseVar = input.global.baselineVariance;
+    const varMin = input.global.varianceBounds.min;
+    const varMax = input.global.varianceBounds.max;
 
-    const B_offense = (B_base.rushOff - A_base.rushDef) +
-                      (B_base.passOff - A_base.passDef);
+    const variance = Math.min(Math.max(baseVar, varMin), varMax);
 
-    const baseVar = inputSnapshot.global.baselineVariance;
-    const varMin = inputSnapshot.global.varianceBounds.min;
-    const varMax = inputSnapshot.global.varianceBounds.max;
+    const A_realized = A_off + (rng() * 2 - 1) * variance;
+    const B_realized = B_off + (rng() * 2 - 1) * variance;
 
-    const A_noise = (rng() * 2 - 1) * Math.min(Math.max(baseVar, varMin), varMax);
-    const B_noise = (rng() * 2 - 1) * Math.min(Math.max(baseVar, varMin), varMax);
-
-    const A_realized = A_offense + A_noise;
-    const B_realized = B_offense + B_noise;
-
-    let winner = A_realized >= B_realized ? "A" : "B";
+    let winner = "A";
+    if (A_realized < B_realized) winner = "B";
     if (A_realized === B_realized) winner = rng() < 0.5 ? "A" : "B";
 
     return {
@@ -188,11 +181,13 @@ function runSimulation() {
 
     finalizeAggregates();
     simulationState = "complete";
+
     document.dispatchEvent(new CustomEvent("simulationComplete"));
 }
 
 function finalizeAggregates() {
-    let A = 0, B = 0, diffs = [];
+    let A = 0, B = 0;
+    const diffs = [];
 
     simulationResults.forEach(r => {
         r.winner === "A" ? A++ : B++;
@@ -217,29 +212,8 @@ function resetSimulation() {
     rng = null;
     activeSeed = null;
     animationPaused = false;
+
     document.dispatchEvent(new CustomEvent("simulationReset"));
-}
-
-function initializeTabs() {
-    const buttons = document.querySelectorAll(".tab-button");
-    const tabs = document.querySelectorAll(".tab-content");
-
-    buttons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const targetId = btn.getAttribute("data-tab");
-
-            // Deactivate all tabs and buttons
-            buttons.forEach(b => b.classList.remove("active"));
-            tabs.forEach(t => t.classList.remove("active"));
-
-            // Activate selected tab
-            btn.classList.add("active");
-            const target = document.getElementById(targetId);
-            if (target) {
-                target.classList.add("active");
-            }
-        });
-    });
 }
 
 
@@ -254,26 +228,19 @@ let teamStatsSortAsc = true;
 async function loadTeamStats() {
     try {
         const res = await fetch("teams.json");
-        if (!res.ok) throw new Error("HTTP error");
+        if (!res.ok) throw new Error("HTTP");
 
         const json = await res.json();
-
-        // Section AF: informational only
         teamStatsData = json.seasons[0];
         renderTeamStatsTable(teamStatsData.teams);
-    } catch (err) {
-        const errorEl = document.getElementById("team-stats-error");
-        if (errorEl) {
-            errorEl.hidden = false;
-        }
+    } catch {
+        document.getElementById("team-stats-error").hidden = false;
     }
 }
 
 function renderTeamStatsTable(teams) {
     const container = document.getElementById("team-stats-container");
     container.innerHTML = "";
-
-    if (!teams || !teams.length) return;
 
     const table = document.createElement("table");
     table.style.width = "100%";
@@ -282,29 +249,28 @@ function renderTeamStatsTable(teams) {
     const columns = Object.keys(teams[0]);
 
     const thead = document.createElement("thead");
-    const headRow = document.createElement("tr");
+    const tr = document.createElement("tr");
 
     columns.forEach(col => {
         const th = document.createElement("th");
         th.textContent = col;
         th.style.cursor = "pointer";
-        th.addEventListener("click", () => sortTeamStats(col));
-        headRow.appendChild(th);
+        th.onclick = () => sortTeamStats(col);
+        tr.appendChild(th);
     });
 
-    thead.appendChild(headRow);
+    thead.appendChild(tr);
     table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
-
-    teams.forEach(team => {
-        const tr = document.createElement("tr");
-        columns.forEach(col => {
+    teams.forEach(t => {
+        const row = document.createElement("tr");
+        columns.forEach(c => {
             const td = document.createElement("td");
-            td.textContent = team[col];
-            tr.appendChild(td);
+            td.textContent = t[c];
+            row.appendChild(td);
         });
-        tbody.appendChild(tr);
+        tbody.appendChild(row);
     });
 
     table.appendChild(tbody);
@@ -312,21 +278,105 @@ function renderTeamStatsTable(teams) {
 }
 
 function sortTeamStats(key) {
-    if (!teamStatsData) return;
-
     teamStatsSortAsc =
         teamStatsSortKey === key ? !teamStatsSortAsc : true;
 
     teamStatsSortKey = key;
 
-    const sorted = [...teamStatsData.teams].sort((a, b) => {
-        if (a[key] === b[key]) return 0;
-        return (a[key] > b[key] ? 1 : -1) * (teamStatsSortAsc ? 1 : -1);
-    });
+    const sorted = [...teamStatsData.teams].sort((a, b) =>
+        (a[key] > b[key] ? 1 : -1) * (teamStatsSortAsc ? 1 : -1)
+    );
 
     renderTeamStatsTable(sorted);
 }
 
+
+/* ============================================================
+   TAB SWITCHING — SECTION W.4
+   ============================================================ */
+
+function initializeTabs() {
+    const buttons = document.querySelectorAll(".tab-button");
+    const tabs = document.querySelectorAll(".tab-content");
+
+    buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const target = btn.dataset.tab;
+
+            buttons.forEach(b => b.classList.remove("active"));
+            tabs.forEach(t => t.classList.remove("active"));
+
+            btn.classList.add("active");
+            document.getElementById(target).classList.add("active");
+        });
+    });
+}
+
+
+/* ============================================================
+   BALL DROP ANIMATION — SECTION V
+   ============================================================ */
+
+let ballDropIndex = 0;
+let ballDropTimer = null;
+let ballDropPaused = false;
+
+const BALL_DROP_INTERVAL_MS = 15;
+
+function clearBuckets() {
+    document.querySelectorAll(".bucket-dots").forEach(el => {
+        el.innerHTML = "";
+    });
+}
+
+function spawnBall(result) {
+    const dot = document.createElement("div");
+    dot.className = "ball-dot";
+
+    const target =
+        result.winner === "A"
+            ? document.querySelector("#bucket-team-a .bucket-dots")
+            : document.querySelector("#bucket-team-b .bucket-dots");
+
+    target.appendChild(dot);
+}
+
+function stepBallDrop() {
+    if (ballDropPaused) return;
+
+    if (ballDropIndex >= simulationResults.length) {
+        stopBallDrop();
+        return;
+    }
+
+    spawnBall(simulationResults[ballDropIndex]);
+    ballDropIndex++;
+}
+
+function startBallDrop() {
+    stopBallDrop();
+    clearBuckets();
+
+    ballDropIndex = 0;
+    ballDropPaused = false;
+
+    ballDropTimer = setInterval(stepBallDrop, BALL_DROP_INTERVAL_MS);
+}
+
+function stopBallDrop() {
+    if (ballDropTimer) {
+        clearInterval(ballDropTimer);
+        ballDropTimer = null;
+    }
+}
+
+function pauseBallDrop() {
+    ballDropPaused = true;
+}
+
+function resumeBallDrop() {
+    ballDropPaused = false;
+}
 
 
 
