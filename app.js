@@ -336,7 +336,7 @@ let ballDropIndex = 0;
 let ballDropTimer = null;
 let ballDropPaused = false;
 
-const BALL_DROP_INTERVAL_MS = 15;
+const BALL_DROP_INTERVAL_MS = 12; // lower = faster
 
 function clearBuckets() {
     document.querySelectorAll(".bucket-dots").forEach(el => {
@@ -346,7 +346,10 @@ function clearBuckets() {
 
 function spawnBall(result) {
     const dot = document.createElement("div");
-    dot.className = "ball-dot";
+    dot.className = "ball-dot falling";
+    
+    const offset = Math.floor(Math.random() * 80) - 40;
+    dot.style.left = `${offset}px`;
 
     const target =
         result.winner === "A"
@@ -354,6 +357,11 @@ function spawnBall(result) {
             : document.querySelector("#bucket-team-b .bucket-dots");
 
     target.appendChild(dot);
+
+    //To avoid buckets becoming infinitely tall during large runs
+    if (target.children.length > 200) {
+        target.removeChild(target.firstChild);
+    }
 }
 
 function stepBallDrop() {
