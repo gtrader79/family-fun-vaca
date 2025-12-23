@@ -347,9 +347,9 @@ function clearBuckets() {
 function spawnBall(result) {
     const dot = document.createElement("div");
     dot.className = "ball-dot falling";
-    
+
     const offset = Math.floor(Math.random() * 80) - 40;
-    dot.style.transform = `translateX(${offset}px)`;
+    dot.style.setProperty("--x-offset", `${offset}px`);
 
     const target =
         result.winner === "A"
@@ -358,11 +358,12 @@ function spawnBall(result) {
 
     target.appendChild(dot);
 
-    // Avoid infinite DOM growth (visual only)
+    // Prevent unbounded DOM growth (visual-only safeguard)
     if (target.children.length > 200) {
         target.removeChild(target.firstChild);
     }
 }
+
 
 
 function stepBallDrop() {
