@@ -133,6 +133,7 @@ body {
 }
 
 .ball-dot {
+    --x-offset: 0px;
     width: 6px;
     height: 6px;
     margin: 2px 0;
@@ -147,11 +148,11 @@ body {
 
 @keyframes fall {
     from {
-        transform: translateY(-24px);
+        transform: translate(var(--x-offset), -24px);
         opacity: 0;
     }
     to {
-        transform: translateY(0);
+        transform: translate(var(--x-offset), 0);
         opacity: 0.9;
     }
 }
