@@ -353,19 +353,26 @@ function spawnBall(result) {
             ? document.querySelector("#bucket-team-a .bucket-dots")
             : document.querySelector("#bucket-team-b .bucket-dots");
 
+    const BALL_SIZE = 8; // must match CSS
+    const pileHeight = target.children.length * BALL_SIZE;
+
+    // Horizontal spread (bucket-relative)
     const bucketWidth = target.clientWidth;
-    const maxOffset = bucketWidth * 0.70;  // 70% of bucket width
+    const maxOffset = bucketWidth * 0.35;
     const offset = Math.floor(Math.random() * maxOffset * 2 - maxOffset);
 
+    dot.style.left = "50%";
+    dot.style.bottom = `${pileHeight}px`;
     dot.style.setProperty("--x-offset", `${offset}px`);
 
     target.appendChild(dot);
 
-    // Visual-only DOM cap
-    if (target.children.length > 200) {
+    // Visual-only cap to prevent DOM overload
+    if (target.children.length > 250) {
         target.removeChild(target.firstChild);
     }
 }
+
 
 
 
