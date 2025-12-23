@@ -152,7 +152,7 @@ body {
         opacity: 0;
     }
     to {
-        transform: translate(var(--x-offset), 0);
+        transform: translate(var(--x-offset), 6px);
         opacity: 0.9;
     }
 }
