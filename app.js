@@ -21,7 +21,7 @@ let simulationState = "idle";
 
 let rng = null;
 let activeSeed = null;
-let animationPaused = false;
+let animationPaused = false; 
 
 
 /* ============================================================
