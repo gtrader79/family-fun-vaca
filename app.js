@@ -354,7 +354,7 @@ function spawnBall(result) {
             : document.querySelector("#bucket-team-b .bucket-dots");
 
     const BALL_SIZE = 8; // must match CSS (visual diameter)
-    const STACK_DENSITY = 0.65;   // <— tweakable (0.6–0.8 sweet spot)
+    const STACK_DENSITY = 0.35;   // <— tweakable (0.6–0.8 sweet spot)
 
     const pileHeight =
         Math.floor(target.children.length * BALL_SIZE * STACK_DENSITY);
