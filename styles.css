@@ -133,14 +133,19 @@ body {
 }
 
 .ball-dot {
-    --x-offset: 0px;
-    width: 6px;
-    height: 6px;
-    margin: 2px 0;
+    position: absolute;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    background-color: #333;
-    opacity: 0.9;
+    background-color: #444;
+    opacity: 0.95;
+
+    /* These are controlled by JS */
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
 }
+
 
 .falling {
     animation: fall 280ms ease-out forwards;
@@ -148,14 +153,15 @@ body {
 
 @keyframes fall {
     from {
-        transform: translate(var(--x-offset), -24px);
+        transform: translate(var(--x-offset), -40px);
         opacity: 0;
     }
     to {
-        transform: translate(var(--x-offset), 6px);
-        opacity: 0.9;
+        transform: translate(var(--x-offset), 0);
+        opacity: 0.95;
     }
 }
+
 
 
 #dot-spawn-zone {
@@ -206,11 +212,10 @@ body {
 }
 
 .bucket-dots {
+    position: relative;
     width: 100%;
-    display: flex;
-    flex-direction: column-reverse;
-    align-items: center;
-    padding-bottom: 6px;
+    height: 100%;
+    overflow: hidden;
 }
 
 
