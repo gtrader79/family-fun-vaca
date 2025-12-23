@@ -21,7 +21,7 @@ let simulationState = "idle";
 
 let rng = null;
 let activeSeed = null;
-let animationPaused = false; 
+let animationPaused = false;
 
 
 /* ============================================================
@@ -348,21 +348,25 @@ function spawnBall(result) {
     const dot = document.createElement("div");
     dot.className = "ball-dot falling";
 
-    const offset = Math.floor(Math.random() * 80) - 40;
-    dot.style.setProperty("--x-offset", `${offset}px`);
-
     const target =
         result.winner === "A"
             ? document.querySelector("#bucket-team-a .bucket-dots")
             : document.querySelector("#bucket-team-b .bucket-dots");
 
+    const bucketWidth = target.clientWidth;
+    const maxOffset = bucketWidth * 0.70;  // 70% of bucket width
+    const offset = Math.floor(Math.random() * maxOffset * 2 - maxOffset);
+
+    dot.style.setProperty("--x-offset", `${offset}px`);
+
     target.appendChild(dot);
 
-    // Prevent unbounded DOM growth (visual-only safeguard)
+    // Visual-only DOM cap
     if (target.children.length > 200) {
         target.removeChild(target.firstChild);
     }
 }
+
 
 
 
