@@ -353,8 +353,11 @@ function spawnBall(result) {
             ? document.querySelector("#bucket-team-a .bucket-dots")
             : document.querySelector("#bucket-team-b .bucket-dots");
 
-    const BALL_SIZE = 8; // must match CSS
-    const pileHeight = target.children.length * BALL_SIZE;
+    const BALL_SIZE = 8; // must match CSS (visual diameter)
+    const STACK_DENSITY = 0.65;   // <— tweakable (0.6–0.8 sweet spot)
+
+    const pileHeight =
+        Math.floor(target.children.length * BALL_SIZE * STACK_DENSITY);
 
     // Horizontal spread (bucket-relative)
     const bucketWidth = target.clientWidth;
@@ -368,9 +371,9 @@ function spawnBall(result) {
     target.appendChild(dot);
 
     // Visual-only cap to prevent DOM overload
-    if (target.children.length > 250) {
-        target.removeChild(target.firstChild);
-    }
+    //if (target.children.length > 250) {
+        //target.removeChild(target.firstChild);
+    //}
 }
 
 
