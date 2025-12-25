@@ -339,8 +339,6 @@ function setButtonState({ run, pause, reset }) {
 /* ============================================================
    BALL DROP ANIMATION — SECTION V
    ============================================================ */
-
-let ballDropIndex = 0;
 let ballDropTimer = null;
 let ballDropPaused = false;
 
