@@ -134,12 +134,27 @@ body {
 
 .ball-dot {
     position: absolute;
-    width: 8px;
-    height: 8px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
-    background-color: #444;
-    opacity: 0.95;
+    
+    /* 3D lighting illusion */
+    background: radial-gradient(
+        circle at 30% 30%,
+        #ffffff 0%,
+        #dcdcdc 25%,
+        #8a8a8a 60%,
+        #555555 100%
+    );
 
+    box-shadow:
+        inset -1px -1px 2px rgba(0,0,0,0.25),
+        0 1px 2px rgba(0,0,0,0.35);
+
+    opacity: 0.98;
+    pointer-events: none;
+
+    
     /* These are controlled by JS */
     left: 50%;
     bottom: 0;
@@ -162,6 +177,14 @@ body {
     }
 }
 
+
+#bucket-team-a .ball-dot {
+    filter: hue-rotate(-10deg);
+}
+
+#bucket-team-b .ball-dot {
+    filter: hue-rotate(10deg);
+}
 
 
 #dot-spawn-zone {
