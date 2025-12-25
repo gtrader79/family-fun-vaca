@@ -424,7 +424,7 @@ function stepBallDrop() {
     spawnBall(simulationResults[ballDropIndex]);
     ballDropIndex++;
 
-    setTimeout(stepBallDrop, ballDropInterval);
+    setTimeout(stepBallDrop, BALL_DROP_INTERVAL_MS);
     
 }
 
