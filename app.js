@@ -23,6 +23,13 @@ let rng = null;
 let activeSeed = null;
 let animationPaused = false;
 
+/* ============================================================
+   BALL DROP LIFECYCLE STATE — SECTION V
+   ============================================================ */
+
+let activeFallingBalls = 0;
+let ballDropInProgress = false;
+
 
 /* ============================================================
    RNG — DETERMINISTIC (SECTION AB)
@@ -348,6 +355,20 @@ function spawnBall(result) {
     const dot = document.createElement("div");
     dot.className = "ball-dot falling";
 
+    activeFallingBalls++;
+
+    dot.addEventListener("animationend", () => {
+        activeFallingBalls--;
+
+        // If this was the last ball, finalize lifecycle
+        if (ballDropInProgress &&
+            ballDropIndex >= simulationResults.length &&
+            activeFallingBalls === 0) {
+
+            finalizeBallDrop();
+        }
+    });
+    
     const target =
         result.winner === "A"
             ? document.querySelector("#bucket-team-a .bucket-dots")
@@ -381,7 +402,7 @@ function spawnBall(result) {
 
 
 function stepBallDrop() {
-    if (ballDropPaused) return;
+    /*if (ballDropPaused) return;
 
     if (ballDropIndex >= simulationResults.length) {
         stopBallDrop();
@@ -391,10 +412,26 @@ function stepBallDrop() {
     }
 
     spawnBall(simulationResults[ballDropIndex]);
+    ballDropIndex++;*/
+
+    if (ballDropIndex >= simulationResults.length) {
+        return; // Let animationend handlers finalize
+    }
+
+    spawnBall(simulationResults[ballDropIndex]);
     ballDropIndex++;
+
+    setTimeout(scheduleNextBall, ballDropInterval);
+    
 }
 
 function startBallDrop() {
+    if (!simulationResults || simulationResults.length === 0) return;
+
+    ballDropInProgress = true;
+    activeFallingBalls = 0;
+    
+    
     stopBallDrop();
     clearBuckets();
 
@@ -419,7 +456,17 @@ function resumeBallDrop() {
     ballDropPaused = false;
 }
 
+function finalizeBallDrop() {
+    ballDropInProgress = false;
 
+    // UI state cleanup
+    document.getElementById("run-simulation-btn").disabled = false;
+    document.getElementById("pause-simulation-btn").disabled = true;
+    document.getElementById("reset-simulation-btn").disabled = false;
+
+    document.getElementById("visualization-header").textContent =
+        "Simulation Complete";
+}
 
 /* ============================================================
    INIT
