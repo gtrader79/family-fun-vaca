@@ -339,6 +339,7 @@ function setButtonState({ run, pause, reset }) {
 /* ============================================================
    BALL DROP ANIMATION — SECTION V
    ============================================================ */
+
 let ballDropTimer = null;
 let ballDropPaused = false;
 
@@ -373,15 +374,15 @@ function spawnBall(result) {
             ? document.querySelector("#bucket-team-a .bucket-dots")
             : document.querySelector("#bucket-team-b .bucket-dots");
 
-    const BALL_SIZE = 8; // must match CSS (visual diameter)
-    const STACK_DENSITY = 0.05;   // <— tweakable (0.6–0.8 sweet spot)
+    const BALL_SIZE = 9; // must match CSS (visual diameter)
+    const STACK_DENSITY = 0.03;   // <— tweakable (0.6–0.8 sweet spot)
 
     const pileHeight =
         Math.floor(target.children.length * BALL_SIZE * STACK_DENSITY);
 
     // Horizontal spread (bucket-relative)
     const bucketWidth = target.clientWidth;
-    const maxOffset = bucketWidth * 0.35;
+    const maxOffset = bucketWidth * 0.30;  //.35
     const offset = Math.floor(Math.random() * maxOffset * 2 - maxOffset);
 
     dot.style.left = "50%";
@@ -400,24 +401,12 @@ function spawnBall(result) {
 
 
 
-function stepBallDrop() {
-    /*if (ballDropPaused) return;
-
-    if (ballDropIndex >= simulationResults.length) {
-        stopBallDrop();
-        document.getElementById("visualization-header").textContent =
-        "Simulation Complete";
-        return;
-    }
-
-    spawnBall(simulationResults[ballDropIndex]);
-    ballDropIndex++;*/
-
+function stepBallDrop() {    
     if (!ballDropInProgress) return;
     
     if (ballDropIndex >= simulationResults.length) {
-        document.getElementById("visualization-header").textContent =
-        "Simulation Complete";
+        //document.getElementById("visualization-header").textContent =
+        //"Simulation Complete";
         return; // Let animationend handlers finalize
     }
 
@@ -464,7 +453,7 @@ function finalizeBallDrop() {
     ballDropInProgress = false;
 
     // UI state cleanup
-    document.getElementById("run-simulation-btn").disabled = false;
+    document.getElementById("run-simulation-btn").disabled = true;
     document.getElementById("pause-simulation-btn").disabled = true;
     document.getElementById("reset-simulation-btn").disabled = false;
 
