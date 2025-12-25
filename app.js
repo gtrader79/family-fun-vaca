@@ -29,6 +29,7 @@ let animationPaused = false;
 
 let activeFallingBalls = 0;
 let ballDropInProgress = false;
+let ballDropIndex = 0;
 
 
 /* ============================================================
@@ -414,31 +415,36 @@ function stepBallDrop() {
     spawnBall(simulationResults[ballDropIndex]);
     ballDropIndex++;*/
 
+    if (!ballDropInProgress) return;
+    
     if (ballDropIndex >= simulationResults.length) {
+        document.getElementById("visualization-header").textContent =
+        "Simulation Complete";
         return; // Let animationend handlers finalize
     }
 
     spawnBall(simulationResults[ballDropIndex]);
     ballDropIndex++;
 
-    setTimeout(scheduleNextBall, ballDropInterval);
+    setTimeout(stepBallDrop, ballDropInterval);
     
 }
 
 function startBallDrop() {
     if (!simulationResults || simulationResults.length === 0) return;
+        
+    stopBallDrop();
+    clearBuckets();
 
     ballDropInProgress = true;
     activeFallingBalls = 0;
     
-    
-    stopBallDrop();
-    clearBuckets();
-
     ballDropIndex = 0;
     ballDropPaused = false;
-
+    
     ballDropTimer = setInterval(stepBallDrop, BALL_DROP_INTERVAL_MS);
+
+    stepBallDrop();
 }
 
 function stopBallDrop() {
