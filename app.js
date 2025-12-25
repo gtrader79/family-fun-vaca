@@ -375,14 +375,14 @@ function spawnBall(result) {
             : document.querySelector("#bucket-team-b .bucket-dots");
 
     const BALL_SIZE = 9; // must match CSS (visual diameter)
-    const STACK_DENSITY = 0.03;   // <— tweakable (0.6–0.8 sweet spot)
+    const STACK_DENSITY = 0.01;   // <— tweakable (0.6–0.8 sweet spot)
 
     const pileHeight =
         Math.floor(target.children.length * BALL_SIZE * STACK_DENSITY);
 
     // Horizontal spread (bucket-relative)
     const bucketWidth = target.clientWidth;
-    const maxOffset = bucketWidth * 0.30;  //.35
+    const maxOffset = bucketWidth * 0.43;  //.35
     const offset = Math.floor(Math.random() * maxOffset * 2 - maxOffset);
 
     dot.style.left = "50%";
