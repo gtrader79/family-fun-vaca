@@ -181,11 +181,9 @@ function renderDistributionChart(simulationResults) {
         .map(d => d.differential);
 
     
-
-    // X-axis values = bin midpoints
-    const binMidpoints = bins.map(b => (b.x0 + b.x1) / 2);
     
     // KDE computation
+        // X-axis values = bin midpoints    
         const binMidpoints = bins.map(b => (b.x0 + b.x1) / 2);
 
         // Bandwidths (computed independently)
