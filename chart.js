@@ -105,6 +105,29 @@ function findBinIndexForValue(bins, value) {
     return bins.findIndex(b => b.x0 <= value && b.x1 >= value);
 }
 
+function gaussianKernel(u) {
+    return (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * u * u);
+}
+
+function computeBandwidth(values) {
+    // Silverman's rule of thumb
+    const mean = computeMean(values);
+    const variance =
+        computeMean(values.map(v => (v - mean) ** 2));
+    const stdDev = Math.sqrt(variance);
+
+    return 1.06 * stdDev * Math.pow(values.length, -1 / 5);
+}
+
+function computeKDE(xValues, sampleValues, bandwidth) {
+    return xValues.map(x => {
+        let sum = 0;
+        for (const v of sampleValues) {
+            sum += gaussianKernel((x - v) / bandwidth);
+        }
+        return sum / (sampleValues.length * bandwidth);
+    });
+}
 
 
 function renderDistributionChart(simulationResults) {
@@ -149,6 +172,26 @@ function renderDistributionChart(simulationResults) {
 
     const maxCount = Math.max(...counts);
 
+    // X-axis values = bin midpoints
+    const binMidpoints = bins.map(b => (b.x0 + b.x1) / 2);
+    
+    // KDE computation
+    const bandwidth = computeBandwidth(differentials);
+    const kdeDensity = computeKDE(
+        binMidpoints,
+        differentials,
+        bandwidth
+    );
+    
+    // Scale KDE to histogram height
+    const maxKDE = Math.max(...kdeDensity);
+    const maxHist = Math.max(...counts);
+    
+    const scaledKDE = kdeDensity.map(
+        d => (d / maxKDE) * maxHist
+    );
+    
+
     if (distributionChart) {
         distributionChart.destroy();
     }
@@ -175,6 +218,16 @@ function renderDistributionChart(simulationResults) {
                     pointRadius: 0,
                     fill: false,
                     tension: 0
+                }, 
+                {
+                    label: "Smoothed Distribution (KDE)",
+                    data: scaledKDE,
+                    type: "line",
+                    borderColor: "rgba(120, 120, 120, 0.85)",
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0.35
                 }
             ]
 
@@ -275,8 +328,8 @@ function renderDistributionSummary(mean, median) {
     el.innerHTML = `
         <strong>Interpretation</strong><br/>
         ${favored} is favored on average based on simulated strength differentials.<br/>
-        Mean differential: <strong>${mean.toFixed(2)}</strong><br/>
-        Median differential: <strong>${median.toFixed(2)}</strong><br/>
+        Mean differential: <strong>${mean.toFixed(3)}</strong><br/>
+        Median differential: <strong>${median.toFixed(3)}</strong><br/>
         ${skew}
     `;
 }
