@@ -11,7 +11,7 @@
    INTERNAL STATE (VISUAL ONLY)
    ============================================================ */
 
-let strengthDistributionChart = null;
+let distributionChart = null;
 
 
 /* ============================================================
@@ -66,22 +66,21 @@ function buildHistogram(data, binCount = 30) {
 }
 
 
-let distributionChart = null;
-
 function renderDistributionChart(simulationResults) {
-    const ctx = document
-        .getElementById("strength-distribution-canvas")
-        .getContext("2d");
+    if (!Array.isArray(simulationResults) || simulationResults.length === 0) {
+        console.warn("Distribution chart skipped: no simulation data");
+        return;
+    }
+
+    const canvas = document.getElementById("strength-distribution-canvas");
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
 
     const bins = buildHistogram(simulationResults);
 
-    const labels = bins.map(
-        b => b.x0.toFixed(2)
-    );
-
-    const counts = bins.map(
-        b => b.count
-    );
+    const labels = bins.map(b => b.x0.toFixed(2));
+    const counts = bins.map(b => b.count);
 
     if (distributionChart) {
         distributionChart.destroy();
@@ -122,13 +121,14 @@ function renderDistributionChart(simulationResults) {
 
 
 
+
 /* ============================================================
    CLEANUP
    ============================================================ */
 
 function destroyCharts() {
-    if (strengthDistributionChart) {
-        strengthDistributionChart.destroy();
-        strengthDistributionChart = null;
+    if (distributionChart) {
+        distributionChart.destroy();
+        distributionChart = null;
     }
 }
