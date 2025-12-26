@@ -212,8 +212,7 @@ function renderDistributionChart(simulationResults) {
         const scaledKDE = kdeDensity.map(
             d => (d / maxKDE) * maxHist
         );
-
-        const maxHist = Math.max(...counts);
+        
         const maxKDEA = Math.max(...kdeA);
         const maxKDEB = Math.max(...kdeB);
         
