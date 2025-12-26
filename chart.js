@@ -40,93 +40,86 @@ document.addEventListener("simulationReset", () => {
    Section 6.3.4 / Section V
    ============================================================ */
 
-/**
- * Renders histogram of (Team A − Team B) realized strength.
- * Reads from app.js aggregate outputs only.
- */
-function renderStrengthDistribution() {
-    if (
-        typeof aggregateResults === "undefined" ||
-        !aggregateResults ||
-        !Array.isArray(aggregateResults.differentials)
-    ) {
-        return;
-    }
+function buildHistogram(data, binCount = 30) {
+    const values = data.map(d => d.differential);
 
-    const canvas = document.getElementById("strength-distribution-canvas");
-    if (!canvas) return;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
 
-    const ctx = canvas.getContext("2d");
+    const binSize = (max - min) / binCount;
 
-    // Destroy prior instance if present
-    if (strengthDistributionChart) {
-        strengthDistributionChart.destroy();
-        strengthDistributionChart = null;
-    }
+    const bins = Array.from({ length: binCount }, (_, i) => ({
+        x0: min + i * binSize,
+        x1: min + (i + 1) * binSize,
+        count: 0
+    }));
 
-    const data = aggregateResults.differentials;
-
-    // Histogram binning (pure visualization concern)
-    const BIN_COUNT = 30;
-    const min = Math.min(...data);
-    const max = Math.max(...data);
-    const binWidth = (max - min) / BIN_COUNT || 1;
-
-    const bins = new Array(BIN_COUNT).fill(0);
-
-    data.forEach(value => {
-        const index = Math.min(
-            BIN_COUNT - 1,
-            Math.floor((value - min) / binWidth)
+    values.forEach(v => {
+        const idx = Math.min(
+            Math.floor((v - min) / binSize),
+            binCount - 1
         );
-        bins[index]++;
+        bins[idx].count++;
     });
 
-    const labels = bins.map((_, i) => {
-        const start = min + i * binWidth;
-        const end = start + binWidth;
-        return `${start.toFixed(2)} to ${end.toFixed(2)}`;
-    });
+    return bins;
+}
 
-    strengthDistributionChart = new Chart(ctx, {
+
+let distributionChart = null;
+
+function renderDistributionChart(simulationResults) {
+    const ctx = document
+        .getElementById("strength-distribution-canvas")
+        .getContext("2d");
+
+    const bins = buildHistogram(simulationResults);
+
+    const labels = bins.map(
+        b => b.x0.toFixed(2)
+    );
+
+    const counts = bins.map(
+        b => b.count
+    );
+
+    if (distributionChart) {
+        distributionChart.destroy();
+    }
+
+    distributionChart = new Chart(ctx, {
         type: "bar",
         data: {
             labels,
             datasets: [{
-                label: "Strength Differential (Team A − Team B)",
-                data: bins
+                label: "Strength Differential Distribution",
+                data: counts,
+                borderWidth: 1
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
-            animation: false, // Section V.7 — no animated interpolation
+            animation: false,
             scales: {
                 x: {
                     title: {
                         display: true,
-                        text: "Strength Differential"
+                        text: "Strength Differential (Team A − Team B)"
                     }
                 },
                 y: {
                     title: {
                         display: true,
-                        text: "Run Count"
+                        text: "Frequency"
                     },
                     beginAtZero: true
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    enabled: true
                 }
             }
         }
     });
 }
+
+
 
 
 /* ============================================================
