@@ -23,7 +23,7 @@ let strengthDistributionChart = null;
  * Section V.3 / AE.3.3
  */
 document.addEventListener("simulationComplete", () => {
-    renderStrengthDistribution();
+    renderDistributionChart();
 });
 
 /**
