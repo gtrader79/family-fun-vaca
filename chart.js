@@ -172,24 +172,60 @@ function renderDistributionChart(simulationResults) {
 
     const maxCount = Math.max(...counts);
 
+    const teamAValues = simulationResults
+        .filter(d => d.winner === "A")
+        .map(d => d.differential);
+    
+    const teamBValues = simulationResults
+        .filter(d => d.winner === "B")
+        .map(d => d.differential);
+
+    
+
     // X-axis values = bin midpoints
     const binMidpoints = bins.map(b => (b.x0 + b.x1) / 2);
     
     // KDE computation
-    const bandwidth = computeBandwidth(differentials);
-    const kdeDensity = computeKDE(
-        binMidpoints,
-        differentials,
-        bandwidth
-    );
+        const binMidpoints = bins.map(b => (b.x0 + b.x1) / 2);
+
+        // Bandwidths (computed independently)
+        const bandwidthA = teamAValues.length > 1
+            ? computeBandwidth(teamAValues)
+            : null;
+        
+        const bandwidthB = teamBValues.length > 1
+            ? computeBandwidth(teamBValues)
+            : null;
+        
+        // KDEs
+        const kdeA = bandwidthA
+            ? computeKDE(binMidpoints, teamAValues, bandwidthA)
+            : binMidpoints.map(() => 0);
+        
+        const kdeB = bandwidthB
+            ? computeKDE(binMidpoints, teamBValues, bandwidthB)
+            : binMidpoints.map(() => 0);
+
     
     // Scale KDE to histogram height
-    const maxKDE = Math.max(...kdeDensity);
-    const maxHist = Math.max(...counts);
-    
-    const scaledKDE = kdeDensity.map(
-        d => (d / maxKDE) * maxHist
-    );
+        const maxKDE = Math.max(...kdeDensity);
+        const maxHist = Math.max(...counts);
+        
+        const scaledKDE = kdeDensity.map(
+            d => (d / maxKDE) * maxHist
+        );
+
+        const maxHist = Math.max(...counts);
+        const maxKDEA = Math.max(...kdeA);
+        const maxKDEB = Math.max(...kdeB);
+        
+        const scaledKDEA = maxKDEA > 0
+            ? kdeA.map(v => (v / maxKDEA) * maxHist)
+            : kdeA;
+        
+        const scaledKDEB = maxKDEB > 0
+            ? kdeB.map(v => (v / maxKDEB) * maxHist)
+            : kdeB;
     
 
     if (distributionChart) {
@@ -220,13 +256,21 @@ function renderDistributionChart(simulationResults) {
                     tension: 0
                 }, 
                 {
-                    label: "Smoothed Distribution (KDE)",
-                    data: scaledKDE,
+                    label: "Team A Win Density",
+                    data: scaledKDEA,
                     type: "line",
-                    borderColor: "rgba(120, 120, 120, 0.85)",
+                    borderColor: "rgba(60, 120, 220, 0.85)",
                     borderWidth: 2,
                     pointRadius: 0,
-                    fill: false,
+                    tension: 0.35
+                },
+                {
+                    label: "Team B Win Density",
+                    data: scaledKDEB,
+                    type: "line",
+                    borderColor: "rgba(220, 90, 90, 0.85)",
+                    borderWidth: 2,
+                    pointRadius: 0,
                     tension: 0.35
                 }
             ]
@@ -325,12 +369,18 @@ function renderDistributionSummary(mean, median) {
             ? "Results are symmetric, indicating a balanced matchup."
             : "Results are skewed, suggesting asymmetrical win paths.";
 
+    const dominance =
+    teamAValues.length > teamBValues.length
+        ? "Team A wins more frequently, but the shape of each curve shows how decisive those wins tend to be."
+        : "Team B wins more frequently, though the density curves show how volatile those wins are.";
+
     el.innerHTML = `
         <strong>Interpretation</strong><br/>
         ${favored} is favored on average based on simulated strength differentials.<br/>
         Mean differential: <strong>${mean.toFixed(3)}</strong><br/>
         Median differential: <strong>${median.toFixed(3)}</strong><br/>
         ${skew}
+        <br/>${dominance}
     `;
 }
 
