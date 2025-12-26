@@ -88,6 +88,25 @@ function findZeroBinIndex(bins) {
 }
 
 
+function computeMean(values) {
+    return values.reduce((a, b) => a + b, 0) / values.length;
+}
+
+function computeMedian(values) {
+    const sorted = [...values].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+
+    return sorted.length % 2 !== 0
+        ? sorted[mid]
+        : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+function findBinIndexForValue(bins, value) {
+    return bins.findIndex(b => b.x0 <= value && b.x1 >= value);
+}
+
+
+
 function renderDistributionChart(simulationResults) {
     if (!Array.isArray(simulationResults) || simulationResults.length === 0) {
         console.warn("Distribution chart skipped: no simulation data");
@@ -101,6 +120,15 @@ function renderDistributionChart(simulationResults) {
 
     const bins = buildHistogram(simulationResults);
 
+    const differentials = simulationResults.map(d => d.differential);
+    
+    const mean = computeMean(differentials);
+    const median = computeMedian(differentials);
+    
+    const meanBinIndex = findBinIndexForValue(bins, mean);
+    const medianBinIndex = findBinIndexForValue(bins, median);
+
+    
     const zeroBinIndex = findZeroBinIndex(bins);
 
     const labels = bins.map(b => b.x0.toFixed(2));
@@ -170,6 +198,33 @@ function renderDistributionChart(simulationResults) {
                                 content: "Parity (0)",
                                 position: "start"
                             }
+                        },
+            
+                        meanLine: {
+                            type: "line",
+                            scaleID: "x",
+                            value: meanBinIndex,
+                            borderColor: "rgba(0, 90, 200, 0.9)",
+                            borderWidth: 2,
+                            label: {
+                                display: true,
+                                content: `Mean (${mean.toFixed(2)})`,
+                                position: "start"
+                            }
+                        },
+            
+                        medianLine: {
+                            type: "line",
+                            scaleID: "x",
+                            value: medianBinIndex,
+                            borderColor: "rgba(0, 140, 90, 0.9)",
+                            borderWidth: 2,
+                            borderDash: [6, 4],
+                            label: {
+                                display: true,
+                                content: `Median (${median.toFixed(2)})`,
+                                position: "start"
+                            }
                         }
                     }
                 },
@@ -177,6 +232,7 @@ function renderDistributionChart(simulationResults) {
                     display: true
                 }
             }
+
 
         }
     });
