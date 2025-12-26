@@ -103,6 +103,8 @@ function renderDistributionChart(simulationResults) {
     const labels = bins.map(b => b.x0.toFixed(2));
     const counts = bins.map(b => b.count);
 
+    const maxCount = Math.max(...counts);
+
     if (distributionChart) {
         distributionChart.destroy();
     }
@@ -121,10 +123,10 @@ function renderDistributionChart(simulationResults) {
                     // Zero-line marker (visual only)
                     label: "Parity (0)",
                     data: counts.map((_, i) =>
-                        i === zeroBinIndex ? Math.max(...counts) : null
+                        i === zeroBinIndex ? maxCount : null
                     ),
                     type: "line",
-                    borderColor: "rgba(200, 0, 0, 0.8)",
+                    borderColor: "rgba(200, 0, 0, 0.85)",
                     borderWidth: 2,
                     pointRadius: 0,
                     fill: false,
