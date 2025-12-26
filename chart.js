@@ -46,6 +46,15 @@ function buildHistogram(data, binCount = 30) {
     const min = Math.min(...values);
     const max = Math.max(...values);
 
+    //Guard: zero-variance distribution
+    if (min === max) {
+        return [{
+            x0: min,
+            x1: max,
+            count: values.length
+        }];
+    }
+    
     const binSize = (max - min) / binCount;
 
     const bins = Array.from({ length: binCount }, (_, i) => ({
@@ -55,11 +64,15 @@ function buildHistogram(data, binCount = 30) {
     }));
 
     values.forEach(v => {
-        const idx = Math.min(
-            Math.floor((v - min) / binSize),
-            binCount - 1
+        const rawIdx = Math.floor((v - min) / binSize);
+
+        const idx = Math.max(
+            0,
+            Math.min(rawIdx, bins.length - 1)
         );
+        
         bins[idx].count++;
+
     });
 
     return bins;
