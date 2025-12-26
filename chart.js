@@ -125,8 +125,21 @@ function renderDistributionChart(simulationResults) {
     const mean = computeMean(differentials);
     const median = computeMedian(differentials);
     
-    const meanBinIndex = findBinIndexForValue(bins, mean);
-    const medianBinIndex = findBinIndexForValue(bins, median);
+    const meanBinIndex = Math.max(
+            0,
+            Math.min(
+                findBinIndexForValue(bins, mean),
+                bins.length - 1
+            )
+        );
+        
+        const medianBinIndex = Math.max(
+            0,
+            Math.min(
+                findBinIndexForValue(bins, median),
+                bins.length - 1
+            )
+        );
 
     
     const zeroBinIndex = findZeroBinIndex(bins);
@@ -220,6 +233,7 @@ function renderDistributionChart(simulationResults) {
                             borderColor: "rgba(0, 140, 90, 0.9)",
                             borderWidth: 2,
                             borderDash: [6, 4],
+                            drawTime: "afterDatasetsDraw",
                             label: {
                                 display: true,
                                 content: `Median (${median.toFixed(2)})`,
@@ -236,8 +250,36 @@ function renderDistributionChart(simulationResults) {
 
         }
     });
+
+    renderDistributionSummary(mean, median);
+
+    
 }
 
+
+
+function renderDistributionSummary(mean, median) {
+    const el = document.getElementById("distribution-summary");
+    if (!el) return;
+
+    let favored;
+    if (mean > 0) favored = "Team A";
+    else if (mean < 0) favored = "Team B";
+    else favored = "Neither team";
+
+    const skew =
+        Math.abs(mean - median) < 0.05
+            ? "Results are symmetric, indicating a balanced matchup."
+            : "Results are skewed, suggesting asymmetrical win paths.";
+
+    el.innerHTML = `
+        <strong>Interpretation</strong><br/>
+        ${favored} is favored on average based on simulated strength differentials.<br/>
+        Mean differential: <strong>${mean.toFixed(2)}</strong><br/>
+        Median differential: <strong>${median.toFixed(2)}</strong><br/>
+        ${skew}
+    `;
+}
 
 
 
