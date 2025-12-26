@@ -222,6 +222,12 @@ function resetSimulation() {
     animationPaused = false;
 
     document.dispatchEvent(new CustomEvent("simulationReset"));
+
+    //Applied to chart.js
+    if (distributionChart) {
+        distributionChart.destroy();
+        distributionChart = null;
+    }
 }
 
 
@@ -375,14 +381,14 @@ function spawnBall(result) {
             : document.querySelector("#bucket-team-b .bucket-dots");
 
     const BALL_SIZE = 9; // must match CSS (visual diameter)
-    const STACK_DENSITY = 0.01;   // <— tweakable (0.6–0.8 sweet spot)
+    const STACK_DENSITY = 0.01;   // <— tweakable (smaller -> more overlap)
 
     const pileHeight =
         Math.floor(target.children.length * BALL_SIZE * STACK_DENSITY);
 
     // Horizontal spread (bucket-relative)
     const bucketWidth = target.clientWidth;
-    const maxOffset = bucketWidth * 0.43;  //.35
+    const maxOffset = bucketWidth * 0.43;  //.35  higher pushes balls closer to the wall
     const offset = Math.floor(Math.random() * maxOffset * 2 - maxOffset);
 
     dot.style.left = "50%";
@@ -404,16 +410,19 @@ function spawnBall(result) {
 function stepBallDrop() {    
     if (!ballDropInProgress) return;
     
-    if (ballDropIndex >= simulationResults.length) {
-        //document.getElementById("visualization-header").textContent =
-        //"Simulation Complete";
+    if (ballDropIndex >= simulationResults.length) {        
         return; // Let animationend handlers finalize
     }
 
     spawnBall(simulationResults[ballDropIndex]);
     ballDropIndex++;
 
-    setTimeout(stepBallDrop, BALL_DROP_INTERVAL_MS);
+    const speedMultiplier = 
+        simulationResults.length > 5000 && ballDropIndex > 5000
+            ? 0.5 // double speed
+            : 1.0; // normal speed
+    
+    setTimeout(stepBallDrop, BALL_DROP_INTERVAL_MS * speedMultiplier);
     
 }
 
@@ -459,6 +468,8 @@ function finalizeBallDrop() {
 
     document.getElementById("visualization-header").textContent =
         "Simulation Complete";
+
+    renderDistributionChart(simulationResults);
 }
 
 /* ============================================================
