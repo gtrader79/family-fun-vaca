@@ -78,6 +78,12 @@ function buildHistogram(data, binCount = 30) {
     return bins;
 }
 
+function findZeroBinIndex(bins) {
+    return bins.findIndex(
+        b => b.x0 <= 0 && b.x1 >= 0
+    );
+}
+
 
 function renderDistributionChart(simulationResults) {
     if (!Array.isArray(simulationResults) || simulationResults.length === 0) {
@@ -92,6 +98,8 @@ function renderDistributionChart(simulationResults) {
 
     const bins = buildHistogram(simulationResults);
 
+    const zeroBinIndex = findZeroBinIndex(bins);
+
     const labels = bins.map(b => b.x0.toFixed(2));
     const counts = bins.map(b => b.count);
 
@@ -103,11 +111,27 @@ function renderDistributionChart(simulationResults) {
         type: "bar",
         data: {
             labels,
-            datasets: [{
-                label: "Strength Differential Distribution",
-                data: counts,
-                borderWidth: 1
-            }]
+            datasets: [
+                {
+                    label: "Strength Differential Distribution",
+                    data: counts,
+                    borderWidth: 1
+                },
+                {
+                    // Zero-line marker (visual only)
+                    label: "Parity (0)",
+                    data: counts.map((_, i) =>
+                        i === zeroBinIndex ? Math.max(...counts) : null
+                    ),
+                    type: "line",
+                    borderColor: "rgba(200, 0, 0, 0.8)",
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0
+                }
+            ]
+
         },
         options: {
             responsive: true,
@@ -126,7 +150,15 @@ function renderDistributionChart(simulationResults) {
                     },
                     beginAtZero: true
                 }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        filter: item => item.text !== undefined
+                    }
+                }
             }
+
         }
     });
 }
