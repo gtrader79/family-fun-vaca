@@ -7,6 +7,9 @@
    - Architecture Overview
    ============================================================ */
 
+Chart.register(window['chartjs-plugin-annotation']);
+
+
 /* ============================================================
    INTERNAL STATE (VISUAL ONLY)
    ============================================================ */
@@ -154,10 +157,24 @@ function renderDistributionChart(simulationResults) {
                 }
             },
             plugins: {
-                legend: {
-                    labels: {
-                        filter: item => item.text !== undefined
+                annotation: {
+                    annotations: {
+                        zeroLine: {
+                            type: "line",
+                            scaleID: "x",
+                            value: bins.findIndex(b => b.x0 <= 0 && b.x1 >= 0),
+                            borderColor: "rgba(200, 0, 0, 0.9)",
+                            borderWidth: 2,
+                            label: {
+                                display: true,
+                                content: "Parity (0)",
+                                position: "start"
+                            }
+                        }
                     }
+                },
+                legend: {
+                    display: true
                 }
             }
 
