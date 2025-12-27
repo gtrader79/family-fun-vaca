@@ -342,14 +342,14 @@ function renderDistributionChart(simulationResults) {
         }
     });
 
-    renderDistributionSummary(mean, median);
+    renderDistributionSummary(mean, median, teamAValues, teamBValues);
 
     
 }
 
 
 
-function renderDistributionSummary(mean, median) {
+function renderDistributionSummary(mean, median, teamAValues, teamBValues) {
     const el = document.getElementById("distribution-summary");
     if (!el) return;
 
@@ -358,19 +358,23 @@ function renderDistributionSummary(mean, median) {
     else if (mean < 0) favored = "Team B";
     else favored = "Neither team";
 
-    const skew =
-        Math.abs(mean - median) < 0.05
-            ? "Results are symmetric, indicating a balanced matchup."
-            : "Results are skewed, suggesting asymmetrical win paths.";
-
+    const winRates = {
+        teamA: teamAValues.length / simulationResults.length,
+        teamB: teamBValues.length / simulationResults.length
+    };
     
-
     el.innerHTML = `
         <strong>Interpretation</strong><br/>
         ${favored} is favored on average based on simulated strength differentials.<br/>
         Mean differential: <strong>${mean.toFixed(3)}</strong><br/>
         Median differential: <strong>${median.toFixed(3)}</strong><br/>
-        ${skew}        
+        
+    `;
+
+    el.innerHTML += `
+        <br/><strong>Win Probability</strong><br/>
+        Team A: ${(winRates.teamA * 100).toFixed(1)}%<br/>
+        Team B: ${(winRates.teamB * 100).toFixed(1)}%
     `;
 }
 
