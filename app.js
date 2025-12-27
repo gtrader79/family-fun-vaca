@@ -231,6 +231,19 @@ function resetSimulation() {
 }
 
 
+function computeWinPercentages(results) {
+    const total = results.length;
+
+    const teamAWins = results.filter(r => r.winner === "A").length;
+    const teamBWins = results.filter(r => r.winner === "B").length;
+
+    return {
+        teamA: total > 0 ? teamAWins / total : 0,
+        teamB: total > 0 ? teamBWins / total : 0
+    };
+}
+
+
 /* ============================================================
    TEAM STATS — SECTION AF (READ-ONLY)
    ============================================================ */
@@ -519,6 +532,19 @@ document.getElementById("reset-simulation-btn")
    ============================================================ */
 
 document.addEventListener("simulationComplete", () => {
+    const { teamA, teamB } = computeWinPercentages(simulationResults);
+
+    const labelA = document.querySelector("#bucket-team-a .bucket-label");
+    const labelB = document.querySelector("#bucket-team-b .bucket-label");
+
+    if (labelA) {
+        labelA.textContent = `Team A — ${(teamA * 100).toFixed(1)}%`;
+    }
+
+    if (labelB) {
+        labelB.textContent = `Team B — ${(teamB * 100).toFixed(1)}%`;
+    }
+    
     setButtonState({
         run: false,
         pause: true,
