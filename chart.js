@@ -363,18 +363,14 @@ function renderDistributionSummary(mean, median) {
             ? "Results are symmetric, indicating a balanced matchup."
             : "Results are skewed, suggesting asymmetrical win paths.";
 
-    const dominance =
-    teamAValues.length > teamBValues.length
-        ? "Team A wins more frequently, but the shape of each curve shows how decisive those wins tend to be."
-        : "Team B wins more frequently, though the density curves show how volatile those wins are.";
+    
 
     el.innerHTML = `
         <strong>Interpretation</strong><br/>
         ${favored} is favored on average based on simulated strength differentials.<br/>
         Mean differential: <strong>${mean.toFixed(3)}</strong><br/>
         Median differential: <strong>${median.toFixed(3)}</strong><br/>
-        ${skew}
-        <br/>${dominance}
+        ${skew}        
     `;
 }
 
