@@ -205,7 +205,11 @@ function renderDistributionChart(simulationResults) {
             : binMidpoints.map(() => 0);
 
     
-    // Scale KDE to histogram height        
+    // Scale KDE to histogram height
+        
+        const maxHist = Math.max(...counts);
+        
+                
         const maxKDEA = Math.max(...kdeA);
         const maxKDEB = Math.max(...kdeB);
         
