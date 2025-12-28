@@ -274,6 +274,49 @@ body {
 }
 
 
+
+.team-stats-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.team-stats-controls label {
+  font-size: 0.9rem;
+}
+
+.team-stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.team-stats-table th,
+.team-stats-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.team-stats-table tbody tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.team-stats-note {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.team-stats-empty {
+  padding: 12px;
+  font-size: 0.9rem;
+  color: #555;
+  font-style: italic;
+}
+
+
+
 /* ============================================================
    FOOTER — METADATA
    Section W.9
