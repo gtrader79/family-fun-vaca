@@ -249,73 +249,201 @@ function computeWinPercentages(results) {
    ============================================================ */
 
 let teamStatsData = null;
-let teamStatsSortKey = null;
+let teamStatsSortKey = null; // reserved for later phases
 let teamStatsSortAsc = true;
 
+const TEAM_STATS_CONFIG = [
+  { key: "off_pass_yards_per_game", rankKey: "off_pass_yards_per_game_rank", label: "Offensive Passing Yds / Gm" },
+  { key: "off_rush_yards", rankKey: "off_rush_yards_rank", label: "Offensive Rushing Yds" },
+  { key: "off_rush_yards_per_game", rankKey: "off_rush_yards_per_game_rank", label: "Offensive Rushing Yds / Gm" },
+  { key: "off_total_yards", rankKey: "off_total_yards_rank", label: "Offensive Total Yds" },
+  { key: "off_total_yards_per_game", rankKey: "off_total_yards_per_game_rank", label: "Offensive Total Yds / Gm" },
+  { key: "off_points_scored_per_game", rankKey: "off_points_scored_per_game_rank", label: "Points Scored / Gm" },
+
+  { key: "def_pass_yards_allowed_per_game", rankKey: "def_pass_yards_allowed_per_game_rank", label: "Passing Yds Allowed / Gm" },
+  { key: "def_rush_yards_allowed_per_game", rankKey: "def_rush_yards_allowed_per_game_rank", label: "Rushing Yds Allowed / Gm" },
+  { key: "def_total_yards_allowed_per_game", rankKey: "def_total_yards_allowed_per_game_rank", label: "Total Yds Allowed / Gm" },
+  { key: "def_points_allowed_per_game", rankKey: "def_points_allowed_per_game_rank", label: "Points Allowed / Gm" }
+];
+
+function formatOrdinal(n) {
+  if (n == null) return "—";
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function isHeadToHeadMode() {
+  const teamA = document.getElementById("team-a-select").value;
+  const teamB = document.getElementById("team-b-select").value;
+  return teamA && teamB;
+}
+
+function getSelectedSeason() {
+  const select = document.getElementById("season-select");
+  return parseInt(select.value, 10);
+}
+
+/* ===============================
+   DATA LOAD
+   =============================== */
+
 async function loadTeamStats() {
-    try {
-        const res = await fetch("teams.json");
-        if (!res.ok) throw new Error("HTTP");
+  try {
+    const res = await fetch("teams.json");
+    if (!res.ok) throw new Error("HTTP");
 
-        const json = await res.json();
-        teamStatsData = json.seasons[0];
-        renderTeamStatsTable(teamStatsData.teams);
-    } catch {
-        document.getElementById("team-stats-error").hidden = false;
+    const json = await res.json();
+    teamStatsData = json.seasons;
+
+    populateSeasonSelector(json.seasons);
+    populateTeamSelectors(json.seasons);
+
+    wireTeamStatsControls();
+    renderTeamStatsTable(); // initial render
+
+  } catch {
+    document.getElementById("team-stats-error").hidden = false;
+  }
+}
+
+/* ===============================
+   Event Listener - wiring
+   =============================== */
+function wireTeamStatsControls() {
+  const seasonSelect = document.getElementById("season-select");
+  const teamASelect = document.getElementById("team-a-select");
+  const teamBSelect = document.getElementById("team-b-select");
+
+  seasonSelect.addEventListener("change", renderTeamStatsTable);
+  teamASelect.addEventListener("change", renderTeamStatsTable);
+  teamBSelect.addEventListener("change", renderTeamStatsTable);
+}
+
+/* ===============================
+   Helper function: Season
+   =============================== */
+function populateSeasonSelector(seasons) {
+  const select = document.getElementById("season-select");
+  select.innerHTML = "";
+
+  const sorted = [...seasons].sort((a, b) => b.season - a.season);
+
+  sorted.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s.season;
+    opt.textContent = s.season;
+    select.appendChild(opt);
+  });
+
+  select.value = sorted[0].season; // default = latest
+}
+
+/* ===============================
+   Helper function: Teams
+   =============================== */
+function populateTeamSelectors(seasons) {
+  const teamA = document.getElementById("team-a-select");
+  const teamB = document.getElementById("team-b-select");
+
+  teamA.innerHTML = `<option value="">— Select Team A —</option>`;
+  teamB.innerHTML = `<option value="">— Select Team B —</option>`;
+
+  const season = Math.max(...seasons.map(s => s.season));
+  const seasonData = seasons.find(s => s.season === season);
+
+  seasonData.teams.forEach(team => {
+    const optA = document.createElement("option");
+    optA.value = team.teamId;
+    optA.textContent = team.teamName;
+
+    const optB = optA.cloneNode(true);
+
+    teamA.appendChild(optA);
+    teamB.appendChild(optB);
+  });
+}
+
+/* ===============================
+   RENDERING
+   =============================== */
+
+function renderTeamStatsTable() {
+  const container = document.getElementById("team-stats-table-container");
+  container.innerHTML = "";
+
+  /*Empty State*/
+    if (!isHeadToHeadMode()) {
+      const note = document.createElement("div");
+      note.className = "team-stats-empty";
+      note.textContent =
+        "Select both Team A and Team B to enter head-to-head comparison mode.";
+      container.appendChild(note);
     }
+    
+  const season = getSelectedSeason();
+  const seasonData = teamStatsData.find(s => s.season === season);
+  if (!seasonData) return;
+
+  const teams = seasonData.teams;
+  const headToHead = isHeadToHeadMode();
+
+  const table = document.createElement("table");
+  table.className = "team-stats-table";
+
+  const thead = document.createElement("thead");
+  const tbody = document.createElement("tbody");
+
+  /* Header */
+  const headerRow = document.createElement("tr");
+  headerRow.appendChild(document.createElement("th")).textContent = "Metric";
+
+  if (headToHead) {
+    headerRow.appendChild(document.createElement("th")).textContent =
+      document.getElementById("team-a-select").value;
+    headerRow.appendChild(document.createElement("th")).textContent =
+      document.getElementById("team-b-select").value;
+  } else {
+    headerRow.appendChild(document.createElement("th")).textContent = "League Average";
+  }
+
+  thead.appendChild(headerRow);
+
+  /* Rows */
+  TEAM_STATS_CONFIG.forEach(stat => {
+    const row = document.createElement("tr");
+    row.appendChild(document.createElement("td")).textContent =
+      `${stat.label} (Rank)`;
+
+    if (headToHead) {
+      const teamA = teams.find(t => t.teamId === document.getElementById("team-a-select").value);
+      const teamB = teams.find(t => t.teamId === document.getElementById("team-b-select").value);
+
+      row.appendChild(document.createElement("td")).textContent =
+        `${teamA[stat.key]} (${formatOrdinal(teamA[stat.rankKey])})`;
+
+      row.appendChild(document.createElement("td")).textContent =
+        `${teamB[stat.key]} (${formatOrdinal(teamB[stat.rankKey])})`;
+
+    } else {
+      const avg =
+        teams.reduce((sum, t) => sum + (t[stat.key] ?? 0), 0) / teams.length;
+      row.appendChild(document.createElement("td")).textContent = avg.toFixed(2);
+    }
+
+    tbody.appendChild(row);
+  });
+
+  table.appendChild(thead);
+  table.appendChild(tbody);
+  container.appendChild(table);
+
+  const note = document.createElement("div");
+  note.className = "team-stats-note";
+  note.textContent = "Lower rank indicates better league performance.";
+  container.appendChild(note);
 }
 
-function renderTeamStatsTable(teams) {
-    const container = document.getElementById("team-stats-container");
-    container.innerHTML = "";
-
-    const table = document.createElement("table");
-    table.style.width = "100%";
-    table.border = "1";
-
-    const columns = Object.keys(teams[0]);
-
-    const thead = document.createElement("thead");
-    const tr = document.createElement("tr");
-
-    columns.forEach(col => {
-        const th = document.createElement("th");
-        th.textContent = col;
-        th.style.cursor = "pointer";
-        th.onclick = () => sortTeamStats(col);
-        tr.appendChild(th);
-    });
-
-    thead.appendChild(tr);
-    table.appendChild(thead);
-
-    const tbody = document.createElement("tbody");
-    teams.forEach(t => {
-        const row = document.createElement("tr");
-        columns.forEach(c => {
-            const td = document.createElement("td");
-            td.textContent = t[c];
-            row.appendChild(td);
-        });
-        tbody.appendChild(row);
-    });
-
-    table.appendChild(tbody);
-    container.appendChild(table);
-}
-
-function sortTeamStats(key) {
-    teamStatsSortAsc =
-        teamStatsSortKey === key ? !teamStatsSortAsc : true;
-
-    teamStatsSortKey = key;
-
-    const sorted = [...teamStatsData.teams].sort((a, b) =>
-        (a[key] > b[key] ? 1 : -1) * (teamStatsSortAsc ? 1 : -1)
-    );
-
-    renderTeamStatsTable(sorted);
-}
 
 
 /* ============================================================
