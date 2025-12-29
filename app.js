@@ -253,10 +253,8 @@ let teamStatsSortKey = null; // reserved for later phases
 let teamStatsSortAsc = true;
 
 const TEAM_STATS_CONFIG = [
-  { key: "off_pass_yards_per_game", rankKey: "off_pass_yards_per_game_rank", label: "Offensive Passing Yds / Gm" },
-  { key: "off_rush_yards", rankKey: "off_rush_yards_rank", label: "Offensive Rushing Yds" },
-  { key: "off_rush_yards_per_game", rankKey: "off_rush_yards_per_game_rank", label: "Offensive Rushing Yds / Gm" },
-  { key: "off_total_yards", rankKey: "off_total_yards_rank", label: "Offensive Total Yds" },
+  { key: "off_pass_yards_per_game", rankKey: "off_pass_yards_per_game_rank", label: "Offensive Passing Yds / Gm" },  
+  { key: "off_rush_yards_per_game", rankKey: "off_rush_yards_per_game_rank", label: "Offensive Rushing Yds / Gm" },  
   { key: "off_total_yards_per_game", rankKey: "off_total_yards_per_game_rank", label: "Offensive Total Yds / Gm" },
   { key: "off_points_scored_per_game", rankKey: "off_points_scored_per_game_rank", label: "Points Scored / Gm" },
 
@@ -265,6 +263,8 @@ const TEAM_STATS_CONFIG = [
   { key: "def_total_yards_allowed_per_game", rankKey: "def_total_yards_allowed_per_game_rank", label: "Total Yds Allowed / Gm" },
   { key: "def_points_allowed_per_game", rankKey: "def_points_allowed_per_game_rank", label: "Points Allowed / Gm" }
 ];
+
+const DEFENSE_START_LABEL = "Passing Yds Allowed / Gm";
 
 function formatOrdinal(n) {
   if (n == null) return "—";
@@ -372,15 +372,15 @@ function renderTeamStatsTable() {
   const container = document.getElementById("team-stats-table-container");
   container.innerHTML = "";
 
-  /*Empty State*/
-    if (!isHeadToHeadMode()) {
-      const note = document.createElement("div");
-      note.className = "team-stats-empty";
-      note.textContent =
-        "Select both Team A and Team B to enter head-to-head comparison mode.";
-      container.appendChild(note);
-    }
-    
+  /* Empty State */
+  if (!isHeadToHeadMode()) {
+    const note = document.createElement("div");
+    note.className = "team-stats-empty";
+    note.textContent =
+      "Select both Team A and Team B to enter head-to-head comparison mode.";
+    container.appendChild(note);
+  }
+
   const season = getSelectedSeason();
   const seasonData = teamStatsData.find(s => s.season === season);
   if (!seasonData) return;
@@ -394,41 +394,111 @@ function renderTeamStatsTable() {
   const thead = document.createElement("thead");
   const tbody = document.createElement("tbody");
 
-  /* Header */
+  /* =========================
+     HEADER ROW
+     ========================= */
   const headerRow = document.createElement("tr");
-  headerRow.appendChild(document.createElement("th")).textContent = "Metric";
+
+  const metricTh = document.createElement("th");
+  metricTh.textContent = "Metric";
+  metricTh.style.textAlign = "left";            
+  headerRow.appendChild(metricTh);
 
   if (headToHead) {
-    headerRow.appendChild(document.createElement("th")).textContent =
-      document.getElementById("team-a-select").value;
-    headerRow.appendChild(document.createElement("th")).textContent =
-      document.getElementById("team-b-select").value;
+    const thA = document.createElement("th");
+    thA.textContent = document.getElementById("team-a-select").value;
+    thA.style.textAlign = "center";              
+    headerRow.appendChild(thA);
+
+    const thB = document.createElement("th");
+    thB.textContent = document.getElementById("team-b-select").value;
+    thB.style.textAlign = "center";              
+    headerRow.appendChild(thB);
   } else {
-    headerRow.appendChild(document.createElement("th")).textContent = "League Average";
+    const thAvg = document.createElement("th");
+    thAvg.textContent = "League Average";
+    thAvg.style.textAlign = "center";             
+    headerRow.appendChild(thAvg);
   }
 
   thead.appendChild(headerRow);
 
-  /* Rows */
+  /* =========================
+     OFFENSE SECTION HEADER
+     ========================= */
+  const offenseRow = document.createElement("tr");
+  const offenseCell = document.createElement("td");
+  offenseCell.colSpan = headToHead ? 3 : 2;
+  offenseCell.textContent = "Offense";
+  offenseCell.style.fontWeight = "600";
+  offenseCell.style.background = "#f5f5f5";
+  offenseCell.style.padding = "8px 6px";
+  offenseCell.style.textAlign = "left";
+  offenseRow.appendChild(offenseCell);
+  tbody.appendChild(offenseRow);
+
+  let defenseHeaderInserted = false;
+
+  /* =========================
+     DATA ROWS
+     ========================= */
   TEAM_STATS_CONFIG.forEach(stat => {
+
+    /* Insert Defense header at the correct boundary */
+    if (
+      !defenseHeaderInserted &&
+      stat.label.startsWith(DEFENSE_START_LABEL)
+    ) {
+      const defenseRow = document.createElement("tr");
+      const defenseCell = document.createElement("td");
+      defenseCell.colSpan = headToHead ? 3 : 2;
+      defenseCell.textContent = "Defense";
+      defenseCell.style.fontWeight = "600";
+      defenseCell.style.background = "#f5f5f5";
+      defenseCell.style.padding = "8px 6px";
+      defenseCell.style.textAlign = "left";
+      defenseRow.appendChild(defenseCell);
+      tbody.appendChild(defenseRow);
+
+      defenseHeaderInserted = true;
+    }
+
     const row = document.createElement("tr");
-    row.appendChild(document.createElement("td")).textContent =
-      `${stat.label} (Rank)`;
+
+    /* Metric column */
+    const metricTd = document.createElement("td");
+    metricTd.textContent = `${stat.label} (Rank)`;
+    metricTd.style.textAlign = "left";            
+    row.appendChild(metricTd);
 
     if (headToHead) {
-      const teamA = teams.find(t => t.teamId === document.getElementById("team-a-select").value);
-      const teamB = teams.find(t => t.teamId === document.getElementById("team-b-select").value);
+      const teamA = teams.find(
+        t => t.teamId === document.getElementById("team-a-select").value
+      );
+      const teamB = teams.find(
+        t => t.teamId === document.getElementById("team-b-select").value
+      );
 
-      row.appendChild(document.createElement("td")).textContent =
+      const tdA = document.createElement("td");
+      tdA.textContent =
         `${teamA[stat.key]} (${formatOrdinal(teamA[stat.rankKey])})`;
+      tdA.style.textAlign = "center";              
+      row.appendChild(tdA);
 
-      row.appendChild(document.createElement("td")).textContent =
+      const tdB = document.createElement("td");
+      tdB.textContent =
         `${teamB[stat.key]} (${formatOrdinal(teamB[stat.rankKey])})`;
+      tdB.style.textAlign = "center";              
+      row.appendChild(tdB);
 
     } else {
       const avg =
         teams.reduce((sum, t) => sum + (t[stat.key] ?? 0), 0) / teams.length;
-      row.appendChild(document.createElement("td")).textContent = avg.toFixed(2);
+
+      const tdAvg = document.createElement("td");
+      tdAvg.textContent = avg.toFixed(2);
+      tdAvg.style.textAlign = "center";            
+      row.appendChild(tdAvg);
     }
 
     tbody.appendChild(row);
@@ -438,11 +508,15 @@ function renderTeamStatsTable() {
   table.appendChild(tbody);
   container.appendChild(table);
 
+  /* =========================
+     FOOTNOTE
+     ========================= */
   const note = document.createElement("div");
   note.className = "team-stats-note";
   note.textContent = "Lower rank indicates better league performance.";
   container.appendChild(note);
 }
+
 
 
 
