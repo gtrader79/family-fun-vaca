@@ -73,6 +73,55 @@ function getTeamColors(teamId) {
 }
 
 
+/* ============================================================
+   BUCKET SUMMARY FINALIZATION
+   Section V.6 / W.7
+   ============================================================ */
+
+function finalizeBucketSummaries() {
+    const totalRuns = simulationResults.length;
+
+    const teamAWins = simulationResults.filter(r => r.winner === "A").length;
+    const teamBWins = simulationResults.filter(r => r.winner === "B").length;
+
+    const pctA = (teamAWins / totalRuns) * 100;
+    const pctB = (teamBWins / totalRuns) * 100;
+
+    const summaryA = document.getElementById("bucket-summary-a");
+    const summaryB = document.getElementById("bucket-summary-b");
+
+    summaryA.innerHTML = `
+        ${pctA.toFixed(1)}%<br/>
+        (${teamAWins} / ${totalRuns})
+    `;
+
+    summaryB.innerHTML = `
+        ${pctB.toFixed(1)}%<br/>
+        (${teamBWins} / ${totalRuns})
+    `;
+
+    const diff = Math.abs(pctA - pctB);
+
+    if (pctA > pctB) {
+        summaryA.classList.add("winner");
+    } else {
+        summaryB.classList.add("winner");
+    }
+
+    if (diff < 3) {
+        summaryA.classList.add("near-tie");
+        summaryB.classList.add("near-tie");
+    }
+
+    // Fade in after balls fully settle
+    requestAnimationFrame(() => {
+        summaryA.classList.add("visible");
+        summaryB.classList.add("visible");
+    });
+}
+
+
+
 
 /* ============================================================
    CONTROL PANEL — DOM CREATION (SECTION W.3)
@@ -719,6 +768,9 @@ function resumeBallDrop() {
     ballDropPaused = false;
 }
 
+finalizeBucketSummaries();
+    freezeBuckets();
+
 function finalizeBallDrop() {
     ballDropInProgress = false;
 
@@ -731,6 +783,10 @@ function finalizeBallDrop() {
         "Simulation Complete";
 
     renderDistributionChart(simulationResults);
+
+    stopBallDrop();
+    finalizeBucketSummaries();
+    freezeBuckets();
 }
 
 /* ============================================================
@@ -811,6 +867,14 @@ document.addEventListener("simulationReset", () => {
         run: true,
         pause: false,
         reset: false
+    });
+
+    ["bucket-summary-a", "bucket-summary-b"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.innerHTML = "";
+            el.className = "bucket-summary";
+        }
     });
 });
 
