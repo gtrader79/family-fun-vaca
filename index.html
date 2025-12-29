@@ -99,23 +99,7 @@
                 <button data-tab="ball-drop-tab" class="tab-button active">
                     Ball Drop
                 </button>
-                <button data-tab="distribution-tab" class="tab-button">
-                    <div id="distribution-mode-toggle">
-                        <label>
-                            <input type="radio"
-                                   name="distributionMode"
-                                   value="single"
-                                   checked>
-                            Single KDE
-                        </label>
-                    
-                        <label>
-                            <input type="radio"
-                                   name="distributionMode"
-                                   value="split">
-                            Split KDE
-                        </label>
-                    </div>
+                <button data-tab="distribution-tab" class="tab-button">                    
                     Strength Distribution
                 </button>
                 <button data-tab="team-stats-tab" class="tab-button">
@@ -140,6 +124,7 @@
                         <div id="bucket-container">
 
                             <div id="bucket-team-a" class="bucket">
+                                <div class="bucket-summary" id="bucket-summary-a"></div>
                                 <div class="bucket-dots"></div>
                                 <div class="bucket-label">Team A</div>
                             </div>
@@ -147,6 +132,7 @@
                             <div id="bucket-gap"></div>
 
                             <div id="bucket-team-b" class="bucket">
+                                <div class="bucket-summary" id="bucket-summary-b"></div>
                                 <div class="bucket-dots"></div>
                                 <div class="bucket-label">Team B</div>
                             </div>
@@ -157,6 +143,22 @@
 
                 <!-- Strength Differential Distribution -->
                 <div id="distribution-tab" class="tab-content">
+                    <div id="distribution-mode-toggle">
+                        <label>
+                            <input type="radio"
+                                   name="distributionMode"
+                                   value="single"
+                                   checked>
+                            Single KDE
+                        </label>
+                    
+                        <label>
+                            <input type="radio"
+                                   name="distributionMode"
+                                   value="split">
+                            Split KDE
+                        </label>
+                    </div>
                     <canvas id="strength-distribution-canvas"></canvas>
                     <div id="distribution-summary" class="distribution-summary"></div>
 
