@@ -147,10 +147,7 @@ function renderDistributionChart(simulationResults) {
     const teamBId = document.getElementById("team-b-select").value;
     
     const teamAColors = getTeamColors(teamAId);
-    const teamBColors = getTeamColors(teamBId);
-    
-    const teamAWins = teamAValues.length;
-    const teamBWins = teamBValues.length;
+    const teamBColors = getTeamColors(teamBId);    
     
     const winningBoost = (teamAWins !== teamBWins);
     
@@ -171,6 +168,9 @@ function renderDistributionChart(simulationResults) {
         .filter(d => d.winner === "B")
         .map(d => d.differential);
 
+    const teamAWins = teamAValues.length;
+    const teamBWins = teamBValues.length;
+    
     const kdeA = teamAValues.length > 1
         ? computeKDE(binMidpoints, teamAValues, computeBandwidth(teamAValues))
         : binMidpoints.map(() => 0);
