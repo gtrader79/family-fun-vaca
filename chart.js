@@ -149,8 +149,6 @@ function renderDistributionChart(simulationResults) {
     const teamAColors = getTeamColors(teamAId);
     const teamBColors = getTeamColors(teamBId);    
     
-    const winningBoost = (teamAWins !== teamBWins);
-    
     const barColors = bins.map((_, i) => {
       if (i < zeroBinIndex) {
         return teamBColors.primary;
@@ -170,6 +168,8 @@ function renderDistributionChart(simulationResults) {
 
     const teamAWins = teamAValues.length;
     const teamBWins = teamBValues.length;
+
+    const winningBoost = (teamAWins !== teamBWins);
     
     const kdeA = teamAValues.length > 1
         ? computeKDE(binMidpoints, teamAValues, computeBandwidth(teamAValues))
