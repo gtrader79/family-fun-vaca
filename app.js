@@ -768,8 +768,11 @@ function resumeBallDrop() {
     ballDropPaused = false;
 }
 
-finalizeBucketSummaries();
-    freezeBuckets();
+function freezeBuckets() {
+    document
+        .querySelectorAll(".bucket-dots")
+        .forEach(el => el.style.pointerEvents = "none");
+}
 
 function finalizeBallDrop() {
     ballDropInProgress = false;
