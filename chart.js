@@ -143,11 +143,23 @@ function renderDistributionChart(simulationResults) {
 
     const zeroBinIndex = findZeroBinIndex(bins);
 
-    const barColors = bins.map((_, i) =>
-        i < zeroBinIndex
-            ? "rgba(120,160,220,0.75)"   // Team B favored
-            : "rgba(220,120,120,0.75)"   // Team A favored
-    );
+    const teamAId = document.getElementById("team-a-select").value;
+    const teamBId = document.getElementById("team-b-select").value;
+    
+    const teamAColors = getTeamColors(teamAId);
+    const teamBColors = getTeamColors(teamBId);
+    
+    const teamAWins = teamAValues.length;
+    const teamBWins = teamBValues.length;
+    
+    const winningBoost = (teamAWins !== teamBWins);
+    
+    const barColors = bins.map((_, i) => {
+      if (i < zeroBinIndex) {
+        return teamBColors.primary;
+      }
+      return teamAColors.primary;
+    });
 
     const binMidpoints = bins.map(b => (b.x0 + b.x1) / 2);
 
@@ -199,8 +211,8 @@ function renderDistributionChart(simulationResults) {
             label: "Team A Win Density",
             data: scaledKDEA,
             type: "line",
-            borderColor: "rgba(60,120,220,0.9)",
-            borderWidth: 2,
+            borderColor: teamAColors.primary,
+            borderWidth: teamAWins > teamBWins ? 3 : 2,
             pointRadius: 0,
             tension: 0.35
         });
@@ -209,8 +221,8 @@ function renderDistributionChart(simulationResults) {
             label: "Team B Win Density",
             data: scaledKDEB,
             type: "line",
-            borderColor: "rgba(220,90,90,0.9)",
-            borderWidth: 2,
+            borderColor: teamBColors.primary,
+            borderWidth: teamBWins > teamAWins ? 3 : 2,
             pointRadius: 0,
             tension: 0.35
         });
