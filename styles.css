@@ -244,6 +244,35 @@ body {
     width: 20px;
 }
 
+/* ============================================================
+   BUCKET SUMMARY — PHASE 4.7
+   Section W.7 / V.6
+   ============================================================ */
+
+.bucket-summary {
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    opacity: 0;
+    transition: opacity 400ms ease-in;
+}
+
+.bucket-summary.visible {
+    opacity: 1;
+}
+
+.bucket-summary.winner {
+    font-size: 1.05rem;
+}
+
+.bucket-summary.near-tie::after {
+    content: " (Very Close)";
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: #666;
+}
+
 
 /* ============================================================
    STRENGTH DISTRIBUTION
