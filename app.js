@@ -46,6 +46,35 @@ function createSeededRNG(seed) {
 
 
 /* ============================================================
+   TEAM COLOR RESOLUTION
+   Section W.5 / AF
+   ============================================================ */
+
+function getTeamById(teamId) {
+  if (!teamStatsData) return null;
+  const season = getSelectedSeason();
+  const seasonData = teamStatsData.find(s => s.season === season);
+  if (!seasonData) return null;
+  return seasonData.teams.find(t => t.teamId === teamId) || null;
+}
+
+function getTeamColors(teamId) {
+  const team = getTeamById(teamId);
+  if (!team) {
+    return {
+      primary: "#888",
+      secondary: "#bbb"
+    };
+  }
+  return {
+    primary: team.primaryColor,
+    secondary: team.secondaryColor
+  };
+}
+
+
+
+/* ============================================================
    CONTROL PANEL — DOM CREATION (SECTION W.3)
    ============================================================ */
 
@@ -405,14 +434,22 @@ function renderTeamStatsTable() {
   headerRow.appendChild(metricTh);
 
   if (headToHead) {
+    const teamAId = document.getElementById("team-a-select").value;
+    const teamBId = document.getElementById("team-b-select").value;
+
+    const teamAColors = getTeamColors(teamAId);
+    const teamBColors = getTeamColors(teamBId);
+      
     const thA = document.createElement("th");
-    thA.textContent = document.getElementById("team-a-select").value;
+    thA.textContent = teamAId;
     thA.style.textAlign = "center";              
+    thA.style.color = teamAColors.primary;
     headerRow.appendChild(thA);
 
     const thB = document.createElement("th");
-    thB.textContent = document.getElementById("team-b-select").value;
-    thB.style.textAlign = "center";              
+    thB.textContent = teamBId;
+    thB.style.textAlign = "center";  
+    thB.style.color = teamBColors.primary;
     headerRow.appendChild(thB);
   } else {
     const thAvg = document.createElement("th");
@@ -589,6 +626,15 @@ function spawnBall(result) {
             finalizeBallDrop();
         }
     });
+    
+    const teamId = result.winner === "A"
+        ? document.getElementById("team-a-select").value
+        : document.getElementById("team-b-select").value;
+    
+    const { primary, secondary } = getTeamColors(teamId);
+    
+        dot.style.background = primary;
+        dot.style.border = `1px solid ${secondary}`;
     
     const target =
         result.winner === "A"
