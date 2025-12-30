@@ -132,14 +132,18 @@ function runSimulationController() {
     const weather = parseInt(document.getElementById('weather-select').value); // 0, -1, -2
     const momA = parseInt(document.getElementById('momentum-a').value);
     const momB = parseInt(document.getElementById('momentum-b').value);
+    const healthA = document.getElementById('health-a') ? parseInt(document.getElementById('health-a').value) : 0;
+    const healthB = document.getElementById('health-b') ? parseInt(document.getElementById('health-b').value) : 0;
+   
 
     // 2. Calculate Base Spread using Z-Scores
     // We compare Team A Offense vs Team B Defense (and vice versa)
     const expectedScoreA = teamA.seasons[currentSeason].off_pts_gm;
     const expectedScoreB = teamB.seasons[currentSeason].off_pts_gm;
     
-    // Simple Model: Base Spread = (AvgDiff) + HomeField + Momentum
-    let baseSpread = (expectedScoreA - expectedScoreB) + homeField + (momA - momB);
+    // Simple Model: Base Spread = (AvgDiff) + HomeField + Momentum + Health Impact
+    // Note: Health is negative (0 to -2), so adding it reduces strength
+    let baseSpread = (expectedScoreA - expectedScoreB) + homeField + (momA - momB) + (healthA - healthB);
     
     // Weather Impact: Reduces total scoring, might compress spread? 
     // For now, we'll say weather hurts the Passing team more.
@@ -174,14 +178,23 @@ function runSimulationController() {
     const avgMargin = margins.reduce((a, b) => a + b, 0) / iterations;
 
     // 5. Update UI
+    const winText = winPctA > 50 
+        ? `${teamA.id} ${winPctA.toFixed(1)}%` 
+        : `${teamB.id} ${(100-winPctA).toFixed(1)}%`;
     document.getElementById('win-prob-display').textContent = `Win Prob: ${teamA.id} ${winPctA.toFixed(1)}%`;
     document.getElementById('win-pct').textContent = `${winPctA.toFixed(1)}%`;
     document.getElementById('avg-margin').textContent = `${Math.abs(avgMargin.toFixed(1))} pts`;
 
     console.log(`Sim Complete. Spread: ${baseSpread.toFixed(2)}, Win%: ${winPctA}%`);
     
-    // FUTURE: Trigger Matter.js and Chart.js here with 'margins' array
-    // window.runVisuals(margins, teamA, teamB);
+    // 6. TRIGGER VISUALS (The New Part)
+    // Make sure visuals.js is loaded
+    if (typeof dropBalls === "function") {
+        dropBalls(winPctA, teamA.primaryColor, teamB.primaryColor);
+    }
+    if (typeof renderHistogram === "function") {
+        renderHistogram(margins, teamA.id, teamB.id, teamA.primaryColor, teamB.primaryColor);
+    }
 }
 
 // Standard Box-Muller Transform for Normal Distribution
