@@ -58,43 +58,52 @@ function updateMatchupTable() {
 
     if (!idA || !idB) return;
 
-    const teamA = globalData.teams.find(t => t.id === idA);
-    const teamB = globalData.teams.find(t => t.id === idB);
-    
-    const statsA = teamA.seasons[currentSeason];
-    const statsB = teamB.seasons[currentSeason];
+    // 1. Find the correct season data from the array
+    // We use == to match string "2021" with number 2021 if needed
+    const seasonData = globalData.seasons.find(s => s.season == currentSeason);
 
-    // Helper to calculate rank dynamically within the loaded dataset
-    const getRank = (metric, value, isDescending = true) => {
-        const allValues = globalData.teams.map(t => t.seasons[currentSeason][metric]);
-        allValues.sort((a, b) => isDescending ? b - a : a - b); // Descending for Offense, Ascending for Defense
-        return allValues.indexOf(value) + 1; // 1-based rank
-    };
+    if (!seasonData) {
+        console.error("Season not found:", currentSeason);
+        return;
+    }
+
+    // 2. Find teams within that specific season
+    const teamA = seasonData.teams.find(t => t.teamId === idA);
+    const teamB = seasonData.teams.find(t => t.teamId === idB);
+    
+    // Note: In your new JSON, the stats are directly on the team object, 
+    // so we don't need a separate 'statsA' object anymore.
 
     // Update Headers with Colors
-    document.getElementById('table-header-a').textContent = teamA.id;
+    document.getElementById('table-header-a').textContent = teamA.teamId;
     document.getElementById('table-header-a').style.borderBottom = `4px solid ${teamA.primaryColor}`;
-    document.getElementById('table-header-b').textContent = teamB.id;
+    document.getElementById('table-header-b').textContent = teamB.teamId;
     document.getElementById('table-header-b').style.borderBottom = `4px solid ${teamB.primaryColor}`;
 
     const tbody = document.getElementById('stats-table-body');
     tbody.innerHTML = ''; // Clear current rows
 
-    // Define rows configuration
+    // Define rows configuration using your specific JSON keys
+    // We explicitly map the 'value' key and the 'rank' key
     const metrics = [
-        { label: "Points Scored / Gm", key: "off_pts_gm", highIsGood: true },
-        { label: "Pass Yds / Gm", key: "off_pass_yd_gm", highIsGood: true },
-        { label: "Rush Yds / Gm", key: "off_rush_yd_gm", highIsGood: true },
-        { label: "Points Allowed / Gm", key: "def_pts_gm", highIsGood: false },
-        { label: "Def Pass Yds / Gm", key: "def_pass_yd_gm", highIsGood: false },
-        { label: "Def Rush Yds / Gm", key: "def_rush_yd_gm", highIsGood: false }
+        { label: "Points Scored / Gm", key: "off_points_scored_per_game", rankKey: "off_points_scored_per_game_rank" },
+        { label: "Pass Yds / Gm", key: "off_pass_yards_per_game", rankKey: "off_pass_yards_per_game_rank" },
+        { label: "Rush Yds / Gm", key: "off_rush_yards_per_game", rankKey: "off_rush_yards_per_game_rank" },
+        { label: "Total Yds / Gm", key: "off_total_yards_per_game", rankKey: "off_total_yards_per_game_rank" },
+        { label: "Points Allowed / Gm", key: "def_points_allowed_per_game", rankKey: "def_points_allowed_per_game_rank" },
+        { label: "Def Pass Yds / Gm", key: "def_pass_yards_allowed_per_game", rankKey: "def_pass_yards_allowed_per_game_rank" },
+        { label: "Def Rush Yds / Gm", key: "def_rush_yards_allowed_per_game", rankKey: "def_rush_yards_allowed_per_game_rank" },
+        { label: "Def Total Yds / Gm", key: "def_total_yards_allowed_per_game", rankKey: "def_total_yards_allowed_per_game_rank" }
     ];
 
     metrics.forEach(m => {
-        const valA = statsA[m.key];
-        const valB = statsB[m.key];
-        const rankA = getRank(m.key, valA, m.highIsGood);
-        const rankB = getRank(m.key, valB, m.highIsGood);
+        // Access values directly from the team object
+        const valA = teamA[m.key];
+        const valB = teamB[m.key];
+        
+        // Access ranks directly from the team object
+        const rankA = teamA[m.rankKey];
+        const rankB = teamB[m.rankKey];
 
         const row = `
             <tr>
@@ -113,101 +122,3 @@ function rankToOrdinal(n) {
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
-
-// --- 3. The Monte Carlo Engine (Z-Score Math) ---
-function runSimulationController() {
-    const idA = document.getElementById('team-a-select').value;
-    const idB = document.getElementById('team-b-select').value;
-    
-    if (!idA || !idB) {
-        alert("Please select two teams first.");
-        return;
-    }
-
-    const teamA = globalData.teams.find(t => t.id === idA);
-    const teamB = globalData.teams.find(t => t.id === idB);
-    
-    // 1. Gather Inputs
-    const homeField = parseFloat(document.getElementById('home-field').value); // 0 to 4
-    const weather = parseInt(document.getElementById('weather-select').value); // 0, -1, -2
-    const momA = parseInt(document.getElementById('momentum-a').value);
-    const momB = parseInt(document.getElementById('momentum-b').value);
-    const healthA = document.getElementById('health-a') ? parseInt(document.getElementById('health-a').value) : 0;
-    const healthB = document.getElementById('health-b') ? parseInt(document.getElementById('health-b').value) : 0;
-   
-
-    // 2. Calculate Base Spread using Z-Scores
-    // We compare Team A Offense vs Team B Defense (and vice versa)
-    const expectedScoreA = teamA.seasons[currentSeason].off_pts_gm;
-    const expectedScoreB = teamB.seasons[currentSeason].off_pts_gm;
-    
-    // Simple Model: Base Spread = (AvgDiff) + HomeField + Momentum + Health Impact
-    // Note: Health is negative (0 to -2), so adding it reduces strength
-    let baseSpread = (expectedScoreA - expectedScoreB) + homeField + (momA - momB) + (healthA - healthB);
-    
-    // Weather Impact: Reduces total scoring, might compress spread? 
-    // For now, we'll say weather hurts the Passing team more.
-    if (weather < 0) {
-        // Example: If Team A passes more, they are hurt more.
-        // Simplified: reduces score slightly
-    }
-
-    // 3. Monte Carlo Loop
-    const iterations = 10000;
-    let teamAWins = 0;
-    let margins = []; // Collect results for Histogram
-
-    // Standard Deviation of NFL games is approx 13.5
-    const stdDev = 13.5; 
-
-    for (let i = 0; i < iterations; i++) {
-        // Random Noise
-        const noise = gaussianRandom(0, stdDev);
-        
-        // Final Score Differential for this single run
-        // If > 0, Team A wins. If < 0, Team B wins.
-        const margin = baseSpread + noise;
-        
-        margins.push(margin);
-        if (margin > 0) teamAWins++;
-    }
-
-    // 4. Process Results
-    const winPctA = (teamAWins / iterations) * 100;
-    const winPctB = 100 - winPctA;
-    const avgMargin = margins.reduce((a, b) => a + b, 0) / iterations;
-
-    // 5. Update UI
-    const winText = winPctA > 50 
-        ? `${teamA.id} ${winPctA.toFixed(1)}%` 
-        : `${teamB.id} ${(100-winPctA).toFixed(1)}%`;
-    document.getElementById('win-prob-display').textContent = `Win Prob: ${teamA.id} ${winPctA.toFixed(1)}%`;
-    document.getElementById('win-pct').textContent = `${winPctA.toFixed(1)}%`;
-    document.getElementById('avg-margin').textContent = `${Math.abs(avgMargin.toFixed(1))} pts`;
-
-    console.log(`Sim Complete. Spread: ${baseSpread.toFixed(2)}, Win%: ${winPctA}%`);
-    
-    // 6. TRIGGER VISUALS (The New Part)
-    // Make sure visuals.js is loaded
-    if (typeof dropBalls === "function") {
-        dropBalls(winPctA, teamA.primaryColor, teamB.primaryColor);
-    }
-    if (typeof renderHistogram === "function") {
-        renderHistogram(margins, teamA.id, teamB.id, teamA.primaryColor, teamB.primaryColor);
-    }
-}
-
-// Standard Box-Muller Transform for Normal Distribution
-function gaussianRandom(mean = 0, stdev = 1) {
-    const u = 1 - Math.random(); 
-    const v = 1 - Math.random();
-    const z = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
-    return z * stdev + mean;
-}
-
-function resetSimulation() {
-    document.getElementById('win-prob-display').textContent = "Win Prob: --%";
-    document.getElementById('win-pct').textContent = "--";
-    document.getElementById('avg-margin').textContent = "--";
-    // Future: Clear Canvas
-}
