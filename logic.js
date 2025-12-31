@@ -25,10 +25,18 @@ function initDropdowns() {
     teamASelect.innerHTML = '<option value="">Select Team...</option>';
     teamBSelect.innerHTML = '<option value="">Select Team...</option>';
 
-    globalData.teams.forEach(team => {
+    // 1. Get the array of teams you want to sort
+        const teamsArray = globalData.seasons[1].teams;
+    // 2. Sort the array in place based on the 'teamName' property
+        teamsArray.sort((a, b) => {
+              // Use localeCompare for robust alphabetical string comparison
+              return a.teamName.localeCompare(b.teamName);
+            });
+    
+    teamsArray.forEach(team => {
         const optionA = document.createElement('option');
-        optionA.value = team.id;
-        optionA.textContent = team.name;
+        optionA.value = team.teamId;
+        optionA.textContent = team.teamName;
         
         const optionB = optionA.cloneNode(true);
         
