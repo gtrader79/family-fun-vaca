@@ -82,17 +82,18 @@ function setupEventListeners() {
 
 // --- 2. The Stat Table Logic (Dynamic Ranking) ---
 function updateMatchupTable() {
+    const idYr = document.getElementById('season-select').value;
     const idA = document.getElementById('team-a-select').value;
     const idB = document.getElementById('team-b-select').value;
 
-    if (!idA || !idB) return;
+    if (!idYr || !idA || !idB) return;
 
     // 1. Find the correct season data from the array
     // We use == to match string "2021" with number 2021 if needed
-    const seasonData = globalData.seasons.find(s => s.season == currentSeason);
+    const seasonData = globalData.seasons.find(s => s.season == idYr);
 
     if (!seasonData) {
-        console.error("Season not found:", currentSeason);
+        console.error("Season not found:", idYr);
         return;
     }
 
@@ -104,6 +105,7 @@ function updateMatchupTable() {
     // so we don't need a separate 'statsA' object anymore.
 
     // Update Headers with Colors
+    document.getElementById('table-header-metrics').textContent = `${idYr} Season Metrics`
     document.getElementById('table-header-a').textContent = teamA.teamId;
     document.getElementById('table-header-a').style.borderBottom = `4px solid ${teamA.primaryColor}`;
     document.getElementById('table-header-b').textContent = teamB.teamId;
@@ -112,9 +114,12 @@ function updateMatchupTable() {
     const tbody = document.getElementById('stats-table-body');
     tbody.innerHTML = ''; // Clear current rows
 
+    //First Append Win / Loss
+    const row = `<tr><td>Record (Win - Loss)</td><td>${teamA.wins} - ${teamA.losses}</td><td>${teamB.wins} - ${teamB.losses}</td></tr>`;
+    
     // Define rows configuration using your specific JSON keys
     // We explicitly map the 'value' key and the 'rank' key
-    const metrics = [
+    const metrics = [        
         { label: "Points Scored / Gm", key: "off_points_scored_per_game", rankKey: "off_points_scored_per_game_rank" },
         { label: "Pass Yds / Gm", key: "off_pass_yards_per_game", rankKey: "off_pass_yards_per_game_rank" },
         { label: "Rush Yds / Gm", key: "off_rush_yards_per_game", rankKey: "off_rush_yards_per_game_rank" },
@@ -124,8 +129,18 @@ function updateMatchupTable() {
         { label: "Def Rush Yds / Gm", key: "def_rush_yards_allowed_per_game", rankKey: "def_rush_yards_allowed_per_game_rank" },
         { label: "Def Total Yds / Gm", key: "def_total_yards_allowed_per_game", rankKey: "def_total_yards_allowed_per_game_rank" }
     ];
-
-    metrics.forEach(m => {
+    
+    metrics.forEach((m, i) => {
+        //Create a place holder for Offense or Defense sub headers
+        if (i === 0) {
+            const oRow = `<tr><td>Offense</td><td></td><td></td></tr>`;
+            tbody.innerHTML += oRow;
+        }
+        if (i === 4) {
+            const oRow = `<tr><td>Defense</td><td></td><td></td></tr>`;
+            tbody.innerHTML += oRow;
+        }
+        
         // Access values directly from the team object
         const valA = teamA[m.key];
         const valB = teamB[m.key];
@@ -136,7 +151,7 @@ function updateMatchupTable() {
 
         const row = `
             <tr>
-                <td>${m.label}</td>
+                <td style="padding-left: 45px;">${m.label}</td>
                 <td>${valA} <small>(${rankToOrdinal(rankA)})</small></td>
                 <td>${valB} <small>(${rankToOrdinal(rankB)})</small></td>
             </tr>
