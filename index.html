@@ -57,22 +57,13 @@
                         <span>2. Situational Factors</span>
                         <span class="arrow">▼</span>
                     </button>
-                    <div class="accordion-content">
-                        <div class="slider-group">
-                            <label>Home Field Advantage</label>
-                            <div class="range-wrapper">
-                                <span>Neutral</span>
-                                <input type="range" id="home-field" min="0" max="4" step="0.5" value="2.5">
-                                <span>Strong</span>
-                            </div>
-                        </div>
+                    <div class="accordion-content">                        
                         <div class="slider-group">
                             <label>Weather Impact</label>
-                            <select id="weather-select">
-                                <option value="0">Dome / Clear</option>
-                                <option value="-1">Rain / Wind</option>
-                                <option value="-2">Snow / Extreme Cold</option>
-                            </select>
+                            <input type="range" id="weather-select" min="-2" max="0" step="1" value="0">
+                            <div class="range-labels">
+                                <small>Snow/Very Cold</small><small>Rain/Wind</small><small>Dome/Clear</small>
+                            </div>                            
                         </div>
                     </div>
                 </div>
@@ -98,17 +89,17 @@
                             </div>
                         </div>
                         <div class="slider-group">
-                            <label>Away Health</label>
+                            <label>Away Key Injuries</label>
                             <input type="range" id="health-a" min="-2" max="0" step="1" value="0">
                             <div class="range-labels">
-                                <small>Critical</small><small>Poor</small><small>Full</small>
+                                <small>Lots</small><small>Couple</small><small>None</small>
                             </div>
                         </div>
                         <div class="slider-group">
-                            <label>Home Health</label>
+                            <label>Home Key Injuries</label>
                             <input type="range" id="health-b" min="-2" max="0" step="1" value="0">
                             <div class="range-labels">
-                                <small>Critical</small><small>Poor</small><small>Full</small>
+                                <small>Lots</small><small>Couple</small><small>None</small>
                             </div>
                         </div>
                     </div>
