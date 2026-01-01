@@ -18,31 +18,52 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function initDropdowns() {
-    const teamASelect = document.getElementById('team-a-select');
-    const teamBSelect = document.getElementById('team-b-select');
-    
-    // Clear existing
-    teamASelect.innerHTML = '<option value="">Select Team...</option>';
-    teamBSelect.innerHTML = '<option value="">Select Team...</option>';
+    /******************
+            Season
+    *******************/
+        const seasonSelect = document.getElementById('season-select');
+        //Clear existing
+        seasonSelect.innerHTML = '<option value="">Select Season...</option>';
+        
+        const seasonArray = globalData.seasons
+            .map(s => s.season)         // 1. Get the array of teams you want to sort
+            .sort((a, b) => a - b)      // 2. Sort the array numerically
+            .forEach(year => {
+                const optionSeason = document.createElement('option');
+                optionSeason.value = year;
+                optionSeason.textContent = `${year} Season`;
 
-    // 1. Get the array of teams you want to sort
-        const teamsArray = globalData.seasons[1].teams;
-    // 2. Sort the array in place based on the 'teamName' property
-        teamsArray.sort((a, b) => {
-              // Use localeCompare for robust alphabetical string comparison
-              return a.teamName.localeCompare(b.teamName);
-            });
+                seasonSelect.appendChild(optionSeason);
+                });
+
+    /******************
+            Team Name
+    *******************/
+        const teamASelect = document.getElementById('team-a-select');
+        const teamBSelect = document.getElementById('team-b-select');
+        
+        // Clear existing
+        teamASelect.innerHTML = '<option value="">Select Team...</option>';
+        teamBSelect.innerHTML = '<option value="">Select Team...</option>';
     
-    teamsArray.forEach(team => {
-        const optionA = document.createElement('option');
-        optionA.value = team.teamId;
-        optionA.textContent = team.teamName;
+        // 1. Get the array of teams you want to sort
+            const teamsArray = globalData.seasons[1].teams;
+        // 2. Sort the array in place based on the 'teamName' property
+            teamsArray.sort((a, b) => {
+                  // Use localeCompare for robust alphabetical string comparison
+                  return a.teamName.localeCompare(b.teamName);
+                });
         
-        const optionB = optionA.cloneNode(true);
-        
-        teamASelect.appendChild(optionA);
-        teamBSelect.appendChild(optionB);
-    });
+        teamsArray.forEach(team => {
+            const optionA = document.createElement('option');
+            optionA.value = team.teamId;
+            optionA.textContent = team.teamName;
+            
+            const optionB = optionA.cloneNode(true);
+            
+            teamASelect.appendChild(optionA);
+            teamBSelect.appendChild(optionB);
+        });
 }
 
 function setupEventListeners() {
@@ -54,8 +75,8 @@ function setupEventListeners() {
     document.getElementById('team-a-select').addEventListener('change', updateMatchupTable);
     document.getElementById('team-b-select').addEventListener('change', updateMatchupTable);
     
-    document.getElementById('run-sim-btn').addEventListener('click', runSimulationController);
-    document.getElementById('reset-btn').addEventListener('click', resetSimulation);
+    //document.getElementById('run-sim-btn').addEventListener('click', runSimulationController);
+    //document.getElementById('reset-btn').addEventListener('click', resetSimulation);
 }
 
 
