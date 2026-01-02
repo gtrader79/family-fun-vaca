@@ -127,3 +127,4 @@ function dropBalls() {
             Matter.Body.setStatic(body, true);
         }
     });
+}
