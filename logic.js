@@ -188,13 +188,13 @@ function runSimulationController() {
     *******************************/
       /*** Noise Settings -  linked to UI and selected by User  ***/
         const noiseSettings = [
-            {id:1, label:'Very Stable', threshold: 0.15},
-            {id:2, label:'Realistic Game Scenario', threshold:0.25},
-            {id:3, label:'High Volitility', threshold: 0.35},
-            {id:4, label:'Chaos Mode', threshold: 0.50}
+            {id:1, label:'Very Stable', threshold: 0.05},
+            {id:2, label:'Realistic Game Scenario', threshold:0.10},
+            {id:3, label:'High Volitility', threshold: 0.15},
+            {id:4, label:'Chaos Mode', threshold: 0.20}
         ];
-      /*** Home Field Advantage - 2 points given to home team.  Average NFL game spread is 14 points. 2/14 ~.143  ***/
-        const HFA = 0.143;  
+      /*** Home Field Advantage - 1.5 points given to home team.  Average NFL game spread is 13.7 points. ~.1095  ***/
+        const HFA = 0.1095;  
       /*** Weighting for Passing and Rushing   ***/
         const WEIGHTS = { pass: 1.0, rush: 0.85 };
       /*** Number of MonteCarlo Runs   ***/
@@ -205,6 +205,9 @@ function runSimulationController() {
             {id:4, label:'10,000 Runs', value: 10000},
         ];
         
+    
+      /***  k  - used in the sigmoid function.  Represents league wide uncertantity (e.g. referee's, unexpected weather or player injury  ***/
+        const k = 0.7;  /** can be tuned, <.55 is league chaos; > .85 overstates favorite team removing 'any given sunday' upset potential **/
     
     
     /*******************************
@@ -336,7 +339,3 @@ function resetSimulation() {
     document.getElementById('avg-margin').textContent = "--";
     // Future: Clear Canvas
 }
-
-
-
-
