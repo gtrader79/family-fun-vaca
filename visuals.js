@@ -5,23 +5,21 @@ const Engine = Matter.Engine,
       Render = Matter.Render,
       Runner = Matter.Runner,
       Composite = Matter.Composite,
-      Bodies = Matter.Bodies,
-      Events = Matter.Events;
+      Bodies = Matter.Bodies;
 
-let engine, render, runner;
-let ballInterval = null;
+let engine, render, runner, world; // Added world to global scope
 
-function initPhysics() {
-    // Enable bodies to "fall asleep" when they stop moving
-    //engine.enableSleeping = true;
-    
+function initPhysics() {        
     // Adjust the resting threshold to stop micro-vibrations
     // Default is 2; try increasing it slightly if they still giggle
     Matter.Resolver._restingThresh = 6; 
     
+    //create the engine
+    engine = Engine.create(); 
     
     //create world
     const world = engine.world;
+    
     //get the container
     const container = document.getElementById('matter-container');
     
@@ -42,8 +40,7 @@ function initPhysics() {
     // Helper function to create a bucket
     const createBucket = (x, y, width, height, thickness, color) => {
         const bucketOptions = {
-          isStatic: true
-          
+          isStatic: true          
           , render : {
             fillStyle: 'transparent' //make the inside clear
             , strokeStyle: color    //set the border color
@@ -82,6 +79,8 @@ function initPhysics() {
 // --- Trigger the Ball Drop ---
 function dropBalls() {
     if (!engine) initPhysics();
+
+    const container = document.getElementById('matter-container');
     
     // Clear old balls if any
     const bodies = Composite.allBodies(engine.world);
@@ -89,14 +88,15 @@ function dropBalls() {
     Composite.remove(engine.world, ballsToRemove);
 
     let ballCount = 0;
-    const maxBalls = 50;
+    const maxBalls = 100;
     
     const intervalId = setInterval(() => {
       if (ballCount >= maxBalls) {
-        clearInterval(intervalId); //Stop after exceeding maxBalls limit
-      }
+            clearInterval(intervalId);
+            return; // Exit the interval
+        }
       
-      // 1. Generate random number
+        // 1. Generate random number
         const rand = Math.random();  //to be adjusted to look at Monte Carlo simulation
     
         // 2. Determine x position based on the .5 threshold
@@ -107,6 +107,7 @@ function dropBalls() {
         const ball = Bodies.circle(xPos, -20, radius, {
             restitution: 0.8    //bounciness
             , friction: 0.99     //stickyness
+            , label: 'ball'     //needed for clearing out existing 
             , render: {
                 fillStyle: rand >= 0.5 ? '#3498db' : '#e74c3c' // Optional: color code by bucket
             }
@@ -116,15 +117,5 @@ function dropBalls() {
         ballCount++;
     }, 30); //500ms delay
     
-        /*const x = Math.random() * container.offsetWidth; // Random horizontal position
-        const y = -20; // Start slightly above the visible area
-        const radius = 10 + Math.random() * 10; // Randomize size for variety*/
-    
-    // Call this once the 500-ball interval is cleared
-    const allBodies = Composite.allBodies(world);
-    allBodies.forEach(body => {
-        if (!body.isStatic) {
-            Matter.Body.setStatic(body, true);
-        }
-    });
+        
 }
