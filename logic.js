@@ -326,11 +326,39 @@ function runSimulationController() {
                 probabilityB
             });
         }
+
+
+    /*******************************
+      -- v.  Process Results --            
+    *******************************/
+    //const winPctA = (teamAWins / iterations) * 100;
+    //const winPctB = 100 - winPctA;
+    //const avgMargin = margins.reduce((a, b) => a + b, 0) / iterations;
+
+    
+    /*******************************
+      -- vi.  Update UI --            
+    *******************************/
+    //const winText = winPctA > 50 
+    //    ? `${teamA.id} ${winPctA.toFixed(1)}%` 
+    //    : `${teamB.id} ${(100-winPctA).toFixed(1)}%`;
+    //document.getElementById('win-prob-display').textContent = `Win Prob: ${teamA.id} ${winPctA.toFixed(1)}%`;
+    //document.getElementById('win-pct').textContent = `${winPctA.toFixed(1)}%`;
+    //document.getElementById('avg-margin').textContent = `${Math.abs(avgMargin.toFixed(1))} pts`;
+
+    //console.log(`Sim Complete. Spread: ${baseSpread.toFixed(2)}, Win%: ${winPctA}%`);
+    
+    /*******************************
+      -- v.  Trigger Visuals --            
+    *******************************/
+    // Make sure visuals.js is loaded
+    if (typeof dropBalls === "function") {
+        dropBalls();
+    }
+    
+
+    
 };
-
-
-
-
 
 
 function resetSimulation() {
