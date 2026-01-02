@@ -319,12 +319,12 @@ function runSimulationController() {
         
             // 2. Store the results as an object in the array
             simulatedRuns.push({
-                teamA.teamId,
-                teamA.teamName,
-                teamA.primaryColor,
-                teamB.teamId,
-                teamB.teamName,
-                teamB.primaryColor,
+                //teamA.teamId,
+                //teamA.teamName,
+                //teamA.primaryColor,
+                //teamB.teamId,
+                //teamB.teamName,
+                //teamB.primaryColor,
                 strengthA,
                 strengthB,
                 delta,
