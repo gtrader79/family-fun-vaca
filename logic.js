@@ -1,6 +1,7 @@
 /* logic.js */
 
 let globalData = null; // Stores the loaded JSON
+let simulatedRuns = null;  //Stores the result of Monte Carlo
 let currentSeason = "2025";
 
 
@@ -307,8 +308,7 @@ function runSimulationController() {
     /*******************************
       -- v. Simulated Runs --            
     *******************************/
-        const numIterations = 10000;
-        const simulatedRuns = [];
+        const numIterations = 10000;        
         for (let i = 0; i < numIterations; i++) {
             // 1. Calculate variables for this specific simulation run
             const strengthA = calculateTotalStrength(teamAMetrics, teamBMetrics, noise_threshold, HFA);
