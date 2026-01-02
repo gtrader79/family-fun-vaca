@@ -276,7 +276,7 @@ function runSimulationController() {
         // 4. Find team within that specific season -> Get Team Metrics
         const teamA = seasonData.teams.find(t => t.teamId === idA);
         const teamB = seasonData.teams.find(t => t.teamId === idB);
-    
+    console.log (teamA);
         const teamAMetrics = { name: "Team A"
                               , passOff: teamA.off_pass_yards_per_game
                               , rushOff: teamA.off_rush_yards_per_game
@@ -319,12 +319,12 @@ function runSimulationController() {
         
             // 2. Store the results as an object in the array
             simulatedRuns.push({
-                teamA.teamId,
-                teamA.teamName,
-                teamA.primaryColor,
-                teamB.teamId,
-                teamB.teamName,
-                teamB.primaryColor,
+                //teamA.teamId,
+                //teamA.teamName,
+                //teamA.primaryColor,
+                //teamB.teamId,
+                //teamB.teamName,
+                //teamB.primaryColor,
                 strengthA,
                 strengthB,
                 delta,
