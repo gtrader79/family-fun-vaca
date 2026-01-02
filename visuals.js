@@ -12,72 +12,75 @@ let engine, render, runner;
 let ballInterval = null;
 
 function initPhysics() {
+    // Enable bodies to "fall asleep" when they stop moving
+    //engine.enableSleeping = true;
+    
+    // Adjust the resting threshold to stop micro-vibrations
+    // Default is 2; try increasing it slightly if they still giggle
+    Matter.Resolver._restingThresh = 6; 
+    
+    
+    //create world
+    const world = engine.world;
+    //get the container
     const container = document.getElementById('matter-container');
-    container.innerHTML = ''; // Clear placeholder
-
-    // Create Engine
-    engine = Engine.create();
-    const width = container.clientWidth;
-    const height = container.clientHeight;
-
-    // Create Renderer
-    render = Render.create({
+    
+    //create the render object specific to the container
+    const render = Render.create({
         element: container,
         engine: engine,
         options: {
-            width: width,
-            height: height,
+            width: container.offsetWidth,
+            height: 600,
             wireframes: false,
-            background: '#000000'
+            background: 'transparent' //Removes the blue/solid background
         }
     });
-
-    // --- Build the "Galton Board" Layout ---
-    const wallOpts = { isStatic: true, render: { fillStyle: '#333' } };
-    const pegOpts = { isStatic: true, render: { fillStyle: '#555' }, restitution: 0.5 };
     
-    // 1. Walls
-    const walls = [
-        Bodies.rectangle(width / 2, height + 30, width, 60, wallOpts), // Floor
-        Bodies.rectangle(-30, height / 2, 60, height, wallOpts),       // Left Wall
-        Bodies.rectangle(width + 30, height / 2, 60, height, wallOpts),// Right Wall
-        Bodies.rectangle(width / 2, height - 100, 10, 200, wallOpts)   // Central Bucket Divider
-    ];
-
-    // 2. The "V" Diverter at top
-    const wedgeLeft = Bodies.rectangle(width / 2 - 40, 100, 100, 20, { 
-        isStatic: true, angle: Math.PI / 4, render: { fillStyle: '#333' } 
-    });
-    const wedgeRight = Bodies.rectangle(width / 2 + 40, 100, 100, 20, { 
-        isStatic: true, angle: -Math.PI / 4, render: { fillStyle: '#333' } 
-    });
-
-    // 3. Pegs (Randomized Galton Grid)
-    const pegs = [];
-    const rows = 6;
-    const startY = 180;
-    const spacingY = 50;
     
-    for (let r = 0; r < rows; r++) {
-        const count = r % 2 === 0 ? 8 : 7; // Stagger rows
-        const spacingX = width / (count + 1);
-        for (let c = 1; c <= count; c++) {
-            const x = c * spacingX + (Math.random() * 10 - 5); // Add slight jitter
-            const y = startY + r * spacingY;
-            pegs.push(Bodies.circle(x, y, 4, pegOpts));
-        }
-    }
+    // 1. Create Bucket (Static Rectangles)
+    // Helper function to create a bucket
+    const createBucket = (x, y, width, height, thickness, color) => {
+        const bucketOptions = {
+          isStatic: true
+          
+          , render : {
+            fillStyle: 'transparent' //make the inside clear
+            , strokeStyle: color    //set the border color
+            , lineWidth: thickness  //Thickness of the border
+          }
+        };
+        const bottom = Bodies.rectangle(x, y + height/2, width, thickness, bucketOptions);
+        const left = Bodies.rectangle(x - width/2, y, thickness, height, bucketOptions);
+        const right = Bodies.rectangle(x + width/2, y, thickness, height, bucketOptions);
+        return [bottom, left, right];
+    };
+    
+    // Add two buckets side by side
+    const bucket1 = createBucket(container.offsetWidth * 0.25
+                                , 400
+                                , container.offsetWidth * .4
+                                , container.offsetHeight * .5
+                                , 5
+                                , '#969696');
+    const bucket2 = createBucket(container.offsetWidth * 0.75
+                                , 400
+                                , container.offsetWidth * .4
+                                , container.offsetHeight * .5
+                                , 5
+                                , '#969696');
+    Composite.add(world, [...bucket1, ...bucket2]);
 
-    Composite.add(engine.world, [...walls, wedgeLeft, wedgeRight, ...pegs]);
+   
 
-    // Run
+    // 3. Run the engine and renderer
+    //const render = Render.create({ element: document.body, engine: engine });
     Render.run(render);
-    runner = Runner.create();
-    Runner.run(runner, engine);
+    Runner.run(Runner.create(), engine);
 }
 
 // --- Trigger the Ball Drop ---
-function dropBalls(winPctA, teamAColor, teamBColor) {
+function dropBalls() {
     if (!engine) initPhysics();
     
     // Clear old balls if any
@@ -85,120 +88,42 @@ function dropBalls(winPctA, teamAColor, teamBColor) {
     const ballsToRemove = bodies.filter(b => b.label === 'ball');
     Composite.remove(engine.world, ballsToRemove);
 
-    // We drop 50 balls total to represent the distribution
-    const totalBalls = 50;
-    const ballsForA = Math.round((winPctA / 100) * totalBalls);
-    const ballsForB = totalBalls - ballsForA;
-
-    let droppedA = 0;
-    let droppedB = 0;
-    let count = 0;
-
-    if (ballInterval) clearInterval(ballInterval);
-
-    ballInterval = setInterval(() => {
-        if (count >= totalBalls) {
-            clearInterval(ballInterval);
-            return;
-        }
-
-        // Decide which team gets a ball this tick
-        // We mix them up so it's not just AAA then BBB
-        const isTeamA = (droppedA < ballsForA) && (Math.random() < (ballsForA / totalBalls) || droppedB >= ballsForB);
-
-        if (isTeamA) {
-            spawnBall(true, teamAColor);
-            droppedA++;
-        } else {
-            spawnBall(false, teamBColor);
-            droppedB++;
-        }
-        count++;
-    }, 50); // Drop rapidly
-}
-
-function spawnBall(isTeamA, color) {
-    const width = render.options.width;
-    // Spawn Left of center for Team A, Right for Team B
-    const xOffset = isTeamA ? -40 : 40; 
-    // Add randomness so they don't stack perfectly
-    const randomX = (Math.random() * 20) - 10; 
+    let ballCount = 0;
+    const maxBalls = 50;
     
-    const ball = Bodies.circle(width / 2 + xOffset + randomX, 50, 8, {
-        restitution: 0.6, // Bounciness
-        friction: 0.001,
-        label: 'ball',
-        render: { fillStyle: color }
-    });
-
-    Composite.add(engine.world, ball);
-}
-
-
-// --- 2. Chart.js Setup (The Histogram) ---
-let outcomeChart = null;
-
-function renderHistogram(margins, teamAId, teamBId, colorA, colorB) {
-    const ctx = document.getElementById('histogramChart').getContext('2d');
-
-    // Bin the data (Create buckets of 3 points)
-    // Range from -50 (Blowout Team B) to +50 (Blowout Team A)
-    const bins = {};
-    for (let i = -60; i <= 60; i += 3) bins[i] = 0;
-
-    margins.forEach(m => {
-        // Round to nearest bin
-        const binKey = Math.round(m / 3) * 3;
-        if (bins[binKey] !== undefined) bins[binKey]++;
-    });
-
-    const labels = Object.keys(bins).map(k => parseInt(k));
-    const dataValues = Object.values(bins);
+    const intervalId = setInterval(() => {
+      if (ballCount >= maxBalls) {
+        clearInterval(intervalId); //Stop after exceeding maxBalls limit
+      }
+      
+      // 1. Generate random number
+        const rand = Math.random();  //to be adjusted to look at Monte Carlo simulation
     
-    // Color the bars: Negative = Team B, Positive = Team A
-    const bgColors = labels.map(val => val > 0 ? colorA : colorB);
-
-    if (outcomeChart) outcomeChart.destroy();
-
-    outcomeChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Simulated Outcomes',
-                data: dataValues,
-                backgroundColor: bgColors,
-                barPercentage: 1.0,
-                categoryPercentage: 1.0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        title: (items) => {
-                            const val = items[0].label;
-                            return val > 0 ? `${teamAId} wins by ~${val}` : `${teamBId} wins by ~${Math.abs(val)}`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: { display: false }, // Hide y-axis for clean look
-                x: { 
-                    grid: { display: false },
-                    ticks: {
-                        callback: function(val, index) {
-                            // Only show every 5th label to reduce clutter
-                            const labelVal = this.getLabelForValue(val);
-                            return labelVal % 15 === 0 ? labelVal : '';
-                        }
-                    }
-                }
+        // 2. Determine x position based on the .5 threshold
+        const xPos = rand >= 0.5 ? container.offsetWidth *.25 : container.offsetWidth * .75;
+      
+        // 3. Create and add the ball
+        const radius = 8 + Math.random() * 5; // Randomize size for variety*/
+        const ball = Bodies.circle(xPos, -20, radius, {
+            restitution: 0.8    //bounciness
+            , friction: 0.99     //stickyness
+            , render: {
+                fillStyle: rand >= 0.5 ? '#3498db' : '#e74c3c' // Optional: color code by bucket
             }
+        });
+      
+        Composite.add(world, ball);
+        ballCount++;
+    }, 30); //500ms delay
+    
+        /*const x = Math.random() * container.offsetWidth; // Random horizontal position
+        const y = -20; // Start slightly above the visible area
+        const radius = 10 + Math.random() * 10; // Randomize size for variety*/
+    
+    // Call this once the 500-ball interval is cleared
+    const allBodies = Composite.allBodies(world);
+    allBodies.forEach(body => {
+        if (!body.isStatic) {
+            Matter.Body.setStatic(body, true);
         }
     });
-}
