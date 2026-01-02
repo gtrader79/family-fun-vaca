@@ -1,7 +1,7 @@
 /* logic.js */
 
 let globalData = null; // Stores the loaded JSON
-let simulatedRuns = null;  //Stores the result of Monte Carlo
+let simulatedRuns = [];  //Stores the result of Monte Carlo
 let currentSeason = "2025";
 
 
@@ -319,12 +319,12 @@ function runSimulationController() {
         
             // 2. Store the results as an object in the array
             simulatedRuns.push({
-                //teamA.teamId,
-                //teamA.teamName,
-                //teamA.primaryColor,
-                //teamB.teamId,
-                //teamB.teamName,
-                //teamB.primaryColor,
+                teamA.teamId,
+                teamA.teamName,
+                teamA.primaryColor,
+                teamB.teamId,
+                teamB.teamName,
+                teamB.primaryColor,
                 strengthA,
                 strengthB,
                 delta,
