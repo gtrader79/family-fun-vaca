@@ -85,7 +85,7 @@ function dropBalls() {
     Composite.remove(engine.world, ballsToRemove);
 
     let ballCount = 0;
-    const maxBalls = 100;
+    const maxBalls = 500;
     
     const intervalId = setInterval(() => {
       if (ballCount >= maxBalls) {
