@@ -1,11 +1,7 @@
 /* visuals.js */
 
 // --- 1. Matter.js Setup (The Physics Engine) ---
-const Engine = Matter.Engine,
-      Render = Matter.Render,
-      Runner = Matter.Runner,
-      Composite = Matter.Composite,
-      Bodies = Matter.Bodies;
+const { Engine, Render, Runner, Bodies, Composite } = Matter;
 
 let engine, render, runner, world; // Added world to global scope
 
@@ -18,13 +14,14 @@ function initPhysics() {
     engine = Engine.create(); 
     
     //create world
-    const world = engine.world;
+    world = engine.world;
     
-    //get the container
+    //get the container & clear it out
     const container = document.getElementById('matter-container');
+    container.innerHTML = ''; // Clear placeholder
     
     //create the render object specific to the container
-    const render = Render.create({
+    render = Render.create({
         element: container,
         engine: engine,
         options: {
