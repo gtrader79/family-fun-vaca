@@ -21,17 +21,21 @@ body {
     font-family: 'Roboto', sans-serif;
     background-color: var(--bg-dark);
     color: var(--text-main);
-    height: 100vh;
-    overflow: hidden; /* Prevent body scroll, handle inside panels */
+    height: 100dvh; 
+    overflow: hidden; 
+    /* Add padding for device "notches" */
+    padding-top: env(safe-area-inset-top);
 }
 
 /* --- Layout --- */
 .app-container {
     display: flex;
-    height: 100vh;
+    height: 100%;
     width: 100vw;
+    position: relative; /*Ensure z-indexing works*/
 }
 
+/* Ensure mobile header stays on top and is clickable */
 .mobile-header {
     display: none; /* Hidden on desktop */
     height: var(--header-height);
@@ -40,6 +44,9 @@ body {
     justify-content: space-between;
     padding: 0 1rem;
     border-bottom: 1px solid var(--border);
+    /* Fix for stacking order */
+    position: relative; 
+    z-index: 200;
 }
 
 /* --- Left Panel (Sidebar) --- */
@@ -270,6 +277,33 @@ input[type="range"] {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
+
+
+/* Floating Action Button (FAB) for Mobile */
+.fab-btn {
+    display: none; /* Hidden on Desktop */
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+    z-index: 90;
+    cursor: pointer;
+    align-items: center;
+    gap: 8px;
+}
+
+.fab-btn:active {
+    transform: translateX(-50%) scale(0.95);
+}
+
 /* --- Mobile Responsive --- */
 @media (max-width: 768px) {
     .app-container {
@@ -279,7 +313,7 @@ input[type="range"] {
     .mobile-header {
         display: flex;
     }
-
+    
     .sidebar {
         position: fixed;
         bottom: -100%; /* Hidden below screen */
@@ -307,5 +341,14 @@ input[type="range"] {
         padding: 1rem;
         flex: 1;
         font-size: 0.9rem;
+    }
+
+    .fab-btn {
+        display: flex; /* Show flex to align icon/text */
+    }
+
+    /* Hide the old button inside the sidebar on mobile to avoid confusion */
+    .sidebar-footer #run-sim-btn {
+        display: none; 
     }
 }
