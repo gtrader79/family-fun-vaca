@@ -210,6 +210,8 @@ function runSimulationController() {
       /***  k  - used in the sigmoid function.  Represents league wide uncertantity (e.g. referee's, unexpected weather or player injury  ***/
         const k = 0.7;  /** can be tuned, <.55 is league chaos; > .85 overstates favorite team removing 'any given sunday' upset potential **/
     
+      /*** clear out simulated Runs variable ***/
+        simulatedRuns = [];
     
     /*******************************
       -- ii. Helper Functions --
@@ -238,7 +240,46 @@ function runSimulationController() {
     
     /*** Noise Function for Monte Carlo simulations   ***/
         const generateNoise = (x) => Math.random() * (2 * x) + (-x);
-    
+
+    /***  Calculate the summary stats for the Monte Carlo simulation    ***/
+        const monteCarloSummaryStats = (runs) => {
+              const nRuns = runs.length;
+              if (nRuns === 0) return {};
+            
+              const teamAWinProb = runs.filter(run => run.delta > 0).length / nRuns;
+              const teamBWinProb = 1 - teamAWinProb;
+              const deltas = runs.map(run => run.delta).sort((a, b) => a - b);
+            
+              // Helper for Percentiles (Linear Interpolation)
+              const getPercentile = (p) => {
+                const index = (p / 100) * (nRuns - 1);
+                const low = Math.floor(index);
+                const high = Math.ceil(index);
+                const weight = index - low;
+                return deltas[low] + weight * (deltas[high] - deltas[low]);
+              };
+            
+              const meanDelta = deltas.reduce((acc, val) => acc + val, 0) / nRuns;
+              const medianDelta = getPercentile(50); // Consistent with interpolation
+
+            //Underdog
+                const baselineStrengthA = calculateTotalStrength(teamAMetrics, teamBMetrics, 0, HFA);
+                const baselineStrengthB = calculateTotalStrength(teamBMetrics, teamAMetrics, 0);
+                const baselineDelta = baselineStrengthA - baselineStrengthB;
+                const underdog = baselineDelta < 0 ? "A" : "B";
+
+            
+              return {
+                teamAWinProb,
+                teamBWinProb,
+                meanDelta,
+                medianDelta,
+                p10: getPercentile(10),
+                p25: getPercentile(25),
+                p75: getPercentile(75),
+                p90: getPercentile(90)
+              };
+        };
     
     /*******************************
       -- iii. Data Source Management --
@@ -319,40 +360,34 @@ function runSimulationController() {
         
             // 2. Store the results as an object in the array
             simulatedRuns.push({
-                //teamA.teamId,
-                //teamA.teamName,
-                //teamA.primaryColor,
-                //teamB.teamId,
-                //teamB.teamName,
-                //teamB.primaryColor,
+                simulatedRun: i+1,
+                teamA_Id: teamA.teamId,
+                teamA_Name: teamA.teamName,
+                teamA_Color: teamA.primaryColor,
+                teamB_Id: teamB.teamId,
+                teamB_Name: teamB.teamName,
+                teamB_Color: teamB.primaryColor,
                 strengthA,
                 strengthB,
                 delta,
                 probabilityA,
                 probabilityB
             });
-        }
-
-
+        }        
+    
     /*******************************
       -- v.  Process Results --            
     *******************************/
-    //const winPctA = (teamAWins / iterations) * 100;
-    //const winPctB = 100 - winPctA;
-    //const avgMargin = margins.reduce((a, b) => a + b, 0) / iterations;
+        const summaryMetrics = monteCarloSummaryStats(simulatedRuns);
+        Object.entries(summaryMetrics).forEach(([key, value]) => {
+          console.log(`${key}:`, value);
+        });
 
     
     /*******************************
-      -- vi.  Update UI --            
+      -- vii.  Update UI --            
     *******************************/
-    //const winText = winPctA > 50 
-    //    ? `${teamA.id} ${winPctA.toFixed(1)}%` 
-    //    : `${teamB.id} ${(100-winPctA).toFixed(1)}%`;
-    //document.getElementById('win-prob-display').textContent = `Win Prob: ${teamA.id} ${winPctA.toFixed(1)}%`;
-    //document.getElementById('win-pct').textContent = `${winPctA.toFixed(1)}%`;
-    //document.getElementById('avg-margin').textContent = `${Math.abs(avgMargin.toFixed(1))} pts`;
-
-    //console.log(`Sim Complete. Spread: ${baseSpread.toFixed(2)}, Win%: ${winPctA}%`);
+    
     
     /*******************************
       -- v.  Trigger Visuals --            
