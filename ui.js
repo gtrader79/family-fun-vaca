@@ -51,4 +51,32 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Run Simulation Triggered");
         // Phase 2 will hook this into the Math engine
     });
+
+    // Bind the new Mobile FAB button
+    const mobileRunBtn = document.getElementById('mobile-run-btn');
+    if (mobileRunBtn) {
+        mobileRunBtn.addEventListener('click', () => {
+            // Trigger the exact same logic as the desktop button
+            if (typeof runSimulationController === "function") {
+                runSimulationController();
+            }
+        });
+    }
+    
+    // OPTIONAL: If they DO use the desktop button while the sidebar is open on mobile, close the sidebar automatically
+    document.getElementById('run-sim-btn').addEventListener('click', () => {
+        // Check if we are on mobile (sidebar has 'open' class)
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar.classList.contains('open')) {
+            sidebar.classList.remove('open');
+        }
+        
+        // Existing logic trigger
+        if (typeof runSimulationController === "function") {
+            runSimulationController();
+        }
+    });
+
+
+
 });
