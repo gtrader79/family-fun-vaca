@@ -3,7 +3,9 @@
 let globalData = null; // Stores the loaded JSON
 let simulatedRuns = [];  //Stores the result of Monte Carlo
 let currentSeason = "2025";
-
+let teamA = [];
+let teamB = [];
+let summaryMetrics = [];
 
 /********************************************************************************************
     
@@ -108,8 +110,8 @@ function updateMatchupTable() {
     }
 
     // 2. Find team within that specific season
-    const teamA = seasonData.teams.find(t => t.teamId === idA);
-    const teamB = seasonData.teams.find(t => t.teamId === idB);
+    /*const*/ teamA = seasonData.teams.find(t => t.teamId === idA);
+    /*const*/ teamB = seasonData.teams.find(t => t.teamId === idB);
     
     // Note: In your new JSON, the stats are directly on the team object, 
     // so we don't need a separate 'statsA' object anymore.
@@ -277,7 +279,8 @@ function runSimulationController() {
                 p10: getPercentile(10),
                 p25: getPercentile(25),
                 p75: getPercentile(75),
-                p90: getPercentile(90)
+                p90: getPercentile(90),
+                underdog
               };
         };
     
@@ -315,9 +318,9 @@ function runSimulationController() {
     
     
         // 4. Find team within that specific season -> Get Team Metrics
-        const teamA = seasonData.teams.find(t => t.teamId === idA);
-        const teamB = seasonData.teams.find(t => t.teamId === idB);
-    console.log (teamA);
+        //const teamA = seasonData.teams.find(t => t.teamId === idA);
+        //const teamB = seasonData.teams.find(t => t.teamId === idB);
+    //console.log (teamA);
         const teamAMetrics = { name: "Team A"
                               , passOff: teamA.off_pass_yards_per_game
                               , rushOff: teamA.off_rush_yards_per_game
@@ -378,7 +381,7 @@ function runSimulationController() {
     /*******************************
       -- v.  Process Results --            
     *******************************/
-        const summaryMetrics = monteCarloSummaryStats(simulatedRuns);
+        summaryMetrics = monteCarloSummaryStats(simulatedRuns);
         Object.entries(summaryMetrics).forEach(([key, value]) => {
           console.log(`${key}:`, value);
         });
@@ -403,8 +406,6 @@ function runSimulationController() {
 
 
 function resetSimulation() {
-    document.getElementById('win-prob-display').textContent = "Win Prob: --%";
-    document.getElementById('win-pct').textContent = "--";
-    document.getElementById('avg-margin').textContent = "--";
+    
     // Future: Clear Canvas
 }
