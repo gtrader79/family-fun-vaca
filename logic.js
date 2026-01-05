@@ -497,7 +497,7 @@ function runSimulationController() {
               return "Unclear Edge";
             };
 
-            const confidenceLabel = getConfidenceLabel(summaryMetrics.teamAWinProb, iqr, upsetRate);
+            const confidenceLabel = getConfidenceLabel(summaryMetrics.teamAWinProb, summaryMetrics.p75 - summaryMetrics.p25, upsetRate);
 
             oRow = `<tr><td><strong>Overall Confidence:</strong>${confidenceLabel}<small>(Win Prob: ${(winProb * 100).toFixed(1)}%, IQR: ${iqr.toFixed(2)})</small></td><td></td><td></td></tr>`;
             tbody.innerHTML += oRow;
