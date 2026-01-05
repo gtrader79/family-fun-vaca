@@ -262,8 +262,8 @@ function runSimulationController() {
               };
             
               const meanDelta = deltas.reduce((acc, val) => acc + val, 0) / nRuns;
-              const medianDelta = getPercentile(50); // Consistent with interpolation
-
+              const medianDelta = getPercentile(50); // Consistent with interpolation            
+            
             //Underdog
                 const baselineStrengthA = calculateTotalStrength(teamAMetrics, teamBMetrics, 0, HFA);
                 const baselineStrengthB = calculateTotalStrength(teamBMetrics, teamAMetrics, 0);
@@ -279,7 +279,7 @@ function runSimulationController() {
                 p10: getPercentile(10),
                 p25: getPercentile(25),
                 p75: getPercentile(75),
-                p90: getPercentile(90),
+                p90: getPercentile(90),                
                 baselineStrengthA,
                 baselineStrengthB,
                 baselineDelta,
@@ -476,7 +476,31 @@ function runSimulationController() {
             </tr>`;
             tbody.innerHTML += oRow;
 
+        //#5  Confidence Mapping Logic:  How much I should trust this
+            const getConfidenceLabel = (winProb, iqr, upsetRate) => {
+              // Volatility override
+              if (upsetRate > 0.40 || iqr > 1.5)
+                return "Volatile";
+            
+              if (winProb > 0.70 && iqr < 0.8)
+                return "Strong Favorite";
+            
+              if (winProb > 0.60)
+                return "Moderate Favorite";
+            
+              if (winProb > 0.52)
+                return "Slight Edge";
+            
+              if (winProb >= 0.48 && winProb <= 0.52)
+                return "Coin Flip";
+            
+              return "Unclear Edge";
+            };
 
+            const confidenceLabel = getConfidenceLabel(winProb, iqr, upsetRate);
+
+            oRow = `<tr><td><strong>Overall Confidence:</strong>${confidenceLabel}<small>(Win Prob: ${(winProb * 100).toFixed(1)}%, IQR: ${iqr.toFixed(2)})</small></td><td></td><td></td></tr>`;
+            tbody.innerHTML += oRow;
 
     
     
