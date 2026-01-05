@@ -238,7 +238,7 @@ function runSimulationController() {
         };
     
     /*** Sigmoid function for probability mapping   ***/
-        const sigmoid = (x) => 1 / (1 + Math.exp(-x));
+        const sigmoid = (s) => 1 / (1 + Math.exp(-(k*s)));
     
     /*** Noise Function for Monte Carlo simulations   ***/
         const generateNoise = (x) => Math.random() * (2 * x) + (-x);
@@ -280,6 +280,9 @@ function runSimulationController() {
                 p25: getPercentile(25),
                 p75: getPercentile(75),
                 p90: getPercentile(90),
+                baselineStrengthA,
+                baselineStrengthB,
+                baselineDelta,
                 underdog
               };
         };
