@@ -393,6 +393,91 @@ function runSimulationController() {
     /*******************************
       -- vii.  Update UI --            
     *******************************/
+        const tbody = document.getElementById('analytics-stats-table-body');
+            tbody.innerHTML = '';//clear current rows
+            
+        //#1 Straight forward % Win probability:  How often
+            oRow = `<tr><td>Given everything we know, ${teamA.teamName} wins <strong>${(summaryMetrics.teamAWinProb * 100).toFixed(2)}%</strong> of the time based on 10,000 simulations.</td><td></td><td></td></tr>`;
+            tbody.innerHTML += oRow;
+
+        //#2 Median Strength Difference:  How Strong
+            const interpretMedianDelta = (delta, teamAName, teamBName) => {
+              const absDelta = Math.abs(delta);
+              const favored = delta > 0 ? teamAName : teamBName;
+            
+              if (absDelta < 0.15)
+                return `This matchup is effectively even, with no meaningful advantage for either team.`;
+            
+              if (absDelta < 0.50)
+                return `${favored} holds a slight overall advantage in a typical game.`;
+            
+              if (absDelta < 1.00)
+                return `${favored} has a clear but not dominant advantage in most simulations.`;
+            
+              if (absDelta < 2.00)
+                return `${favored} is meaningfully stronger and would be expected to control this matchup.`;
+            
+              return `${favored} has a decisive advantage in this matchup.`;
+            };
+        
+            const medianDeltaText = interpretMedianDelta(  summaryMetrics.medianDelta,  teamA.teamName,  teamB.teamName);
+        
+            oRow = `<tr><td><strong>Typical Matchup Strength:</strong>${medianDeltaText}<small>(Median Δ = ${summaryMetrics.medianDelta.toFixed(2)})</small></td><td></td><td></td></tr>`;
+            tbody.innerHTML += oRow;
+
+        //#3 Confidence Intervals on strength delta:  how sure are we
+            const interpretDeltaConfidence = (p25, p75, p10, p90) => {
+              const iqr = p75 - p25;
+              const crossesZero = p10 < 0 && p90 > 0;
+            
+              if (iqr < 0.5 && !crossesZero)
+                return "This matchup is highly stable, with outcomes clustering tightly around the expected result.";
+            
+              if (iqr < 1.0 && !crossesZero)
+                return "Most outcomes fall within a fairly narrow range, suggesting a reliable expected outcome.";
+            
+              if (iqr < 1.5)
+                return "This game shows moderate volatility, with realistic paths for either team to keep it close.";
+            
+              return "This matchup is highly volatile, with a wide range of possible outcomes and strong upset potential.";
+            };
+
+            const confidenceText = interpretDeltaConfidence(summaryMetrics.p25,summaryMetrics.p75,summaryMetrics.p10,summaryMetrics.p90);
+            oRow = `<tr><td><strong>Outcome Stability:</strong>${confidenceText}<small>(Middle 50% of outcomes fall between Δ ${summaryMetrics.p25.toFixed(2)} and Δ ${summaryMetrics.p75.toFixed(2)})</small></td><td></td><td></td></tr>`;
+            tbody.innerHTML += oRow;
+
+        //#4  Underdog upset Rate
+            const upsetRate =
+              summaryMetrics.underdog === "A"
+                ? summaryMetrics.teamAWinProb
+                : summaryMetrics.teamBWinProb;
+            
+            const underdogName =
+              summaryMetrics.underdog === "A"
+                ? teamA.teamName
+                : teamB.teamName;
+
+            const interpretUpsetRate = (rate) => {
+              if (rate < 0.15)
+                return "Upsets are rare in this matchup.";
+            
+              if (rate < 0.30)
+                return "Upsets are possible but unlikely.";
+            
+              if (rate < 0.45)
+                return "This matchup has meaningful upset potential.";
+            
+              return "This is a highly unpredictable matchup where either team can realistically win.";
+            };
+
+            const upsetText = interpretUpsetRate(upsetRate);
+        
+            oRow = `<tr><td><strong>Upset Potential:</strong>${upsetText}<small>(${underdogName} wins ${(upsetRate * 100).toFixed(1)}% of simulations despite being the underdog)</small></td><td></td>              <td></td>
+            </tr>`;
+            tbody.innerHTML += oRow;
+
+
+
     
     
     /*******************************
