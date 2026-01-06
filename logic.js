@@ -97,19 +97,25 @@ function updateMatchupTable() {
         { label: "Pass Yds", key: "off_pass_yards_per_game", r: "off_pass_yards_per_game_rank" },
         { label: "Rush Yds", key: "off_rush_yards_per_game", r: "off_rush_yards_per_game_rank" },
         { label: "Points Allowed", key: "def_points_allowed_per_game", r: "def_points_allowed_per_game_rank" },
-        { label: "Def Pass Yds", key: "def_pass_yards_allowed_per_game", r: "def_pass_yards_allowed_per_game_rank" },
-        { label: "Def Rush Yds", key: "def_rush_yards_allowed_per_game", r: "def_rush_yards_allowed_per_game_rank" }
+        { label: "Def Pass Yds Allowed", key: "def_pass_yards_allowed_per_game", r: "def_pass_yards_allowed_per_game_rank" },
+        { label: "Def Rush Yds Allowed", key: "def_rush_yards_allowed_per_game", r: "def_rush_yards_allowed_per_game_rank" }
     ];
 
     const tbody = document.getElementById('stats-table-body');
     tbody.innerHTML = `<tr><td>Record</td><td>${teamA.wins}-${teamA.losses}</td><td>${teamB.wins}-${teamB.losses}</td></tr>`;
     
-    metrics.forEach(m => {
+    metrics.forEach((m, i) => {
+        if (i === 0) {
+            tbody.innerHTML +=`<tr><td style="padding-left:20px">Offense</td><td></td><td></td></tr>`;
+        } else if (i === 4) {
+            tbody.innerHTML +=`<tr><td style="padding-left:20px">Defense</td><td></td><td></td></tr>`;
+        } else {
         tbody.innerHTML += `<tr>
-            <td style="padding-left:20px">${m.label}</td>
+            <td style="padding-left:45px">${m.label}</td>
             <td>${teamA[m.key]} <small>(${mathUtils.toOrdinal(teamA[m.r])})</small></td>
             <td>${teamB[m.key]} <small>(${mathUtils.toOrdinal(teamB[m.r])})</small></td>
         </tr>`;
+        }
     });
 }
 
@@ -146,6 +152,7 @@ function runSimulationController() {
     // D. Process Results
     const summary = {
         winProbA: results.filter(d => d > 0).length / SIM_CONFIG.iterations,
+        winProbB: 1 - winProbA,
         p2_5: mathUtils.getPercentile(results, 2.5),
         p25: mathUtils.getPercentile(results, 25),
         p75: mathUtils.getPercentile(results, 75),
@@ -180,7 +187,7 @@ function renderAnalytics(summary, league) {
     ].sort((a,b) => b.v - a.v);
 
     const rows = [
-        ["Win Probability", `<strong>${(summary.winProbA * 100).toFixed(1)}%</strong> for ${teamA.teamName}`],
+        ["Win Probability", `<strong>${(summary.winProbA * 100).toFixed(1)}%</strong> for ${teamA.teamName}; <strong>${(summary.winProbB * 100).toFixed(1)}%</strong> for ${teamB.teamName}`],
         ["95% Confidence", confText],
         ["Matchup Stability", `<span class="${stability.color}">${stability.label}</span>`],
         ["Key X-Factor", `The simulation is most sensitive to the <strong>${gaps[0].n}</strong>.`]
