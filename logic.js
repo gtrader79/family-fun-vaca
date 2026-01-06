@@ -526,8 +526,7 @@ function runSimulationController() {
             }
 
         //#7 Frangibility (Matchup Stability):  How mch 'noise' or 'luck' can flip the result.  calculate by looking at how close the Win Prob is to 50% relative to the Volatily (dis btwn percentiles)
-            // Calculate the Interquartile Range (IQR) as a proxy for volatility
-            const iqr = summaryMetrics.p75 - summaryMetrics.p25;
+            // Calculate the Interquartile Range (IQR) as a proxy for volatility            
             const winMargin = Math.abs(summaryMetrics.teamAWinProb - 0.5);
         
             let stabilityStatus = "";
