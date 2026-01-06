@@ -109,13 +109,13 @@ function updateMatchupTable() {
             tbody.innerHTML +=`<tr><td style="padding-left:20px">Offense</td><td></td><td></td></tr>`;
         } else if (i === 4) {
             tbody.innerHTML +=`<tr><td style="padding-left:20px">Defense</td><td></td><td></td></tr>`;
-        } else {
+        } 
         tbody.innerHTML += `<tr>
-            <td style="padding-left:45px">${m.label}</td>
+            <td style="padding-left:20px">${m.label}</td>
             <td>${teamA[m.key]} <small>(${mathUtils.toOrdinal(teamA[m.r])})</small></td>
             <td>${teamB[m.key]} <small>(${mathUtils.toOrdinal(teamB[m.r])})</small></td>
         </tr>`;
-        }
+        
     });
 }
 
@@ -151,8 +151,7 @@ function runSimulationController() {
 
     // D. Process Results
     const summary = {
-        winProbA: results.filter(d => d > 0).length / SIM_CONFIG.iterations,
-        winProbB: 1 - winProbA,
+        winProbA: results.filter(d => d > 0).length / SIM_CONFIG.iterations,        
         p2_5: mathUtils.getPercentile(results, 2.5),
         p25: mathUtils.getPercentile(results, 25),
         p75: mathUtils.getPercentile(results, 75),
@@ -187,7 +186,7 @@ function renderAnalytics(summary, league) {
     ].sort((a,b) => b.v - a.v);
 
     const rows = [
-        ["Win Probability", `<strong>${(summary.winProbA * 100).toFixed(1)}%</strong> for ${teamA.teamName}; <strong>${(summary.winProbB * 100).toFixed(1)}%</strong> for ${teamB.teamName}`],
+        ["Win Probability", `<strong>${(summary.winProbA * 100).toFixed(1)}%</strong> for ${teamA.teamName}; <strong>${((1-summary.winProbA) * 100).toFixed(1)}%</strong> for ${teamB.teamName}`],
         ["95% Confidence", confText],
         ["Matchup Stability", `<span class="${stability.color}">${stability.label}</span>`],
         ["Key X-Factor", `The simulation is most sensitive to the <strong>${gaps[0].n}</strong>.`]
