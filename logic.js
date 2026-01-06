@@ -276,10 +276,12 @@ function runSimulationController() {
                 teamBWinProb,
                 meanDelta,
                 medianDelta,
+                p2_5: getPercentile(2.5),
                 p10: getPercentile(10),
                 p25: getPercentile(25),
                 p75: getPercentile(75),
                 p90: getPercentile(90),                
+                p97_5: getPercentile(97.5),
                 baselineStrengthA,
                 baselineStrengthB,
                 baselineDelta,
@@ -399,7 +401,7 @@ function runSimulationController() {
         //#1 Straight forward % Win probability:  How often
             oRow = `<tr><td>Given everything we know, ${teamA.teamName} wins <strong>${(summaryMetrics.teamAWinProb * 100).toFixed(2)}%</strong> of the time based on 10,000 simulations.</td><td></td><td></td></tr>`;
             tbody.innerHTML += oRow;
-
+    
         //#2 Median Strength Difference:  How Strong
             const interpretMedianDelta = (delta, teamAName, teamBName) => {
               const absDelta = Math.abs(delta);
@@ -504,6 +506,71 @@ function runSimulationController() {
 
             oRow = `<tr><td><strong>Overall Confidence:</strong>${confidenceLabel}<small>(Win Prob: ${(winProb * 100).toFixed(1)}%, IQR: ${iqr.toFixed(2)})</small></td><td></td><td></td></tr>`;
             tbody.innerHTML += oRow;
+
+        //#6  Confidence Intervals:  Realistic floor / ceiling to the game
+            // Determine the narrative for the Confidence Interval
+            const floor = summaryMetrics.p2_5.toFixed(1);
+            const ceiling = summaryMetrics.p97_5.toFixed(1);
+            
+            let confidenceNarrative = "";
+            
+            if (summaryMetrics.p2_5 > 0) {
+                // Both tails are positive: Team A is heavily favored
+                confidenceNarrative = `We are 95% confident ${teamA.teamName} wins by between ${floor} and ${ceiling} points.`;
+            } else if (summaryMetrics.p97_5 < 0) {
+                // Both tails are negative: Team B is heavily favored
+                confidenceNarrative = `We are 95% confident ${teamB.teamName} wins by between ${Math.abs(ceiling)} and ${Math.abs(floor)} points.`;
+            } else {
+                // The interval crosses zero: It's a toss-up range
+                confidenceNarrative = `The 95% range suggests anything from a ${teamB.teamName} win by ${Math.abs(floor)} to a ${teamA.teamName} win by ${ceiling}.`;
+            }
+
+        //#7 Frangibility (Matchup Stability):  How mch 'noise' or 'luck' can flip the result.  calculate by looking at how close the Win Prob is to 50% relative to the Volatily (dis btwn percentiles)
+            // Calculate the Interquartile Range (IQR) as a proxy for volatility
+            const iqr = summaryMetrics.p75 - summaryMetrics.p25;
+            const winMargin = Math.abs(summaryMetrics.teamAWinProb - 0.5);
+        
+            let stabilityStatus = "";
+            let stabilityClass = ""; // For CSS coloring
+        
+            if (winMargin < 0.05 && iqr > 14) {
+                stabilityStatus = "High (Fragile): A single turnover likely decides this game.";
+                stabilityClass = "text-danger";
+            } else if (winMargin > 0.15) {
+                stabilityStatus = "Low (Stable): Team strength outweighs random variance.";
+                stabilityClass = "text-success";
+            } else {
+                stabilityStatus = "Moderate: Standard NFL variance applies.";
+                stabilityClass = "text-warning";
+            }
+
+        //#8 Sensitivity Analysis (The "X-Factor"): look at your Baseline Strength components. 
+            //We want to identify which specific stat interaction (e.g., Eagles Pass Offense vs. Bills Pass Defense) contributed the most to the baselineDelta.
+            // Example: Comparing the Z-Score Gaps
+            const passGap = Math.abs(getZScore(teamAMetrics.passOff, metrics.offPass) - getZScore(teamBMetrics.passDef, metrics.defPass, true));
+            const rushGap = Math.abs(getZScore(teamAMetrics.rushOff, metrics.offRush) - getZScore(teamBMetrics.rushDef, metrics.defRush, true));
+        
+            let xFactor = "";
+            if (passGap > rushGap) {
+                xFactor = `Passing Game: The matchup between ${teamA.teamName}'s air attack and ${teamB.teamName}'s secondary is the primary needle-mover.`;
+            } else {
+                xFactor = `Ground Game: The battle in the trenches (rushing) is the most sensitive variable in this simulation.`;
+            }
+
+        /* JS Start */              
+        // 1. Win Probability Row
+        tbody.innerHTML += `<tr><td><strong>Win Probability:</strong> ${teamA.teamName} wins ${(summaryMetrics.teamAWinProb * 100).toFixed(1)}% of the time.</td></tr>`;
+        
+        // 2. Confidence Interval Row
+        tbody.innerHTML += `<tr><td><strong>95% Confidence Range:</strong> ${confidenceNarrative}</td></tr>`;
+        
+        // 3. Frangibility Row
+        tbody.innerHTML += `<tr><td><strong>Matchup Frangibility:</strong> <span class="${stabilityClass}">${stabilityStatus}</span></td></tr>`;
+        
+        // 4. Sensitivity Row
+        tbody.innerHTML += `<tr><td><strong>Key Performance Driver:</strong> ${xFactor}</td></tr>`;
+        /* JS End */
+
 
     
     
