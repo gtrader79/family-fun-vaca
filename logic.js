@@ -8,7 +8,7 @@ let teamB = null;
 
 const SIM_CONFIG = {
     iterations: 10000,
-    hfa: 0.1095,
+    hfa: 0.037878,      //2 Pt HFA - Mean Spread of 2.5 pts / 13.2 StdDev
     k: 0.7,
     weights: { pass: 1.0, rush: 0.85 },
     noiseThreshold: 0.05 // Baseline "Stable"
@@ -38,6 +38,36 @@ const mathUtils = {
         return n + (s[(v - 20) % 10] || s[v] || s[0]);
     }
 };
+
+// --- 2.1 Core Math Utilities ---
+const analysisUtils = {
+    interpretMedianDelta: (delta, teamA, teamB) => {
+        const absDelta = Math.abs(delta);
+        const favored = delta > 0 ? teamA : teamB;
+        if (absDelta < 0.15) return `This matchup is effectively even.`;
+        if (absDelta < 0.50) return `${favored} holds a slight overall advantage.`;
+        if (absDelta < 1.00) return `${favored} has a clear but not dominant advantage.`;
+        if (absDelta < 2.00) return `${favored} is meaningfully stronger and should control the game.`;
+        return `${favored} has a decisive advantage.`;
+    },
+
+    interpretStability: (p25, p75, p10, p90) => {
+        const iqr = p75 - p25;
+        const crossesZero = p10 < 0 && p90 > 0;
+        if (iqr < 0.5 && !crossesZero) return "Highly stable; outcomes cluster tightly.";
+        if (iqr < 1.0 && !crossesZero) return "Reliable range; outcomes are fairly predictable.";
+        if (iqr < 1.5) return "Moderate volatility; paths exist for both teams.";
+        return "Highly volatile; strong upset potential.";
+    },
+
+    interpretUpset: (rate) => {
+        if (rate < 0.15) return "Upsets are rare.";
+        if (rate < 0.30) return "Possible but unlikely.";
+        if (rate < 0.45) return "Meaningful upset potential.";
+        return "Highly unpredictable; a true toss-up.";
+    }
+};
+
 
 // --- 3. Initialization & Event Listeners ---
 document.addEventListener('DOMContentLoaded', async () => {
@@ -107,7 +137,7 @@ function updateMatchupTable() {
     metrics.forEach((m, i) => {
         if (i === 0) {
             tbody.innerHTML +=`<tr><td style="padding-left:20px">Offense</td><td></td><td></td></tr>`;
-        } else if (i === 4) {
+        } else if (i === 3) {
             tbody.innerHTML +=`<tr><td style="padding-left:20px">Defense</td><td></td><td></td></tr>`;
         } 
         tbody.innerHTML += `<tr>
@@ -151,10 +181,13 @@ function runSimulationController() {
 
     // D. Process Results
     const summary = {
-        winProbA: results.filter(d => d > 0).length / SIM_CONFIG.iterations,        
-        p2_5: mathUtils.getPercentile(results, 2.5),
+        winProbA: results.filter(d => d > 0).length / SIM_CONFIG.iterations,
+        medianDelta: mathUtils.getPercentile(results, 50),
+        p10: mathUtils.getPercentile(results, 10),
         p25: mathUtils.getPercentile(results, 25),
         p75: mathUtils.getPercentile(results, 75),
+        p90: mathUtils.getPercentile(results, 90),
+        p2_5: mathUtils.getPercentile(results, 2.5),
         p97_5: mathUtils.getPercentile(results, 97.5),
         iqr: mathUtils.getPercentile(results, 75) - mathUtils.getPercentile(results, 25)
     };
@@ -185,11 +218,29 @@ function renderAnalytics(summary, league) {
         { n: "Rushing Matchup", v: Math.abs(mathUtils.getZ(teamA.off_rush_yards_per_game, league.offRush) - mathUtils.getZ(teamB.def_rush_yards_allowed_per_game, league.defRush, true)) }
     ].sort((a,b) => b.v - a.v);
 
+    // 4. Calculate Underdog/Upset Rate
+    // We assume the team with < 50% win prob is the underdog in the sim
+    const isAUnderdog = summary.winProbA < 0.5;
+    const upsetRate = isAUnderdog ? summary.winProbA : (1 - summary.winProbA);
+    const underdogName = isAUnderdog ? teamA.teamName : teamB.teamName;
+
+    // 5. Build the Narratives using our Analysis Utils
+    const medianText = analysisUtils.interpretMedianDelta(summary.medianDelta, teamA.teamName, teamB.teamName);
+    const stabilityText = analysisUtils.interpretStability(summary.p25, summary.p75, summary.p10, summary.p90);
+    const upsetText = analysisUtils.interpretUpset(upsetRate);
+
+    //6. Final Confidence Label
+    const confidenceLabel = getConfidenceLabel(summary.winProbA, summary.iqr, upsetRate);
+    
     const rows = [
         ["Win Probability", `<strong>${(summary.winProbA * 100).toFixed(1)}%</strong> for ${teamA.teamName}; <strong>${((1-summary.winProbA) * 100).toFixed(1)}%</strong> for ${teamB.teamName}`],
         ["95% Confidence", confText],
         ["Matchup Stability", `<span class="${stability.color}">${stability.label}</span>`],
-        ["Key X-Factor", `The simulation is most sensitive to the <strong>${gaps[0].n}</strong>.`]
+        ["Key X-Factor", `The simulation is most sensitive to the <strong>${gaps[0].n}</strong>.`],
+        ["Typical Strength", `${medianText} <br><small>(Median Δ: ${summary.medianDelta.toFixed(2)})</small>`],
+        ["Outcome Stability", `${stabilityText} <br><small>(Middle 50% range: ${summary.p25.toFixed(2)} to ${summary.p75.toFixed(2)})</small>`],
+        ["Upset Potential", `${upsetText} <br><small>${underdogName} wins ${(upsetRate * 100).toFixed(1)}% of the time.</small>` ],
+        ["Overall Confidence", `<strong>${confidenceLabel}</strong>`]
     ];
 
     rows.forEach(r => {
@@ -197,4 +248,15 @@ function renderAnalytics(summary, league) {
     });
 
     if (typeof dropBalls === "function") dropBalls();
+}
+
+
+// Separate helper for the Confidence Label to keep things tidy
+function getConfidenceLabel(winProb, iqr, upsetRate) {
+    if (upsetRate > 0.40 || iqr > 1.5) return "Volatile";
+    if (winProb > 0.70 && iqr < 0.8) return "Strong Favorite";
+    if (winProb > 0.60) return "Moderate Favorite";
+    if (winProb > 0.52) return "Slight Edge";
+    if (winProb >= 0.48 && winProb <= 0.52) return "Coin Flip";
+    return "Unclear Edge";
 }
