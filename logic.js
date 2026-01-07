@@ -5,10 +5,11 @@ let globalData = null;
 let currentSeasonData = null;
 let teamA = null;
 let teamB = null;
+let results = [];
 
 const SIM_CONFIG = {
     iterations: 10000,
-    hfa: 0.037878,      //2 Pt HFA - Mean Spread of 2.5 pts / 13.2 StdDev
+    hfa: 0.037878,      //z score based on 2 Pts of historical HFA; historical Mean Spread of 2.5 pts; historical StdDev of 13.2 points.  Historical is Post 1990
     k: 0.7,
     weights: { pass: 1.0, rush: 0.85 },
     noiseThreshold: 0.65 // Baseline "Stable"
@@ -171,8 +172,7 @@ function runSimulationController() {
     };
 
     // C. The Simulation Loop
-    let totalProbA = 0;
-    let results = [];
+    let totalProbA = 0;    
     for (let i = 0; i < SIM_CONFIG.iterations; i++) {
         //1. Calculat simulated results and delta for this 'any given sunday' simulated run
         const strA = getMatchupDelta(teamA, teamB, SIM_CONFIG.noiseThreshold) + SIM_CONFIG.hfa;
