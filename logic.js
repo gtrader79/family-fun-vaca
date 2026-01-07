@@ -192,8 +192,8 @@ function runSimulationController() {
     // D. Process Results
     const summary = {
         //winProbA: results.filter(d => d > 0).length / SIM_CONFIG.iterations,
-        winProbA = winProbA;
-        winProbB = winProbB;
+        winProbA: winProbA,
+        winProbB: winProbB,
         medianDelta: mathUtils.getPercentile(results, 50),
         p10: mathUtils.getPercentile(results, 10),
         p25: mathUtils.getPercentile(results, 25),
@@ -207,68 +207,85 @@ function runSimulationController() {
     renderAnalytics(summary, league);
 }
 
-// --- 6. The Analyst: Interpret and Render ---
+// --- 6.0 Separate helpers for the Interpretations to keep things tidy --- 
+function getFrangibility(winProbA, iqr) {
+    const winMargin = Math.abs(winProbA - 0.5);
+    
+    // High Fragility: The game is close (within 6% of a coin flip) 
+    // AND the volatility (IQR) is high (over 1.2 standard units).
+    if (winMargin < 0.06 && iqr > 1.2) {
+        return { label: "High (Fragile)", color: "text-danger", desc: "A single bounce could flip the result." };
+    } 
+    
+    // Low (Stable): One team has a clear advantage (>12% margin)
+    // AND the variance is relatively tight.
+    if (winMargin > 0.12 && iqr < 1.0) {
+        return { label: "Low (Stable)", color: "text-success", desc: "Team strength is likely to overcome random noise." };
+    }
+    
+    // Default
+    return { label: "Moderate", color: "text-warning", desc: "Standard NFL variance applies." };
+}
+
+function getConfidenceLabel(winProb, iqr, upsetRate) {
+    const winMargin = Math.abs(winProb - 0.5);
+
+    // Volatility Check: if the range is huge, it's always volatile
+    if (iqr > 1.6) return "High Chaos";
+
+    if (winProb > 0.65 || winProb < 0.35) {
+        return (iqr < 0.9) ? "Strong Favorite" : "Moderate Favorite";
+    }
+
+    if (winProb > 0.55 || winProb < 0.45) {
+        return "Slight Edge";
+    }
+
+    if (winMargin <= 0.05) {
+        return "True Coin Flip";
+    }
+
+    return "Unclear Edge";
+}
+
+// --- 6.1 The Analyst: Interpret and Render ---
 function renderAnalytics(summary, league) {
     const tbody = document.getElementById('analytics-stats-table-body');
     tbody.innerHTML = '';
 
-    // 1. Confidence Logic
-    const floor = summary.p2_5.toFixed(2), ceil = summary.p97_5.toFixed(2);
-    let confText = (summary.p2_5 > 0) ? `${teamA.teamName} by ${floor} to ${ceil}` :
-                   (summary.p97_5 < 0) ? `${teamB.teamName} by ${Math.abs(ceil)} to ${Math.abs(floor)}` :
-                   `Toss-up: ${teamB.teamName} (-${Math.abs(floor)}) to ${teamA.teamName} (+${ceil})`;
-
-    // 2. Frangibility Logic
-    const winMargin = Math.abs(summary.winProbA - 0.5);
-    let stability = { label: "Moderate", color: "text-warning" };
-    if (winMargin < 0.07 && summary.iqr > 1.5) stability = { label: "High (Fragile)", color: "text-danger" };
-    else if (winMargin > 0.15) stability = { label: "Low (Stable)", color: "text-success" };
-
-    // 3. X-Factor Logic
-    const gaps = [
-        { n: "Passing Matchup", v: Math.abs(mathUtils.getZ(teamA.off_pass_yards_per_game, league.offPass) - mathUtils.getZ(teamB.def_pass_yards_allowed_per_game, league.defPass, true)) },
-        { n: "Rushing Matchup", v: Math.abs(mathUtils.getZ(teamA.off_rush_yards_per_game, league.offRush) - mathUtils.getZ(teamB.def_rush_yards_allowed_per_game, league.defRush, true)) }
-    ].sort((a,b) => b.v - a.v);
-
-    // 4. Calculate Underdog/Upset Rate
-    // We assume the team with < 50% win prob is the underdog in the sim
     const isAUnderdog = summary.winProbA < 0.5;
     const upsetRate = isAUnderdog ? summary.winProbA : (1 - summary.winProbA);
     const underdogName = isAUnderdog ? teamA.teamName : teamB.teamName;
 
-    // 5. Build the Narratives using our Analysis Utils
-    const medianText = analysisUtils.interpretMedianDelta(summary.medianDelta, teamA.teamName, teamB.teamName);
-    const stabilityText = analysisUtils.interpretStability(summary.p25, summary.p75, summary.p10, summary.p90);
-    const upsetText = analysisUtils.interpretUpset(upsetRate);
-
-    //6. Final Confidence Label
+    // Use our new logic functions
+    const frangibility = getFrangibility(summary.winProbA, summary.iqr);
     const confidenceLabel = getConfidenceLabel(summary.winProbA, summary.iqr, upsetRate);
-    
+
     const rows = [
-        ["Win Probability", `<strong>${(summary.winProbA * 100).toFixed(1)}%</strong> for ${teamA.teamName}; <strong>${((1-summary.winProbA) * 100).toFixed(1)}%</strong> for ${teamB.teamName}`],
-        ["95% Confidence", confText],
-        ["Matchup Stability", `<span class="${stability.color}">${stability.label}</span>`],
-        ["Key X-Factor", `The simulation is most sensitive to the <strong>${gaps[0].n}</strong>.`],
-        ["Typical Strength", `${medianText} <br><small>(Median Δ: ${summary.medianDelta.toFixed(2)})</small>`],
-        ["Outcome Stability", `${stabilityText} <br><small>(Middle 50% range: ${summary.p25.toFixed(2)} to ${summary.p75.toFixed(2)})</small>`],
-        ["Upset Potential", `${upsetText} <br><small>${underdogName} wins ${(upsetRate * 100).toFixed(1)}% of the time.</small>` ],
-        ["Overall Confidence", `<strong>${confidenceLabel}</strong>`]
+        { 
+            label: "Win Probability", 
+            val: `<strong>${(summary.winProbA * 100).toFixed(1)}%</strong> for ${teamA.teamName}` 
+        },
+        { 
+            label: "Matchup Stability", 
+            val: `<span class="${frangibility.color}"><strong>${frangibility.label}</strong></span><br><small>${frangibility.desc}</small>` 
+        },
+        { 
+            label: "Upset Potential", 
+            val: `<strong>${(upsetRate * 100).toFixed(1)}%</strong><br><small>${underdogName} win paths identified.</small>` 
+        },
+        { 
+            label: "Sim Confidence", 
+            val: `<strong>${confidenceLabel}</strong><br><small>Based on ${SIM_CONFIG.iterations.toLocaleString()} runs</small>` 
+        }
     ];
 
     rows.forEach(r => {
-        tbody.innerHTML += `<tr><td style="width:35%"><strong>${r[0]}</strong></td><td>${r[1]}</td></tr>`;
+        tbody.innerHTML += `<tr>
+            <td style="width:35%"><strong>${r.label}</strong></td>
+            <td>${r.val}</td>
+        </tr>`;
     });
 
     if (typeof dropBalls === "function") dropBalls();
-}
-
-
-// Separate helper for the Confidence Label to keep things tidy
-function getConfidenceLabel(winProb, iqr, upsetRate) {
-    if (upsetRate > 0.40 || iqr > 1.5) return "Volatile";
-    if (winProb > 0.70 && iqr < 0.8) return "Strong Favorite";
-    if (winProb > 0.60) return "Moderate Favorite";
-    if (winProb > 0.52) return "Slight Edge";
-    if (winProb >= 0.48 && winProb <= 0.52) return "Coin Flip";
-    return "Unclear Edge";
 }
