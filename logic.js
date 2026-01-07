@@ -11,7 +11,7 @@ const SIM_CONFIG = {
     hfa: 0.037878,      //2 Pt HFA - Mean Spread of 2.5 pts / 13.2 StdDev
     k: 0.7,
     weights: { pass: 1.0, rush: 0.85 },
-    noiseThreshold: 0.05 // Baseline "Stable"
+    noiseThreshold: 0.65 // Baseline "Stable"
 };
 
 // --- 2. Core Math Utilities ---
@@ -171,17 +171,29 @@ function runSimulationController() {
     };
 
     // C. The Simulation Loop
+    let totalProbA = 0;
     let results = [];
     for (let i = 0; i < SIM_CONFIG.iterations; i++) {
+        //1. Calculat simulated results and delta for this 'any given sunday' simulated run
         const strA = getMatchupDelta(teamA, teamB, SIM_CONFIG.noiseThreshold) + SIM_CONFIG.hfa;
         const strB = getMatchupDelta(teamB, teamA, SIM_CONFIG.noiseThreshold);
-        results.push(strA - strB);
+        const delta = strA - strB;
+        //2. Map this delta to a Probability using Sigmoid
+        const probA = mathUtils.sigmoid(delta);
+        //3. Accumulate and Store
+        totalProbA += probA;
+        results.push(strA - strB);        
     }
-    results.sort((a, b) => a - b);
+        //4. Calculate Win Probabilities by averaging the probabilities
+        const winProbA = totalProbA / SIM_CONFIG.iterations;    
+        const winProbB = 1 - winProbA;
+        results.sort((a, b) => a - b);
 
     // D. Process Results
     const summary = {
-        winProbA: results.filter(d => d > 0).length / SIM_CONFIG.iterations,
+        //winProbA: results.filter(d => d > 0).length / SIM_CONFIG.iterations,
+        winProbA = winProbA;
+        winProbB = winProbB;
         medianDelta: mathUtils.getPercentile(results, 50),
         p10: mathUtils.getPercentile(results, 10),
         p25: mathUtils.getPercentile(results, 25),
