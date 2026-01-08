@@ -102,7 +102,7 @@ function dropBalls() {
     Composite.remove(engine.world, ballsToRemove);
 
     let ballCount = 0;    
-    const maxBalls = 400;
+    const maxBalls = 500;
     const rndListSimulationResults = getUniqueRandomNumbers(maxBalls+50, 0, simulationRuns.length-1);
     
     const intervalId = setInterval(() => {
@@ -116,7 +116,7 @@ function dropBalls() {
         const runProb = simulationRuns[rndListSimulationResults[ballCount]].teamA_Prob;
     
         // 2. Determine x position based on the .5 threshold
-        const xPos = runProb <= 0.5 ? container.offsetWidth *.25 : container.offsetWidth * .75;
+        const xPos = runProb >= 0.5 ? container.offsetWidth *.25 : container.offsetWidth * .75;
       
         // 3. Create and add the ball
         const radius = 8 + Math.random() * 8; // Randomize size for variety*/
@@ -125,7 +125,7 @@ function dropBalls() {
             , friction: 0.99     //stickyness
             , label: 'ball'     //needed for clearing out existing 
             , render: {
-                fillStyle: runProb <= 0.5 ? teamA.primaryColor : teamB.primaryColor // Optional: color code by bucket
+                fillStyle: runProb >= 0.5 ? teamA.primaryColor : teamB.primaryColor // Optional: color code by bucket
             }
         });
       
