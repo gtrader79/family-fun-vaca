@@ -45,7 +45,7 @@ function initPhysics() {
             width: container.offsetWidth,
             height: 600,
             wireframes: false,
-            background: 'transparent' //Removes the blue/solid background
+            background: '#f4f4f4' //Removes the blue/solid background
         }
     });
     
@@ -56,7 +56,7 @@ function initPhysics() {
         const bucketOptions = {
           isStatic: true          
           , render : {
-            fillStyle: '#f4f4f4' //make the inside clear
+            fillStyle: 'transparent' //make the inside clear
             , strokeStyle: color    //set the border color
             , lineWidth: thickness  //Thickness of the border
           }
