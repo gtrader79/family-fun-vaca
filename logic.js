@@ -232,22 +232,80 @@ function runSimulationController() {
 
 // --- 6.0 Separate helpers for the Interpretations to keep things tidy --- 
 function getFrangibility(winProbA, iqr) {
-    const winMargin = Math.abs(winProbA - 0.5);
-    
-    // High Fragility: The game is close (within 6% of a coin flip) 
-    // AND the volatility (IQR) is high (over 1.2 standard units).
-    if (winMargin < 0.06 && iqr > 1.2) {
-        return { label: "High (Fragile)", color: "text-danger", desc: "A single bounce could flip the result." };
-    } 
-    
-    // Low (Stable): One team has a clear advantage (>12% margin)
-    // AND the variance is relatively tight.
-    if (winMargin > 0.12 && iqr < 1.0) {
-        return { label: "Low (Stable)", color: "text-success", desc: "Team strength is likely to overcome random noise." };
+    const winMargin = Math.abs(winProbA - 0.5); // 0.00 = 50/50 split; 0.50 = 100% win
+
+    // --- TIER 1: EXTREME VOLATILITY (The "Wildcard" Factor) ---
+    // If the simulation variance is huge (>1.5), the "average" result means nothing.
+    // This happens when high-offense teams play no defense (shootout potential).
+    if (iqr > 1.5) {
+        return { 
+            label: "Chaotic", 
+            color: "text-purple", // Use a distinct color for 'weird' games
+            desc: "Extreme volatility detected. Expect a shootout or weird turnovers. Stats are less reliable here." 
+        };
     }
-    
-    // Default
-    return { label: "Moderate", color: "text-warning", desc: "Standard NFL variance applies." };
+
+    // --- TIER 2: THE LOCK (Dominant Advantage) ---
+    // One team wins > 85% of the time (Margin > 0.35). 
+    // Variance doesn't matter because the gap is too wide to bridge.
+    if (winMargin > 0.35) {
+        return { 
+            label: "Very Stable (Lock)", 
+            color: "text-success", 
+            desc: "The talent gap is massive. An upset would be a statistical anomaly." 
+        };
+    }
+
+    // --- TIER 3: THE "TRAP GAME" (Volatile Favorite) ---
+    // The favorite wins ~65-80% (Margin > 0.15) BUT the variance is high (> 1.1).
+    // This means the favorite is better, but inconsistent.
+    if (winMargin > 0.15 && iqr > 1.1) {
+        return { 
+            label: "Moderate (Trap Game)", 
+            color: "text-warning", 
+            desc: "The favorite is clearly better but prone to variance. A sloppy game could open the door." 
+        };
+    }
+
+    // --- TIER 4: THE PROFESSIONAL WIN (Stable Favorite) ---
+    // The favorite wins ~60-80% AND variance is low (< 1.1).
+    // They consistently beat this opponent.
+    if (winMargin > 0.10 && iqr <= 1.1) {
+        return { 
+            label: "Stable", 
+            color: "text-primary", 
+            desc: "The favorite has a consistent advantage and rarely underperforms in this matchup." 
+        };
+    }
+
+    // --- TIER 5: THE GRIND (Stable Close Game) ---
+    // The game is close (Margin < 10%) BUT variance is low (< 0.85).
+    // This isn't a random coin flip; it's two evenly matched teams playing tight.
+    if (winMargin < 0.10 && iqr < 0.85) {
+        return { 
+            label: "High Tension (Grind)", 
+            color: "text-info", 
+            desc: "Evenly matched teams with low variance. Expect a close game decided by the final possession." 
+        };
+    }
+
+    // --- TIER 6: THE COIN FLIP (Fragile) ---
+    // The game is close (Margin < 10%) AND variance is normal/high.
+    // This is "Any Given Sunday."
+    if (winMargin < 0.10) {
+        return { 
+            label: "High (Fragile)", 
+            color: "text-danger", 
+            desc: "A true toss-up. The outcome likely hinges on a single big play or turnover." 
+        };
+    }
+
+    // --- DEFAULT (The Catch-All) ---
+    return { 
+        label: "Moderate", 
+        color: "text-secondary", 
+        desc: "Standard NFL variance. A competitive game where the favorite has a slight edge." 
+    };
 }
 
 function getConfidenceLabel(winProb, iqr, upsetRate) {
@@ -319,13 +377,22 @@ function getKeysToSuccess(tA, tB, league) {
     }
 
     // Logic for Team B (Defensive Focus)
-    const bPassDefend = getAdvantage(tB.off_pass_yards_per_game, league.offPass, tA.def_pass_yards_allowed_per_game, league.defPass);
+    //const bPassDefend = getAdvantage(tB.off_pass_yards_per_game, league.offPass, tA.def_pass_yards_allowed_per_game, league.defPass);
     
     // We check what Team A's biggest threat is and tell Team B to stop it
-    if (aPassAdv > aRushAdv) {
-        keys.teamB = `${tB.teamName} must limit the ${tA.teamId} air-attack to stay in this game.`;
+    //if (aPassAdv > aRushAdv) {
+    //    keys.teamB = `${tB.teamName} must limit the ${tA.teamId} air-attack to stay in this game.`;
+    //} else {
+    //    keys.teamB = `${tB.teamName} has to stack the box and stop ${tA.teamId} from running the ball effectively.`;
+    //}
+    // Logic for Team B
+    const bPassAdv = getAdvantage(tb.off_pass_yards_per_game, league.offPass, tA.def_pass_yards_allowed_per_game, league.defPass);
+    const bRushAdv = getAdvantage(tb.off_rush_yards_per_game, league.offRush, tA.def_rush_yards_allowed_per_game, league.defRush);
+
+    if (bPassAdv > bRushAdv) {
+        keys.teamB = `${tB.teamName} should focus on their passing game to exploit the ${tA.teamId} secondary.`;
     } else {
-        keys.teamB = `${tB.teamName} has to stack the box and stop ${tA.teamId} from running the ball effectively.`;
+        keys.teamB = `${tB.teamName} needs to lean on their rushing attack to control the tempo against ${tA.teamId}.`;
     }
 
     return keys;
@@ -345,13 +412,26 @@ function renderAnalytics(summary, league) {
     const confidenceLabel = getConfidenceLabel(summary.winProbA, summary.iqr, upsetRate);
     const keys = getKeysToSuccess(teamA, teamB, league);
 
+    //New Code
+    // Generate "The Bottom Line" Text
+    // This combines the "Who" and the "How" into a prediction statement.
+    let predictionText = "";
+    if (summary.winProbA > 0.60) {
+        predictionText = `Expect ${teamA.teamName} to win, provided they ${keys.teamA.split(' focus ')[0].toLowerCase()} focus on execution.`;
+    } else if (summary.winProbA < 0.40) {
+        predictionText = `Expect ${teamB.teamName} to win, unless ${teamA.teamName} can exploit the ${teamB.teamId} defense early.`;
+    } else {
+        predictionText = `This is too close to call. The winner will be whoever wins the turnover battle.`;
+    }
+
+    
     const rows = [
         { 
             label: "Who Wins?", 
             val: `<strong>${teamA.teamName}</strong> has a <strong>${(summary.winProbA * 100).toFixed(1)}%</strong> chance to win.<br><strong>${teamB.teamName}</strong> has a <strong>${(summary.winProbB * 100).toFixed(1)}%</strong> chance to win.`
         },
         { 
-            label: "Matchup Stability", 
+            label: "Matchup Stability / Game Style", 
             val: `<span class="${frangibility.color}"><strong>${frangibility.label}</strong></span><br><small>${frangibility.desc}</small>` 
         },
         { 
@@ -360,7 +440,7 @@ function renderAnalytics(summary, league) {
         },
         { 
             label: "Upset Potential", 
-            val: `<strong>${(upsetRate * 100).toFixed(1)}%</strong><br><small>${underdogName} wins ${(upsetRate * 100).toFixed(1)}% of simulated runs.</small>` 
+            val: `<strong>${(upsetRate * 100).toFixed(1)}%</strong><br><small>Even though ${underdogName} is the underdog, they still win ${(upsetRate * 100).toFixed(1)}% of simulated runs.</small>` 
         },
         { 
             label: "Sim Confidence", 
@@ -371,14 +451,24 @@ function renderAnalytics(summary, league) {
             val: `<strong>For ${teamA.teamId}:</strong> ${keys.teamA}<br><br><strong>For ${teamB.teamId}:</strong> ${keys.teamB}` 
         },
         { 
-            label: "Game Style", 
-            val: `This matchup looks <strong>${frangibility.label}</strong>. ${frangibility.desc}` 
-        }//,
-        //{ 
-        //    label: "Upset Watch", 
-        //    val: `The underdog (${underdogName}) wins about <strong>${(Math.min(summary.winProbA, 1-summary.winProbA) * 100).toFixed(0)} out of 100</strong> times.` 
-       //}
-        
+            label: "Who Wins?", 
+            val: `<strong>${teamA.teamName}</strong> wins <strong>${(summary.winProbA * 100).toFixed(1)}%</strong> of simulations.` 
+        },
+        { 
+            label: "Game Personality", 
+            val: `<span class="${frangibility.color}"><strong>${frangibility.label}</strong></span><br><small>${frangibility.desc}</small>` 
+        },
+        { 
+            label: "Keys to Success", 
+            val: `<ul style="margin: 0; padding-left: 15px;">
+                    <li><strong>${teamA.teamId}:</strong> ${keys.teamA}</li>
+                    <li><strong>${teamB.teamId}:</strong> ${keys.teamB}</li>
+                  </ul>` 
+        },
+        { 
+            label: "The Bottom Line", 
+            val: `<em>"${predictionText}"</em>` 
+        }
     ];
 
     rows.forEach(r => {
