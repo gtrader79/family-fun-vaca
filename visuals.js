@@ -26,7 +26,9 @@ function initPhysics() {
     Matter.Resolver._restingThresh = 6; 
     
     //create the engine
-    engine = Engine.create(); 
+    engine = Engine.create({
+      enableSleeping: true // Add this line
+    });
     
     //create world
     world = engine.world;
