@@ -386,8 +386,8 @@ function getKeysToSuccess(tA, tB, league) {
     //    keys.teamB = `${tB.teamName} has to stack the box and stop ${tA.teamId} from running the ball effectively.`;
     //}
     // Logic for Team B
-    const bPassAdv = getAdvantage(tb.off_pass_yards_per_game, league.offPass, tA.def_pass_yards_allowed_per_game, league.defPass);
-    const bRushAdv = getAdvantage(tb.off_rush_yards_per_game, league.offRush, tA.def_rush_yards_allowed_per_game, league.defRush);
+    const bPassAdv = getAdvantage(tB.off_pass_yards_per_game, league.offPass, tA.def_pass_yards_allowed_per_game, league.defPass);
+    const bRushAdv = getAdvantage(tB.off_rush_yards_per_game, league.offRush, tA.def_rush_yards_allowed_per_game, league.defRush);
 
     if (bPassAdv > bRushAdv) {
         keys.teamB = `${tB.teamName} should focus on their passing game to exploit the ${tA.teamId} secondary.`;
