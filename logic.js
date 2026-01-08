@@ -198,7 +198,7 @@ function runSimulationController() {
                 delta,
                 teamA_Prob: probA,
                 teamB_Prob: probB
-                };
+                });
         //4. Calculate Win Probabilities by averaging the probabilities
         const winProbA = totalProbA / SIM_CONFIG.iterations;    
         const winProbB = 1 - winProbA;
