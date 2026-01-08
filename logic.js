@@ -155,12 +155,18 @@ function updateMatchupTable() {
 function runSimulationController() {
     if (!teamA || !teamB) return;
 
+    results =[];
+    simulationRuns =[];
+    
     // A. Pre-calculate League Stats (Context)
     const league = {
         offPass: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_pass_yards_per_game)),
         offRush: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_rush_yards_per_game)),
         defPass: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_pass_yards_allowed_per_game)),
-        defRush: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_rush_yards_allowed_per_game))
+        defRush: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_rush_yards_allowed_per_game)),
+        // Fixed: Added Points stats for X-Factor calculation
+        offPts: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_points_scored_per_game)),
+        defPts: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_points_allowed_per_game))
     };
 
     // B. Calculate Matchup Z-Scores
@@ -181,9 +187,10 @@ function runSimulationController() {
         const delta = strA - strB;
         //2. Map this delta to a Probability using Sigmoid
         const probA = mathUtils.sigmoid(delta);
+        const probB = 1 - probA; // Fixed missing variable
         //3. Accumulate and Store
         totalProbA += probA;
-        results.push(strA - strB);   
+        results.push(delta);   
         //4. Store in Simulation for Visual.js
         simulationRuns.push({
                 simulatedRun: i+1,
@@ -199,14 +206,14 @@ function runSimulationController() {
                 teamA_Prob: probA,
                 teamB_Prob: probB
                 });
-        //4. Calculate Win Probabilities by averaging the probabilities
+        }
+        //Final Calculations
         const winProbA = totalProbA / SIM_CONFIG.iterations;    
         const winProbB = 1 - winProbA;
         results.sort((a, b) => a - b);
-
+    
     // D. Process Results
-    const summary = {
-        //winProbA: results.filter(d => d > 0).length / SIM_CONFIG.iterations,
+    const summary = {        
         winProbA: winProbA,
         winProbB: winProbB,
         medianDelta: mathUtils.getPercentile(results, 50),
@@ -220,6 +227,7 @@ function runSimulationController() {
     };
 
     renderAnalytics(summary, league);
+
 }
 
 // --- 6.0 Separate helpers for the Interpretations to keep things tidy --- 
@@ -382,4 +390,3 @@ function renderAnalytics(summary, league) {
 
     if (typeof dropBalls === "function") dropBalls();
 }
-
