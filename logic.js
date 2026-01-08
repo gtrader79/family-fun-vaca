@@ -360,7 +360,7 @@ function renderAnalytics(summary, league) {
         },
         { 
             label: "Upset Potential", 
-            val: `<strong>${(upsetRate * 100).toFixed(1)}%</strong><br><small>${underdogName} win paths identified.</small>` 
+            val: `<strong>${(upsetRate * 100).toFixed(1)}%</strong><br><small>${underdogName} wins ${(upsetRate * 100).toFixed(1)}% of simulated runs.</small>` 
         },
         { 
             label: "Sim Confidence", 
@@ -368,16 +368,16 @@ function renderAnalytics(summary, league) {
         },
         { 
             label: "Key to Victory", 
-            val: `<strong>For ${teamA.teamId}:</strong> ${keys.teamA}<br><strong>For ${teamB.teamId}:</strong> ${keys.teamB}` 
+            val: `<strong>For ${teamA.teamId}:</strong> ${keys.teamA}<br><br><strong>For ${teamB.teamId}:</strong> ${keys.teamB}` 
         },
         { 
             label: "Game Style", 
             val: `This matchup looks <strong>${frangibility.label}</strong>. ${frangibility.desc}` 
-        },
-        { 
-            label: "Upset Watch", 
-            val: `The underdog wins about <strong>${(Math.min(summary.winProbA, 1-summary.winProbA) * 100).toFixed(0)} out of 100</strong> times.` 
-        }
+        }//,
+        //{ 
+        //    label: "Upset Watch", 
+        //    val: `The underdog (${underdogName}) wins about <strong>${(Math.min(summary.winProbA, 1-summary.winProbA) * 100).toFixed(0)} out of 100</strong> times.` 
+       //}
         
     ];
 
@@ -390,3 +390,4 @@ function renderAnalytics(summary, league) {
 
     if (typeof dropBalls === "function") dropBalls();
 }
+
