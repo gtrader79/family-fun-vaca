@@ -6,7 +6,6 @@ const { Engine, Render, Runner, Bodies, Composite } = Matter;
 let engine, render, runner, world; // Added world to global scope
 
 //Random numbers for the Ball Drop so we don't show 1 to n sequentially
-
 function getUniqueRandomNumbers(count, min, max) {
   const uniqueNumbers = new Set();
   
@@ -19,8 +18,6 @@ function getUniqueRandomNumbers(count, min, max) {
   // Convert Set back to an Array
   return Array.from(uniqueNumbers);
 }
-const maxBalls = 400;
-const rndListSimulationResults = getUniqueRandomNumbers(maxBalls+50, 0, simulationRuns.length-1);
 
 
 function initPhysics() {        
@@ -103,6 +100,8 @@ function dropBalls() {
     Composite.remove(engine.world, ballsToRemove);
 
     let ballCount = 0;    
+    const maxBalls = 400;
+    const rndListSimulationResults = getUniqueRandomNumbers(maxBalls+50, 0, simulationRuns.length-1);
     
     const intervalId = setInterval(() => {
       if (ballCount >= maxBalls) {
