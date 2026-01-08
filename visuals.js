@@ -5,6 +5,24 @@ const { Engine, Render, Runner, Bodies, Composite } = Matter;
 
 let engine, render, runner, world; // Added world to global scope
 
+//Random numbers for the Ball Drop so we don't show 1 to n sequentially
+
+function getUniqueRandomNumbers(count, min, max) {
+  const uniqueNumbers = new Set();
+  
+  while (uniqueNumbers.size < count) {
+    // Math.random range inclusive: (max - min + 1) + min
+    const num = Math.floor(Math.random() * (max - min + 1)) + min;
+    uniqueNumbers.add(num);
+  }
+  
+  // Convert Set back to an Array
+  return Array.from(uniqueNumbers);
+}
+const maxBalls = 400;
+const rndListSimulationResults = getUniqueRandomNumbers(maxBalls+50, 0, simulationRuns.length-1);
+
+
 function initPhysics() {        
     // Adjust the resting threshold to stop micro-vibrations
     // Default is 2; try increasing it slightly if they still giggle
@@ -28,7 +46,7 @@ function initPhysics() {
             width: container.offsetWidth,
             height: 600,
             wireframes: false,
-            background: '#f4f4f4' //Removes the blue/solid background
+            background: 'transparent' //Removes the blue/solid background
         }
     });
     
@@ -39,7 +57,7 @@ function initPhysics() {
         const bucketOptions = {
           isStatic: true          
           , render : {
-            fillStyle: 'transparent' //make the inside clear
+            fillStyle: '#f4f4f4' //make the inside clear
             , strokeStyle: color    //set the border color
             , lineWidth: thickness  //Thickness of the border
           }
@@ -56,13 +74,13 @@ function initPhysics() {
                                 , container.offsetWidth * .4
                                 , container.offsetHeight * .5
                                 , 6
-                                , '#303030');
+                                , '#515151');
     const bucket2 = createBucket(container.offsetWidth * 0.75
                                 , 400
                                 , container.offsetWidth * .4
                                 , container.offsetHeight * .5
                                 , 6
-                                , '#969696');
+                                , '#515151');
     Composite.add(world, [...bucket1, ...bucket2]);
 
    
@@ -84,8 +102,7 @@ function dropBalls() {
     const ballsToRemove = bodies.filter(b => b.label === 'ball');
     Composite.remove(engine.world, ballsToRemove);
 
-    let ballCount = 0;
-    const maxBalls = 100;
+    let ballCount = 0;    
     
     const intervalId = setInterval(() => {
       if (ballCount >= maxBalls) {
@@ -95,7 +112,7 @@ function dropBalls() {
       
         // 1. Generate random number
         //const rand = Math.random();  //to be adjusted to look at Monte Carlo simulation
-        const runProb = simulationRuns[ballCount];
+        const runProb = simulationRuns[rndListSimulationResults[ballCount]].teamA_Prob;
     
         // 2. Determine x position based on the .5 threshold
         const xPos = runProb <= 0.5 ? container.offsetWidth *.25 : container.offsetWidth * .75;
