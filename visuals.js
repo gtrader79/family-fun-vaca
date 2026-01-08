@@ -28,7 +28,7 @@ function initPhysics() {
             width: container.offsetWidth,
             height: 600,
             wireframes: false,
-            background: 'transparent' //Removes the blue/solid background
+            background: '#f4f4f4' //Removes the blue/solid background
         }
     });
     
@@ -55,13 +55,13 @@ function initPhysics() {
                                 , 400
                                 , container.offsetWidth * .4
                                 , container.offsetHeight * .5
-                                , 5
-                                , '#969696');
+                                , 6
+                                , '#303030');
     const bucket2 = createBucket(container.offsetWidth * 0.75
                                 , 400
                                 , container.offsetWidth * .4
                                 , container.offsetHeight * .5
-                                , 5
+                                , 6
                                 , '#969696');
     Composite.add(world, [...bucket1, ...bucket2]);
 
@@ -85,7 +85,7 @@ function dropBalls() {
     Composite.remove(engine.world, ballsToRemove);
 
     let ballCount = 0;
-    const maxBalls = 500;
+    const maxBalls = 100;
     
     const intervalId = setInterval(() => {
       if (ballCount >= maxBalls) {
@@ -94,19 +94,20 @@ function dropBalls() {
         }
       
         // 1. Generate random number
-        const rand = Math.random();  //to be adjusted to look at Monte Carlo simulation
+        //const rand = Math.random();  //to be adjusted to look at Monte Carlo simulation
+        const runProb = simulationRuns[ballCount];
     
         // 2. Determine x position based on the .5 threshold
-        const xPos = rand >= 0.5 ? container.offsetWidth *.25 : container.offsetWidth * .75;
+        const xPos = runProb <= 0.5 ? container.offsetWidth *.25 : container.offsetWidth * .75;
       
         // 3. Create and add the ball
-        const radius = 8 + Math.random() * 5; // Randomize size for variety*/
+        const radius = 8 + Math.random() * 8; // Randomize size for variety*/
         const ball = Bodies.circle(xPos, -20, radius, {
             restitution: 0.8    //bounciness
             , friction: 0.99     //stickyness
             , label: 'ball'     //needed for clearing out existing 
             , render: {
-                fillStyle: rand >= 0.5 ? '#3498db' : '#e74c3c' // Optional: color code by bucket
+                fillStyle: runProb <= 0.5 ? teamA.primaryColor : teamB.primaryColor // Optional: color code by bucket
             }
         });
       
