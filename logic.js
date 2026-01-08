@@ -6,6 +6,7 @@ let currentSeasonData = null;
 let teamA = null;
 let teamB = null;
 let results = [];
+let simulationRuns = [];
 
 const SIM_CONFIG = {
     iterations: 10000,
@@ -142,7 +143,7 @@ function updateMatchupTable() {
             tbody.innerHTML +=`<tr><td style="padding-left:20px">Defense</td><td></td><td></td></tr>`;
         } 
         tbody.innerHTML += `<tr>
-            <td style="padding-left:20px">${m.label}</td>
+            <td style="padding-left:45px">${m.label}</td>
             <td>${teamA[m.key]} <small>(${mathUtils.toOrdinal(teamA[m.r])})</small></td>
             <td>${teamB[m.key]} <small>(${mathUtils.toOrdinal(teamB[m.r])})</small></td>
         </tr>`;
@@ -182,8 +183,22 @@ function runSimulationController() {
         const probA = mathUtils.sigmoid(delta);
         //3. Accumulate and Store
         totalProbA += probA;
-        results.push(strA - strB);        
-    }
+        results.push(strA - strB);   
+        //4. Store in Simulation for Visual.js
+        simulationRuns.push({
+                simulatedRun: i+1,
+                teamA_Id: teamA.teamId,
+                teamA_Name: teamA.teamName,
+                teamA_Color: teamA.primaryColor,
+                teamB_Id: teamB.teamId,
+                teamB_Name: teamB.teamName,
+                teamB_Color: teamB.primaryColor,
+                teamA_Strength: strA,
+                teamB_Strength: strB,
+                delta,
+                teamA_Prob: probA,
+                teamB_Prob: probB
+                };
         //4. Calculate Win Probabilities by averaging the probabilities
         const winProbA = totalProbA / SIM_CONFIG.iterations;    
         const winProbB = 1 - winProbA;
@@ -248,7 +263,67 @@ function getConfidenceLabel(winProb, iqr, upsetRate) {
     return "Unclear Edge";
 }
 
-// --- 6.1 The Analyst: Interpret and Render ---
+function getXFactor(tA, tB, league) {
+    const matchups = [
+        {
+            name: "Passing Matchup",
+            // How much Team A's passing exceeds Team B's pass defense
+            gap: Math.abs(mathUtils.getZ(tA.off_pass_yards_per_game, league.offPass) - 
+                 mathUtils.getZ(tB.def_pass_yards_allowed_per_game, league.defPass, true)),
+            desc: `the aerial battle between ${tA.teamId} and the ${tB.teamId} secondary.`
+        },
+        {
+            name: "Ground War",
+            // How much Team A's rushing exceeds Team B's rush defense
+            gap: Math.abs(mathUtils.getZ(tA.off_rush_yards_per_game, league.offRush) - 
+                 mathUtils.getZ(tB.def_rush_yards_allowed_per_game, league.defRush, true)),
+            desc: `how ${tA.teamId}'s run game matches up with the ${tB.teamId} front seven.`
+        },
+        {
+            name: "Scoring Efficiency",
+            gap: Math.abs(mathUtils.getZ(tA.off_points_scored_per_game, league.offPass) - 
+                 mathUtils.getZ(tB.def_points_allowed_per_game, league.defPass, true)),
+            desc: `the efficiency of ${tA.teamId} finding the endzone against ${tB.teamId}.`
+        }
+    ];
+
+    // Sort by the 'gap' descending to find the biggest outlier
+    matchups.sort((a, b) => b.gap - a.gap);
+    return matchups[0];
+}
+
+function getKeysToSuccess(tA, tB, league) {
+    // Helper to see how much better/worse a team is than the opponent in a category
+    const getAdvantage = (offVal, offLeague, defVal, defLeague) => {
+        return mathUtils.getZ(offVal, offLeague) - mathUtils.getZ(defVal, defLeague, true);
+    };
+
+    const keys = { teamA: "", teamB: "" };
+
+    // Logic for Team A
+    const aPassAdv = getAdvantage(tA.off_pass_yards_per_game, league.offPass, tB.def_pass_yards_allowed_per_game, league.defPass);
+    const aRushAdv = getAdvantage(tA.off_rush_yards_per_game, league.offRush, tB.def_rush_yards_allowed_per_game, league.defRush);
+
+    if (aPassAdv > aRushAdv) {
+        keys.teamA = `${tA.teamName} should focus on their passing game to exploit the ${tB.teamId} secondary.`;
+    } else {
+        keys.teamA = `${tA.teamName} needs to lean on their rushing attack to control the tempo against ${tB.teamId}.`;
+    }
+
+    // Logic for Team B (Defensive Focus)
+    const bPassDefend = getAdvantage(tB.off_pass_yards_per_game, league.offPass, tA.def_pass_yards_allowed_per_game, league.defPass);
+    
+    // We check what Team A's biggest threat is and tell Team B to stop it
+    if (aPassAdv > aRushAdv) {
+        keys.teamB = `${tB.teamName} must limit the ${tA.teamId} air-attack to stay in this game.`;
+    } else {
+        keys.teamB = `${tB.teamName} has to stack the box and stop ${tA.teamId} from running the ball effectively.`;
+    }
+
+    return keys;
+}
+
+// --- 7 The Analyst: Render ---
 function renderAnalytics(summary, league) {
     const tbody = document.getElementById('analytics-stats-table-body');
     tbody.innerHTML = '';
@@ -257,18 +332,23 @@ function renderAnalytics(summary, league) {
     const upsetRate = isAUnderdog ? summary.winProbA : (1 - summary.winProbA);
     const underdogName = isAUnderdog ? teamA.teamName : teamB.teamName;
 
-    // Use our new logic functions
+    const xFactor = getXFactor(teamA, teamB, league);
     const frangibility = getFrangibility(summary.winProbA, summary.iqr);
     const confidenceLabel = getConfidenceLabel(summary.winProbA, summary.iqr, upsetRate);
+    const keys = getKeysToSuccess(teamA, teamB, league);
 
     const rows = [
         { 
-            label: "Win Probability", 
-            val: `<strong>${(summary.winProbA * 100).toFixed(1)}%</strong> for ${teamA.teamName}` 
+            label: "Who Wins?", 
+            val: `<strong>${teamA.teamName}</strong> has a <strong>${(summary.winProbA * 100).toFixed(1)}%</strong> chance to win.<br><strong>${teamB.teamName}</strong> has a <strong>${(summary.winProbB * 100).toFixed(1)}%</strong> chance to win.`
         },
         { 
             label: "Matchup Stability", 
             val: `<span class="${frangibility.color}"><strong>${frangibility.label}</strong></span><br><small>${frangibility.desc}</small>` 
+        },
+        { 
+            label: "Key X-Factor", 
+            val: `<strong>${xFactor.name}</strong><br><small>The sim is most sensitive to ${xFactor.desc}</small>` 
         },
         { 
             label: "Upset Potential", 
@@ -277,7 +357,20 @@ function renderAnalytics(summary, league) {
         { 
             label: "Sim Confidence", 
             val: `<strong>${confidenceLabel}</strong><br><small>Based on ${SIM_CONFIG.iterations.toLocaleString()} runs</small>` 
+        },
+        { 
+            label: "Key to Victory", 
+            val: `<strong>For ${teamA.teamId}:</strong> ${keys.teamA}<br><strong>For ${teamB.teamId}:</strong> ${keys.teamB}` 
+        },
+        { 
+            label: "Game Style", 
+            val: `This matchup looks <strong>${frangibility.label}</strong>. ${frangibility.desc}` 
+        },
+        { 
+            label: "Upset Watch", 
+            val: `The underdog wins about <strong>${(Math.min(summary.winProbA, 1-summary.winProbA) * 100).toFixed(0)} out of 100</strong> times.` 
         }
+        
     ];
 
     rows.forEach(r => {
@@ -289,3 +382,4 @@ function renderAnalytics(summary, league) {
 
     if (typeof dropBalls === "function") dropBalls();
 }
+
