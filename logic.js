@@ -426,7 +426,7 @@ function getConfidenceLabel(winProb, iqr, upsetRate) {
     return "Unclear Edge";
 }
 
-function getMatchupImpacts = (tA, tB, league) => {
+function getMatchupImpacts (tA, tB, league) => {
     // Helper to calc weighted advantage
     // invert=true for stats where "Lower is Better" (Turnovers, Pressure Allowed)
     const getImpact = (offVal, offMean, defVal, defMean, weight, invert = false) => {
