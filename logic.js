@@ -527,8 +527,8 @@ function getKeysToSuccess(impacts, tA, tB) {
 function renderTornadoChart(impacts, tA, tB) {
     let html = `<div style="font-size: 16px; margin-top: 10px;">
         <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-weight:bold;">
-            <span style="flex:1; text-align:right; padding-right:5px;">${tB.teamId} Advantage</span>
-            <span style="flex:1; text-align:left; padding-left:5px;">${tA.teamId} Advantage</span>
+            <span style="flex:1; text-align:right; padding-right:80px;">${tB.teamId} Advantage</span>
+            <span style="flex:1; text-align:left; padding-left:80px;">${tA.teamId} Advantage</span>
         </div>`;
 
     // Take top 7 impacts only (to keep UI clean)
