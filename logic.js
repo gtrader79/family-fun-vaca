@@ -543,8 +543,8 @@ function renderTornadoChart(impacts, tA, tB) {
         // Flexbox trickery to align bars left/right of center
         //const leftBar = val < 0 ? `<div style="width:${width}px; height:8px; background:${color}; border-radius:4px 0 0 4px; margin-left:auto;"></div>` : '';
         //const rightBar = val > 0 ? `<div style="width:${width}px; height:8px; background:${color}; border-radius:0 4px 4px 0; margin-right:auto;"></div>` : '';
-        const leftBar = val < 0 ? `<div style="width:${width}px; height:8px; background:${color}; border: 1px solid ${colorBorder}; box-sizing: border-box; border-radius:4px 0 0 4px; margin-left:auto;"></div>` : '';
-        const rightBar = val > 0 ? `<div style="width:${width}px; height:8px; background:${color}; border: 1px solid ${colorBorder}; box-sizing: border-box; border-radius:0 4px 4px 0; margin-right:auto;"></div>` : '';
+        const leftBar = val < 0 ? `<div style="width:${width}px; height:11px; background:${color}; border: 1px solid ${colorBorder}; box-sizing: border-box; border-radius:4px 0 0 4px; margin-left:auto;"></div>` : '';
+        const rightBar = val > 0 ? `<div style="width:${width}px; height:11px; background:${color}; border: 1px solid ${colorBorder}; box-sizing: border-box; border-radius:0 4px 4px 0; margin-right:auto;"></div>` : '';
 
 
         
