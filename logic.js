@@ -138,7 +138,7 @@ function updateMatchupTable() {
         { label: "Points Scored / gm", key: "off_points_scored_per_game", r: "off_points_scored_per_game_rank" },
         { label: "Pass Yds / gm", key: "off_pass_yards_per_game", r: "off_pass_yards_per_game_rank" },
         { label: "Rush Yds / gm", key: "off_rush_yards_per_game", r: "off_rush_yards_per_game_rank" },
-        { label: "QB Rating %", key: "off_passer_rating", r: "off_passer_rating_rank" },
+        { label: "QB Rating", key: "off_passer_rating", r: "off_passer_rating_rank" },
         { label: "TE Yds / gm", key: "off_te_yards_per_game", r: "off_te_performance_rank" },
         { label: "WR Yds / gm", key: "off_wr_yards_per_game", r: "off_wr_performance_rank" },
         { label: "Turnovers / gm", key: "off_turnovers_per_game", r: "off_turnovers_rank" },
@@ -149,7 +149,7 @@ function updateMatchupTable() {
         { label: "Points Allowed", key: "def_points_allowed_per_game", r: "def_points_rank" },
         { label: "Def Pass Yds Allowed", key: "def_pass_yards_allowed_per_game", r: "def_pass_yards_allowed_per_game_rank" },
         { label: "Def Rush Yds Allowed", key: "def_rush_yards_allowed_per_game", r: "def_rush_yards_allowed_per_game_rank" },
-        { label: "QB Rating % Allowed", key: "def_passer_rating_allowed", r: "def_passer_rating_rank" },
+        { label: "QB Rating Allowed", key: "def_passer_rating_allowed", r: "def_passer_rating_rank" },
         { label: "TE Yds Allowed / gm", key: "def_te_yards_allowed_per_game", r: "def_te_performance_rank" },
         { label: "WR Yds Allowed / gm", key: "def_wr_yards_allowed_per_game", r: "def_wr_performance_rank" },
         { label: "Turnovers Forced / gm", key: "def_turnovers_forced_per_game", r: "def_turnovers_rank" },
@@ -543,15 +543,15 @@ function renderTornadoChart(impacts, tA, tB) {
         // Flexbox trickery to align bars left/right of center
         //const leftBar = val < 0 ? `<div style="width:${width}px; height:8px; background:${color}; border-radius:4px 0 0 4px; margin-left:auto;"></div>` : '';
         //const rightBar = val > 0 ? `<div style="width:${width}px; height:8px; background:${color}; border-radius:0 4px 4px 0; margin-right:auto;"></div>` : '';
-        const leftBar = val < 0 ? `<div style="width:${width}px; height:13px; background:${color}; border: 1px solid ${colorBorder}; box-sizing: border-box; border-radius:4px 0 0 4px; margin-left:auto;"></div>` : '';
-        const rightBar = val > 0 ? `<div style="width:${width}px; height:13px; background:${color}; border: 1px solid ${colorBorder}; box-sizing: border-box; border-radius:0 4px 4px 0; margin-right:auto;"></div>` : '';
+        const leftBar = val < 0 ? `<div style="width:${width}px; height:14px; background:${color}; border: 1px solid ${colorBorder}; box-sizing: border-box; border-radius:4px 0 0 4px; margin-left:auto;"></div>` : '';
+        const rightBar = val > 0 ? `<div style="width:${width}px; height:14px; background:${color}; border: 1px solid ${colorBorder}; box-sizing: border-box; border-radius:0 4px 4px 0; margin-right:auto;"></div>` : '';
 
 
         
         html += `
             <div style="display:flex; align-items:center; margin-bottom:4px;">
                 <div style="flex:1; text-align:right; padding-right:5px;">${leftBar}</div>
-                <div style="width:80px; text-align:center; font-size:14px; color:#666;">${item.label}</div>
+                <div style="width:160px; text-align:center; font-size:16px; color:#eee;">${item.label}</div>
                 <div style="flex:1; text-align:left; padding-left:5px;">${rightBar}</div>
             </div>`;
     });
@@ -572,12 +572,19 @@ function renderAnalytics(summary, league) {
     const keys = getKeysToSuccess(impacts, teamA, teamB);
     const tornadoHTML = renderTornadoChart(impacts, teamA, teamB);
     const frangibility = getFrangibility(summary.winProbA, summary.iqr);
+    // Determine winner data first to avoid repeating long strings
+    const isA = summary.winProbA >= summary.winProbB;
+    const winner = isA ? teamA : teamB;
+    const prob = isA ? summary.winProbA : summary.winProbB;
+    
+    const whoWins = `<strong>${winner.teamName}</strong> (${(prob * 100).toFixed(1)}%)<br>
+                     Average margin of victory of ${((prob * 100).toFixed(0) - 50) / 3} points`;
 
     // 3. Build Table
     const rows = [
         { 
             label: "Who Wins?", 
-            val: `<strong>${teamA.teamName}</strong> (${(summary.winProbA * 100).toFixed(1)}%)` 
+            val: whoWins
         },
         { 
             label: "Keys to Victory", 
