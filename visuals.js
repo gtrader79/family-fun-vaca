@@ -96,43 +96,52 @@ function dropBalls() {
 
     const container = document.getElementById('matter-container');
     
-    // Clear old balls if any
+    // Clear old balls
     const bodies = Composite.allBodies(engine.world);
     const ballsToRemove = bodies.filter(b => b.label === 'ball');
     Composite.remove(engine.world, ballsToRemove);
 
     let ballCount = 0;    
-    const maxBalls = 1000;
-    //const rndListSimulationResults = getUniqueRandomNumbers(maxBalls+50, 0, simulationRuns.length-1);
+    const maxBalls = 600; // 600 is usually plenty for visual density without lag
+    
+    // 1. Shuffling: Ensure we pick random runs, not just the sorted first 1000
+    // Simple helper to get random index
+    const getRandomIndex = () => Math.floor(Math.random() * simulationRuns.length);
     
     const intervalId = setInterval(() => {
-      if (ballCount >= maxBalls) {
+        if (ballCount >= maxBalls) {
             clearInterval(intervalId);
-            return; // Exit the interval
+            return;
         }
       
-        // 1. Generate random number
-        //const rand = Math.random();  //to be adjusted to look at Monte Carlo simulation
-        //const runProb = simulationRuns[rndListSimulationResults[ballCount]].teamA_Prob;
-        const runProb = simulationRuns[ballCount].teamA_Prob;
-    
-        // 2. Determine x position based on the .5 threshold
-        const xPos = runProb >= 0.5 ? container.offsetWidth *.25 : container.offsetWidth * .75;
+        // 2. Grab a RANDOM simulation run, not sequential
+        const runIndex = getRandomIndex();
+        const runProb = simulationRuns[runIndex].teamA_Prob;
+        
+        // 3. COLLAPSE THE WAVE FUNCTION
+        // Instead of checking if (runProb > 0.5), we roll the dice against the probability.
+        // This ensures a 70% win prob results in ~70% of balls for Team A.
+        const isTeamA = Math.random() < runProb;
+
+        // 4. Set Position & Color based on the dice roll result
+        // If isTeamA is true, drop on left (0.25). Else right (0.75).
+        // Added some x-jitter (Math.random() * 40 - 20) so they don't stack in a perfect vertical line
+        const xBase = isTeamA ? container.offsetWidth * 0.25 : container.offsetWidth * 0.75;
+        const xPos = xBase + (Math.random() * 40 - 20);
       
-        // 3. Create and add the ball
-        const radius = 5 + Math.random() * 8; // Randomize size for variety*/
-        const ball = Bodies.circle(xPos, -20, radius, {
-            restitution: 0.8    //bounciness
-            , friction: 0.99     //stickyness
-            , label: 'ball'     //needed for clearing out existing 
-            , render: {
-                fillStyle: runProb >= 0.5 ? teamA.primaryColor : teamB.primaryColor // Optional: color code by bucket
+        const radius = 5 + Math.random() * 5; 
+        
+        const ball = Bodies.circle(xPos, -30, radius, {
+            restitution: 0.6,
+            friction: 0.8,     
+            label: 'ball',     
+            render: {
+                // Use the result of our dice roll for the color
+                fillStyle: isTeamA ? teamA.primaryColor : teamB.primaryColor
             }
         });
       
-        Composite.add(world, ball);
+        Composite.add(engine.world, ball);
         ballCount++;
-    }, 15); //500ms delay
-    
-        
+    }, 10); // Faster drop rate (10ms) for smoother filling
 }
