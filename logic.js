@@ -532,20 +532,26 @@ function renderTornadoChart(impacts, tA, tB) {
         </div>`;
 
     // Take top 7 impacts only (to keep UI clean)
-    impacts.slice(0, 7).forEach(item => {
+    //original: impacts.slice(0, 5).forEach(item => {  
+    impacts.forEach(item => {  
         const val = item.val;
         // Scale the bar width arbitrarily for display (e.g., max width 100px)
-        const width = Math.min(Math.abs(val) * 40, 140); 
-        const color = val > 0 ? '#198754' : '#dc3545'; // Green for Team A, Red for Team B
+        const width = Math.min(Math.abs(val) * 50, 180); //initially 40, 140
+        const color = val > 0 ? teamA.primaryColor : teamB.primaryColor; // Green for Team A, Red for Team B
+        const colorBorder = val > 0 ? '#FFFFFF' : '#FFFFFF'; // Green for Team A, Red for Team B
         
         // Flexbox trickery to align bars left/right of center
-        const leftBar = val < 0 ? `<div style="width:${width}px; height:8px; background:${color}; border-radius:4px 0 0 4px; margin-left:auto;"></div>` : '';
-        const rightBar = val > 0 ? `<div style="width:${width}px; height:8px; background:${color}; border-radius:0 4px 4px 0; margin-right:auto;"></div>` : '';
+        //const leftBar = val < 0 ? `<div style="width:${width}px; height:8px; background:${color}; border-radius:4px 0 0 4px; margin-left:auto;"></div>` : '';
+        //const rightBar = val > 0 ? `<div style="width:${width}px; height:8px; background:${color}; border-radius:0 4px 4px 0; margin-right:auto;"></div>` : '';
+        const leftBar = val < 0 ? `<div style="width:${width}px; height:8px; background:${color}; border: 1px solid ${colorBorder}; box-sizing: border-box; border-radius:4px 0 0 4px; margin-left:auto;"></div>` : '';
+        const rightBar = val > 0 ? `<div style="width:${width}px; height:8px; background:${color}; border: 1px solid ${colorBorder}; box-sizing: border-box; border-radius:0 4px 4px 0; margin-right:auto;"></div>` : '';
+
+
         
         html += `
             <div style="display:flex; align-items:center; margin-bottom:4px;">
                 <div style="flex:1; text-align:right; padding-right:5px;">${leftBar}</div>
-                <div style="width:80px; text-align:center; font-size:10px; color:#666;">${item.label}</div>
+                <div style="width:80px; text-align:center; font-size:12px; color:#666;">${item.label}</div>
                 <div style="flex:1; text-align:left; padding-left:5px;">${rightBar}</div>
             </div>`;
     });
