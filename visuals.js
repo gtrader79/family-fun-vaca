@@ -72,13 +72,13 @@ function initPhysics() {
                                 , 400
                                 , container.offsetWidth * .4
                                 , container.offsetHeight * .5
-                                , 6
+                                , 8
                                 , '#515151');
     const bucket2 = createBucket(container.offsetWidth * 0.75
                                 , 400
                                 , container.offsetWidth * .4
                                 , container.offsetHeight * .5
-                                , 6
+                                , 8
                                 , '#515151');
     Composite.add(world, [...bucket1, ...bucket2]);
 
@@ -102,8 +102,8 @@ function dropBalls() {
     Composite.remove(engine.world, ballsToRemove);
 
     let ballCount = 0;    
-    const maxBalls = 500;
-    const rndListSimulationResults = getUniqueRandomNumbers(maxBalls+50, 0, simulationRuns.length-1);
+    const maxBalls = 1000;
+    //const rndListSimulationResults = getUniqueRandomNumbers(maxBalls+50, 0, simulationRuns.length-1);
     
     const intervalId = setInterval(() => {
       if (ballCount >= maxBalls) {
@@ -113,13 +113,14 @@ function dropBalls() {
       
         // 1. Generate random number
         //const rand = Math.random();  //to be adjusted to look at Monte Carlo simulation
-        const runProb = simulationRuns[rndListSimulationResults[ballCount]].teamA_Prob;
+        //const runProb = simulationRuns[rndListSimulationResults[ballCount]].teamA_Prob;
+        const runProb = simulationRuns[ballCount].teamA_Prob;
     
         // 2. Determine x position based on the .5 threshold
         const xPos = runProb >= 0.5 ? container.offsetWidth *.25 : container.offsetWidth * .75;
       
         // 3. Create and add the ball
-        const radius = 8 + Math.random() * 8; // Randomize size for variety*/
+        const radius = 5 + Math.random() * 8; // Randomize size for variety*/
         const ball = Bodies.circle(xPos, -20, radius, {
             restitution: 0.8    //bounciness
             , friction: 0.99     //stickyness
@@ -131,7 +132,7 @@ function dropBalls() {
       
         Composite.add(world, ball);
         ballCount++;
-    }, 30); //500ms delay
+    }, 15); //500ms delay
     
         
 }
