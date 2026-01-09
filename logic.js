@@ -525,10 +525,10 @@ function getKeysToSuccess(impacts, tA, tB) {
 
 
 function renderTornadoChart(impacts, tA, tB) {
-    let html = `<div style="font-size: 12px; margin-top: 10px;">
+    let html = `<div style="font-size: 16px; margin-top: 10px;">
         <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-weight:bold;">
-            <span>${tB.teamId} Advantage</span>
-            <span>${tA.teamId} Advantage</span>
+            <span style="flex:1; text-align:right; padding-right:5px;">${tB.teamId} Advantage</span>
+            <span style="flex:1; text-align:left; padding-left:5px;">${tA.teamId} Advantage</span>
         </div>`;
 
     // Take top 7 impacts only (to keep UI clean)
@@ -536,13 +536,11 @@ function renderTornadoChart(impacts, tA, tB) {
     impacts.forEach(item => {  
         const val = item.val;
         // Scale the bar width arbitrarily for display (e.g., max width 100px)
-        const width = Math.min(Math.abs(val) * 70, 250); //initially 40, 140
+        const width = Math.min(Math.abs(val) * 80, 300); //initially 40, 140
         const color = val > 0 ? teamA.primaryColor : teamB.primaryColor; // Green for Team A, Red for Team B
         const colorBorder = val > 0 ? '#FFFFFF' : '#FFFFFF'; // Green for Team A, Red for Team B
         
-        // Flexbox trickery to align bars left/right of center
-        //const leftBar = val < 0 ? `<div style="width:${width}px; height:8px; background:${color}; border-radius:4px 0 0 4px; margin-left:auto;"></div>` : '';
-        //const rightBar = val > 0 ? `<div style="width:${width}px; height:8px; background:${color}; border-radius:0 4px 4px 0; margin-right:auto;"></div>` : '';
+        // Flexbox trickery to align bars left/right of center        
         const leftBar = val < 0 ? `<div style="width:${width}px; height:14px; background:${color}; border: 1px solid ${colorBorder}; box-sizing: border-box; border-radius:4px 0 0 4px; margin-left:auto;"></div>` : '';
         const rightBar = val > 0 ? `<div style="width:${width}px; height:14px; background:${color}; border: 1px solid ${colorBorder}; box-sizing: border-box; border-radius:0 4px 4px 0; margin-right:auto;"></div>` : '';
 
@@ -578,7 +576,7 @@ function renderAnalytics(summary, league) {
     const prob = isA ? summary.winProbA : summary.winProbB;
     
     const whoWins = `<strong>${winner.teamName}</strong> (${(prob * 100).toFixed(1)}%)<br>
-                     Average margin of victory of ${((prob * 100).toFixed(0) - 50) / 3} points`;
+                     Expected margin of victory of ${(((prob * 100).toFixed(0) - 50) / 3).toFixed(0)} points`;
 
     // 3. Build Table
     const rows = [
