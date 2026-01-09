@@ -12,7 +12,17 @@ const SIM_CONFIG = {
     iterations: 10000,
     hfa: 0.037878,      //z score based on 2 Pts of historical HFA; historical Mean Spread of 2.5 pts; historical StdDev of 13.2 points.  Historical is Post 1990
     k: 0.7,
-    weights: { pass: 1.0, rush: 0.85 },
+    weights: {
+            passVolume: 0.30,   // Reduced from 1.0 because we added WR/TE/QB
+            rush: 0.85,         // Stays the primary rushing metric
+            qb: 0.55,           // Efficiency is often more predictive than volume
+            wr: 0.20,           // Represents "Weapon Depth"
+            te: 0.20,           // Represents "Matchup Mismatches"
+            turnover: 1.50,     // HUGE. Turnovers kill drives and lose games.
+            redZone: 0.70,      // Yards don't matter if you can't finish.
+            explosive: 0.40,    // Measures "Quick Strike" ability
+            pressure: 0.50      // Measures "Disruption" (Sacks/Hurries)
+            },
     noiseThreshold: 0.65 // Baseline "Stable"
 };
 
@@ -125,12 +135,27 @@ function updateMatchupTable() {
     document.getElementById('table-header-b').style.borderBottom = `4px solid ${teamB.primaryColor}`;
 
     const metrics = [
-        { label: "Points Scored", key: "off_points_scored_per_game", r: "off_points_scored_per_game_rank" },
-        { label: "Pass Yds", key: "off_pass_yards_per_game", r: "off_pass_yards_per_game_rank" },
-        { label: "Rush Yds", key: "off_rush_yards_per_game", r: "off_rush_yards_per_game_rank" },
-        { label: "Points Allowed", key: "def_points_allowed_per_game", r: "def_points_allowed_per_game_rank" },
+        { label: "Points Scored / gm", key: "off_points_scored_per_game", r: "off_points_scored_per_game_rank" },
+        { label: "Pass Yds / gm", key: "off_pass_yards_per_game", r: "off_pass_yards_per_game_rank" },
+        { label: "Rush Yds / gm", key: "off_rush_yards_per_game", r: "off_rush_yards_per_game_rank" },
+        { label: "QB Rating %", key: "off_passer_rating", r: "off_passer_rating_rank" },
+        { label: "TE Yds / gm", key: "off_te_yards_per_game", r: "off_te_performance_rank" },
+        { label: "WR Yds / gm", key: "off_wr_yards_per_game", r: "off_wr_performance_rank" },
+        { label: "Turnovers / gm", key: "off_turnovers_per_game", r: "off_turnovers_rank" },
+        { label: "Red Zone Efficiency %", key: "off_rz_efficiency_pct", r: "off_rz_efficiency_rank" },
+        { label: "Explosive Plays %", key: "off_explosive_play_rate_pct", r: "off_explosive_play_rate_rank" },
+        { label: "Offensive Pressure Allowed %", key: "off_pressure_allowed_pct", r: "off_pressure_allowed_rank" },
+        
+        { label: "Points Allowed", key: "def_points_allowed_per_game", r: "def_points_rank" },
         { label: "Def Pass Yds Allowed", key: "def_pass_yards_allowed_per_game", r: "def_pass_yards_allowed_per_game_rank" },
-        { label: "Def Rush Yds Allowed", key: "def_rush_yards_allowed_per_game", r: "def_rush_yards_allowed_per_game_rank" }
+        { label: "Def Rush Yds Allowed", key: "def_rush_yards_allowed_per_game", r: "def_rush_yards_allowed_per_game_rank" },
+        { label: "QB Rating % Allowed", key: "def_passer_rating_allowed", r: "def_passer_rating_rank" },
+        { label: "TE Yds Allowed / gm", key: "def_te_yards_allowed_per_game", r: "def_te_performance_rank" },
+        { label: "WR Yds Allowed / gm", key: "def_wr_yards_allowed_per_game", r: "def_wr_performance_rank" },
+        { label: "Turnovers Forced / gm", key: "def_turnovers_forced_per_game", r: "def_turnovers_rank" },
+        { label: "Red Zone Efficiency Allowed %", key: "def_rz_efficiency_allowed_pct", r: "def_rz_efficiency_rank" },
+        { label: "Explosive Plays Allowed %", key: "def_explosive_play_rate_allowed_pct", r: "def_explosive_play_rate_rank" },
+        { label: "Defensive Pressure Generated %", key: "def_pressure_generated_pct", r: "def_pressure_generated_rank" }
     ];
 
     const tbody = document.getElementById('stats-table-body');
@@ -139,7 +164,7 @@ function updateMatchupTable() {
     metrics.forEach((m, i) => {
         if (i === 0) {
             tbody.innerHTML +=`<tr><td style="padding-left:20px">Offense</td><td></td><td></td></tr>`;
-        } else if (i === 3) {
+        } else if (i === 10) {
             tbody.innerHTML +=`<tr><td style="padding-left:20px">Defense</td><td></td><td></td></tr>`;
         } 
         tbody.innerHTML += `<tr>
@@ -161,21 +186,93 @@ function runSimulationController() {
     // A. Pre-calculate League Stats (Context)
     const league = {
         offPass: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_pass_yards_per_game)),
-        offRush: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_rush_yards_per_game)),
         defPass: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_pass_yards_allowed_per_game)),
-        defRush: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_rush_yards_allowed_per_game)),
-        // Fixed: Added Points stats for X-Factor calculation
+        
+        offRush: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_rush_yards_per_game)),
+        defRush: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_rush_yards_allowed_per_game)),        
+        
         offPts: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_points_scored_per_game)),
-        defPts: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_points_allowed_per_game))
+        defPts: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_points_allowed_per_game)),
+
+        offQB: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_passer_rating)),
+        defQB: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_passer_rating_allowed)),
+        
+        offTE: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_te_yards_per_game)),
+        defTE: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_te_yards_allowed_per_game)),
+        
+        offWR: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_wr_yards_per_game)),
+        defWR: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_wr_yards_allowed_per_game)),
+        
+        offTurnOver: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_turnovers_per_game)),
+        defTurnOver: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_turnovers_forced_per_game)),
+        
+        offRZ: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_rz_efficiency_pct)),
+        defRZ: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_rz_efficiency_allowed_pct)),
+        
+        offExplosivePlay: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_explosive_play_rate_pct)),
+        defExplosivePlay: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_explosive_play_rate_allowed_pct)),
+        
+        offPressure: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_pressure_allowed_pct)),
+        defPressure: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_pressure_generated_pct))
     };
 
     // B. Calculate Matchup Z-Scores
     const getMatchupDelta = (tA, tB, noise) => {
-        const pAdv = (mathUtils.getZ(tA.off_pass_yards_per_game, league.offPass) + mathUtils.generateNoise(noise)) 
+        // --- PASSING GAME (Distributed Weights) ---
+        // Split the "Passing Weight" across Volume, QB Skill, and Weapons
+        
+        // Volume: Yards vs Yards Allowed
+        const passAdv = (mathUtils.getZ(tA.off_pass_yards_per_game, league.offPass) + mathUtils.generateNoise(noise)) 
                    - (mathUtils.getZ(tB.def_pass_yards_allowed_per_game, league.defPass, true) + mathUtils.generateNoise(noise));
-        const rAdv = (mathUtils.getZ(tA.off_rush_yards_per_game, league.offRush) + mathUtils.generateNoise(noise)) 
+        
+        // Efficiency: QB Rating vs QB Rating Allowed
+        const qbAdv = (mathUtils.getZ(tA.off_passer_rating, league.offQB) + mathUtils.generateNoise(noise)) 
+                   - (mathUtils.getZ(tB.def_passer_rating_allowed, league.defQB, true) + mathUtils.generateNoise(noise));
+        
+        // Weapons: Specific position groups
+        const teAdv = (mathUtils.getZ(tA.off_te_yards_per_game, league.offTE) + mathUtils.generateNoise(noise)) 
+                   - (mathUtils.getZ(tB.def_te_yards_allowed_per_game, league.defTE, true) + mathUtils.generateNoise(noise));
+        
+        const wrAdv = (mathUtils.getZ(tA.off_wr_yards_per_game, league.offWR) + mathUtils.generateNoise(noise)) 
+                   - (mathUtils.getZ(tB.def_wr_yards_allowed_per_game, league.defWR, true) + mathUtils.generateNoise(noise));
+        
+        // --- RUSHING GAME ---
+        const rushAdv = (mathUtils.getZ(tA.off_rush_yards_per_game, league.offRush) + mathUtils.generateNoise(noise)) 
                    - (mathUtils.getZ(tB.def_rush_yards_allowed_per_game, league.defRush, true) + mathUtils.generateNoise(noise));
-        return (pAdv * SIM_CONFIG.weights.pass) + (rAdv * SIM_CONFIG.weights.rush);
+        
+
+        // --- GAME WRECKERS (The "Hidden" Yards) ---
+
+        // Turnovers: CRITICAL. For Offense, LOWER Turnovers is better.         
+        const turnoverAdv = (mathUtils.getZ(tA.off_turnovers_per_game, league.offTurnOver, true) + mathUtils.generateNoise(noise)) 
+                   - (mathUtils.getZ(tB.def_turnovers_forced_per_game, league.defTurnOver) + mathUtils.generateNoise(noise));
+
+        // Pressure: Offense wants LOW pressure allowed (Inverted), Defense wants HIGH generated.
+        const pressureAdv = (mathUtils.getZ(tA.off_pressure_allowed_pct, league.offPressure, true) + mathUtils.generateNoise(noise)) 
+                          - (mathUtils.getZ(tB.def_pressure_generated_pct, league.defPressure) + mathUtils.generateNoise(noise));
+    
+        // Red Zone & Explosiveness (Standard: Higher is Better)
+        const redZoneAdv = (mathUtils.getZ(tA.off_rz_efficiency_pct, league.offRZ) + mathUtils.generateNoise(noise)) 
+                         - (mathUtils.getZ(tB.def_rz_efficiency_allowed_pct, league.defRZ, true) + mathUtils.generateNoise(noise));
+    
+        const explosivePlayAdv = (mathUtils.getZ(tA.off_explosive_play_rate_pct, league.offExplosivePlay) + mathUtils.generateNoise(noise)) 
+                               - (mathUtils.getZ(tB.def_explosive_play_rate_allowed_pct, league.defExplosivePlay, true) + mathUtils.generateNoise(noise));
+        
+        
+        const rawDelta =  (passAdv * SIM_CONFIG.weights.passVolume) 
+             + (qbAdv * SIM_CONFIG.weights.qb) 
+             + (wrAdv * SIM_CONFIG.weights.wr) 
+             + (teAdv * SIM_CONFIG.weights.te)
+             + (rushAdv * SIM_CONFIG.weights.rush) 
+             + (turnoverAdv * SIM_CONFIG.weights.turnover) 
+             + (redZoneAdv * SIM_CONFIG.weights.redZone) 
+             + (explosivePlayAdv * SIM_CONFIG.weights.explosive) 
+             + (pressureAdv * SIM_CONFIG.weights.pressure);
+
+        // NEW: Normalize the result so we don't break the Sigmoid
+        // 2.8 is a "Magic Number" that approximates the square root of your new weight sum.
+        // It keeps the standard deviation closer to 1.0.
+        return rawDelta / 2.8;
     };
 
     // C. The Simulation Loop
@@ -329,155 +426,177 @@ function getConfidenceLabel(winProb, iqr, upsetRate) {
     return "Unclear Edge";
 }
 
-function getXFactor(tA, tB, league) {
-    const matchups = [
+function getMatchupImpacts = (tA, tB, league) => {
+    // Helper to calc weighted advantage
+    // invert=true for stats where "Lower is Better" (Turnovers, Pressure Allowed)
+    const getImpact = (offVal, offMean, defVal, defMean, weight, invert = false) => {
+        let offZ = mathUtils.getZ(offVal, offMean);
+        let defZ = mathUtils.getZ(defVal, defMean, true); // true = invert defense perspective
+        
+        if (invert) {
+            offZ = offZ * -1; // Flip bad stats for offense
+        }
+        
+        // The Gap * The Weight = The Real Impact
+        return (offZ - defZ) * weight;
+    };
+
+    const impacts = [
         {
-            name: "Passing Matchup",
-            // How much Team A's passing exceeds Team B's pass defense
-            gap: Math.abs(mathUtils.getZ(tA.off_pass_yards_per_game, league.offPass) - 
-                 mathUtils.getZ(tB.def_pass_yards_allowed_per_game, league.defPass, true)),
-            desc: `the aerial battle between ${tA.teamId} and the ${tB.teamId} secondary.`
+            id: 'pass', label: "Passing Volume",
+            val: getImpact(tA.off_pass_yards_per_game, league.offPass, tB.def_pass_yards_allowed_per_game, league.defPass, SIM_CONFIG.weights.passVolume),
+            narrative: "establish the aerial attack"
         },
         {
-            name: "Ground War",
-            // How much Team A's rushing exceeds Team B's rush defense
-            gap: Math.abs(mathUtils.getZ(tA.off_rush_yards_per_game, league.offRush) - 
-                 mathUtils.getZ(tB.def_rush_yards_allowed_per_game, league.defRush, true)),
-            desc: `how ${tA.teamId}'s run game matches up with the ${tB.teamId} front seven.`
+            id: 'rush', label: "Rushing Attack",
+            val: getImpact(tA.off_rush_yards_per_game, league.offRush, tB.def_rush_yards_allowed_per_game, league.defRush, SIM_CONFIG.weights.rush),
+            narrative: "control the clock on the ground"
         },
         {
-            name: "Scoring Efficiency",
-            gap: Math.abs(mathUtils.getZ(tA.off_points_scored_per_game, league.offPass) - 
-                 mathUtils.getZ(tB.def_points_allowed_per_game, league.defPass, true)),
-            desc: `the efficiency of ${tA.teamId} finding the endzone against ${tB.teamId}.`
+            id: 'qb', label: "QB Play",
+            val: getImpact(tA.off_passer_rating, league.offQB, tB.def_passer_rating_allowed, league.defQB, SIM_CONFIG.weights.qb),
+            narrative: "rely on superior quarterback efficiency"
+        },
+        {
+            id: 'wr', label: "WR Corps",
+            val: getImpact(tA.off_wr_yards_per_game, league.offWR, tB.def_wr_yards_allowed_per_game, league.defWR, SIM_CONFIG.weights.wr),
+            narrative: "exploit mismatches on the outside"
+        },
+        {
+            id: 'te', label: "Tight Ends",
+            val: getImpact(tA.off_te_yards_per_game, league.offTE, tB.def_te_yards_allowed_per_game, league.defTE, SIM_CONFIG.weights.te),
+            narrative: "attack the middle of the field"
+        },
+        {
+            id: 'turnover', label: "Ball Security",
+            // Invert=true because LOW turnovers is good
+            val: getImpact(tA.off_turnovers_per_game, league.offTurnOver, tB.def_turnovers_forced_per_game, league.defTurnOver, SIM_CONFIG.weights.turnover, true),
+            narrative: "win the turnover battle"
+        },
+        {
+            id: 'pressure', label: "Pass Protection",
+            // Invert=true because LOW pressure allowed is good
+            val: getImpact(tA.off_pressure_allowed_pct, league.offPressure, tB.def_pressure_generated_pct, league.defPressure, SIM_CONFIG.weights.pressure, true),
+            narrative: "keep the pocket clean"
+        },
+        {
+            id: 'redzone', label: "Red Zone",
+            val: getImpact(tA.off_rz_efficiency_pct, league.offRZ, tB.def_rz_efficiency_allowed_pct, league.defRZ, SIM_CONFIG.weights.redZone),
+            narrative: "finish drives with touchdowns"
+        },
+        {
+            id: 'explosive', label: "Explosiveness",
+            val: getImpact(tA.off_explosive_play_rate_pct, league.offExplosivePlay, tB.def_explosive_play_rate_allowed_pct, league.defExplosivePlay, SIM_CONFIG.weights.explosive),
+            narrative: "generate big chunk plays"
         }
     ];
 
-    // Sort by the 'gap' descending to find the biggest outlier
-    matchups.sort((a, b) => b.gap - a.gap);
-    return matchups[0];
-}
+    // Sort by absolute impact (biggest movers first)
+    return impacts.sort((a, b) => Math.abs(b.val) - Math.abs(a.val));
+};
 
-function getKeysToSuccess(tA, tB, league) {
-    // Helper to see how much better/worse a team is than the opponent in a category
-    const getAdvantage = (offVal, offLeague, defVal, defLeague) => {
-        return mathUtils.getZ(offVal, offLeague) - mathUtils.getZ(defVal, defLeague, true);
-    };
 
-    const keys = { teamA: "", teamB: "" };
 
-    // Logic for Team A
-    const aPassAdv = getAdvantage(tA.off_pass_yards_per_game, league.offPass, tB.def_pass_yards_allowed_per_game, league.defPass);
-    const aRushAdv = getAdvantage(tA.off_rush_yards_per_game, league.offRush, tB.def_rush_yards_allowed_per_game, league.defRush);
-
-    if (aPassAdv > aRushAdv) {
-        keys.teamA = `${tA.teamName} should focus on their passing game to exploit the ${tB.teamId} secondary.`;
-    } else {
-        keys.teamA = `${tA.teamName} needs to lean on their rushing attack to control the tempo against ${tB.teamId}.`;
-    }
-
-    // Logic for Team B (Defensive Focus)
-    //const bPassDefend = getAdvantage(tB.off_pass_yards_per_game, league.offPass, tA.def_pass_yards_allowed_per_game, league.defPass);
+function getKeysToSuccess(impacts, tA, tB) {
+    // Find Team A's biggest strength (Max Positive)
+    const bestForA = impacts.reduce((prev, current) => (prev.val > current.val) ? prev : current);
     
-    // We check what Team A's biggest threat is and tell Team B to stop it
-    //if (aPassAdv > aRushAdv) {
-    //    keys.teamB = `${tB.teamName} must limit the ${tA.teamId} air-attack to stay in this game.`;
-    //} else {
-    //    keys.teamB = `${tB.teamName} has to stack the box and stop ${tA.teamId} from running the ball effectively.`;
-    //}
-    // Logic for Team B
-    const bPassAdv = getAdvantage(tB.off_pass_yards_per_game, league.offPass, tA.def_pass_yards_allowed_per_game, league.defPass);
-    const bRushAdv = getAdvantage(tB.off_rush_yards_per_game, league.offRush, tA.def_rush_yards_allowed_per_game, league.defRush);
+    // Find Team B's biggest strength (Max Negative / Lowest value)
+    const bestForB = impacts.reduce((prev, current) => (prev.val < current.val) ? prev : current);
 
-    if (bPassAdv > bRushAdv) {
-        keys.teamB = `${tB.teamName} should focus on their passing game to exploit the ${tA.teamId} secondary.`;
+    // Dynamic Text Generation
+    let textA = "";
+    if (bestForA.val > 0) {
+        textA = `${tA.teamName} must ${bestForA.narrative} (${bestForA.label}).`;
     } else {
-        keys.teamB = `${tB.teamName} needs to lean on their rushing attack to control the tempo against ${tA.teamId}.`;
+        // If Team A has NO advantages (all values negative), pick the 'least bad' one
+        textA = `${tA.teamName} faces an uphill battle but must try to ${bestForA.narrative}.`;
     }
 
-    return keys;
+    let textB = "";
+    if (bestForB.val < 0) {
+        textB = `${tB.teamName} must ${bestForB.narrative} (${bestForB.label}).`;
+    } else {
+        textB = `${tB.teamName} needs to ${bestForB.narrative} to hold their advantage.`;
+    }
+
+    return { teamA: textA, teamB: textB };
 }
 
-// --- 7 The Analyst: Render ---
+
+function renderTornadoChart(impacts, tA, tB) {
+    let html = `<div style="font-size: 12px; margin-top: 10px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-weight:bold;">
+            <span>${tB.teamId} Advantage</span>
+            <span>${tA.teamId} Advantage</span>
+        </div>`;
+
+    // Take top 7 impacts only (to keep UI clean)
+    impacts.slice(0, 7).forEach(item => {
+        const val = item.val;
+        // Scale the bar width arbitrarily for display (e.g., max width 100px)
+        const width = Math.min(Math.abs(val) * 40, 140); 
+        const color = val > 0 ? '#198754' : '#dc3545'; // Green for Team A, Red for Team B
+        
+        // Flexbox trickery to align bars left/right of center
+        const leftBar = val < 0 ? `<div style="width:${width}px; height:8px; background:${color}; border-radius:4px 0 0 4px; margin-left:auto;"></div>` : '';
+        const rightBar = val > 0 ? `<div style="width:${width}px; height:8px; background:${color}; border-radius:0 4px 4px 0; margin-right:auto;"></div>` : '';
+        
+        html += `
+            <div style="display:flex; align-items:center; margin-bottom:4px;">
+                <div style="flex:1; text-align:right; padding-right:5px;">${leftBar}</div>
+                <div style="width:80px; text-align:center; font-size:10px; color:#666;">${item.label}</div>
+                <div style="flex:1; text-align:left; padding-left:5px;">${rightBar}</div>
+            </div>`;
+    });
+
+    html += `</div>`;
+    return html;
+}
+
+
 function renderAnalytics(summary, league) {
     const tbody = document.getElementById('analytics-stats-table-body');
     tbody.innerHTML = '';
 
-    const isAUnderdog = summary.winProbA < 0.5;
-    const upsetRate = isAUnderdog ? summary.winProbA : (1 - summary.winProbA);
-    const underdogName = isAUnderdog ? teamA.teamName : teamB.teamName;
-
-    const xFactor = getXFactor(teamA, teamB, league);
-    const frangibility = getFrangibility(summary.winProbA, summary.iqr);
-    const confidenceLabel = getConfidenceLabel(summary.winProbA, summary.iqr, upsetRate);
-    const keys = getKeysToSuccess(teamA, teamB, league);
-
-    //New Code
-    // Generate "The Bottom Line" Text
-    // This combines the "Who" and the "How" into a prediction statement.
-    let predictionText = "";
-    if (summary.winProbA > 0.60) {
-        predictionText = `Expect ${teamA.teamName} to win, provided they ${keys.teamA.split(' focus ')[0].toLowerCase()} focus on execution.`;
-    } else if (summary.winProbA < 0.40) {
-        predictionText = `Expect ${teamB.teamName} to win, unless ${teamA.teamName} can exploit the ${teamB.teamId} defense early.`;
-    } else {
-        predictionText = `This is too close to call. The winner will be whoever wins the turnover battle.`;
-    }
-
+    // 1. Calculate Impacts (The Heavy Lifting)
+    const impacts = getMatchupImpacts(teamA, teamB, league);
     
+    // 2. Generate Text & Visuals
+    const keys = getKeysToSuccess(impacts, teamA, teamB);
+    const tornadoHTML = renderTornadoChart(impacts, teamA, teamB);
+    const frangibility = getFrangibility(summary.winProbA, summary.iqr);
+
+    // 3. Build Table
     const rows = [
         { 
             label: "Who Wins?", 
-            val: `<strong>${teamA.teamName}</strong> has a <strong>${(summary.winProbA * 100).toFixed(1)}%</strong> chance to win.<br><strong>${teamB.teamName}</strong> has a <strong>${(summary.winProbB * 100).toFixed(1)}%</strong> chance to win.`
+            val: `<strong>${teamA.teamName}</strong> (${(summary.winProbA * 100).toFixed(1)}%)` 
         },
         { 
-            label: "Matchup Stability / Game Style", 
-            val: `<span class="${frangibility.color}"><strong>${frangibility.label}</strong></span><br><small>${frangibility.desc}</small>` 
-        },
-        { 
-            label: "Key X-Factor", 
-            val: `<strong>${xFactor.name}</strong><br><small>The sim is most sensitive to ${xFactor.desc}</small>` 
-        },
-        { 
-            label: "Upset Potential", 
-            val: `<strong>${(upsetRate * 100).toFixed(1)}%</strong><br><small>Even though ${underdogName} is the underdog, they still win ${(upsetRate * 100).toFixed(1)}% of simulated runs.</small>` 
-        },
-        { 
-            label: "Sim Confidence", 
-            val: `<strong>${confidenceLabel}</strong><br><small>Based on ${SIM_CONFIG.iterations.toLocaleString()} runs</small>` 
-        },
-        { 
-            label: "Key to Victory", 
-            val: `<strong>For ${teamA.teamId}:</strong> ${keys.teamA}<br><br><strong>For ${teamB.teamId}:</strong> ${keys.teamB}` 
-        },
-        { 
-            label: "Who Wins?", 
-            val: `<strong>${teamA.teamName}</strong> wins <strong>${(summary.winProbA * 100).toFixed(1)}%</strong> of simulations.` 
-        },
-        { 
-            label: "Game Personality", 
-            val: `<span class="${frangibility.color}"><strong>${frangibility.label}</strong></span><br><small>${frangibility.desc}</small>` 
-        },
-        { 
-            label: "Keys to Success", 
+            label: "Keys to Victory", 
             val: `<ul style="margin: 0; padding-left: 15px;">
                     <li><strong>${teamA.teamId}:</strong> ${keys.teamA}</li>
                     <li><strong>${teamB.teamId}:</strong> ${keys.teamB}</li>
                   </ul>` 
         },
         { 
-            label: "The Bottom Line", 
-            val: `<em>"${predictionText}"</em>` 
+            label: "Matchup DNA", 
+            val: `${tornadoHTML}<small style="color:#888; display:block; text-align:center;">Bar width = Impact on Sim Outcome</small>` 
+        },
+        { 
+            label: "Risk Level", 
+            val: `<span class="${frangibility.color}"><strong>${frangibility.label}</strong></span><br><small>${frangibility.desc}</small>` 
         }
     ];
 
     rows.forEach(r => {
         tbody.innerHTML += `<tr>
-            <td style="width:35%"><strong>${r.label}</strong></td>
+            <td style="width:30%; vertical-align:middle;"><strong>${r.label}</strong></td>
             <td>${r.val}</td>
         </tr>`;
     });
 
     if (typeof dropBalls === "function") dropBalls();
+    
 }
-
