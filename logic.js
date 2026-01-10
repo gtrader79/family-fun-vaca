@@ -1,4 +1,4 @@
-/* logic.js */
+    /* logic.js */
 
 // --- 1. Global State & Constants ---
 let globalData = null;
@@ -7,6 +7,7 @@ let teamA = null;
 let teamB = null;
 let results = [];
 let simulationRuns = [];
+let situationFactors = [];
 
 const SIM_CONFIG = {
     iterations: 10000,
@@ -267,6 +268,9 @@ function runSimulationController() {
 
     results =[];
     simulationRuns =[];
+    situationFactors = [];
+
+    situationFactors = getSituationalFactors();
     
     // A. Pre-calculate League Stats (Context)
     const league = {
