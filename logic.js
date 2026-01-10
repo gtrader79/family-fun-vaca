@@ -26,6 +26,51 @@ const SIM_CONFIG = {
     noiseThreshold: 0.65 // Baseline "Stable"
 };
 
+
+const getSituationalFactors = () => {
+    // Helper to get integer value from slider ID
+    const sVal = (id) => parseInt(document.getElementById(id).value);
+
+    return {
+        // Global Game Context
+        context: {
+            hfa: sVal('hfa-select'),                                // 1=A, 2=N, 3=B
+            travel: sVal('travel-select'),                          // 1=A, 2=N, 3=B
+            windLevel: sVal('winds-select'),                        // 0=Low, 1=Med, 2=High
+            momentum: sVal('momentum-select'),                      // 0=A, 1=N, 2=B
+            divisionMatchUp: (teamA.division === teamB.division)    //True, False
+        },
+
+        // Rest Gaps
+        rest: {
+            teamA: sVal('team-a-rest-select'), // 0=Short, 1=Std, 2=Bye
+            teamB: sVal('team-b-rest-select')  // 0=Short, 1=Std, 2=Bye
+        },
+
+        // Team A Injury Status (0=Healthy, 1=Mild, 2=Out)
+        injuriesA: {
+            qb: sVal('team-a-qb-injury'),
+            rb: sVal('team-a-rb-injury'),
+            te: sVal('team-a-te-injury'),
+            wr: sVal('team-a-wr-injury'),
+            dLine: sVal('team-a-dLine-injury'),
+            dSecondary: sVal('team-a-dSecondary-injury')
+        },
+
+        // Team B Injury Status (0=Healthy, 1=Mild, 2=Out)
+        injuriesB: {
+            qb: sVal('team-b-qb-injury'),
+            rb: sVal('team-b-rb-injury'),
+            te: sVal('team-b-te-injury'),
+            wr: sVal('team-b-wr-injury'),
+            dLine: sVal('team-b-dLine-injury'),
+            dSecondary: sVal('team-b-dSecondary-injury')
+        }
+    };
+};
+
+
+
 // --- 2. Core Math Utilities ---
 const mathUtils = {
     getStats: (values) => {
