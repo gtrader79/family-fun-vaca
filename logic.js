@@ -95,6 +95,10 @@ function setupEventListeners() {
     document.getElementById('season-select').addEventListener('change', updateMatchupTable);
     document.getElementById('team-a-select').addEventListener('change', updateMatchupTable);
     document.getElementById('team-b-select').addEventListener('change', updateMatchupTable);
+
+    document.getElementById('team-a-select').addEventListener('change', handleTeamChange);
+    document.getElementById('team-b-select').addEventListener('change', handleTeamChange);
+    
     document.getElementById('run-sim-btn').addEventListener('click', runSimulationController);
     document.getElementById('reset-btn').addEventListener('click', () => location.reload());
 }
@@ -117,7 +121,42 @@ function initDropdowns() {
     });
 }
 
-// --- 4. UI: Update Comparison Table ---
+
+// --- 4.0 UI: Update Team Selection Options ---
+    const handleTeamChange = (event) => {
+        const selectedText = event.target.options[event.target.selectedIndex].text;
+        // Determine if it's 'teamA' or 'teamB' based on the ID
+        const teamKey = event.target.id.includes('-a-') ? 'teamA' : 'teamB';
+        
+        populateSituationalInputs(teamKey, selectedText);
+    };
+    
+    function populateSituationalInputs(key, teamName) {
+        // Standardize IDs so they only differ by the suffix (teamA vs teamB)
+        const suffix = key; 
+    
+        const updates = [
+            { id: `hfa-${suffix}`, text: teamName },
+            { id: `rest-gap-${suffix}`, text: `Rest Gap for ${teamName}` },
+            { id: `momentum-${suffix}`, text: teamName },
+            { id: `travel-${suffix}`, text: `${teamName} Traveled` },
+            { id: `accordion-header-${key === 'teamA' ? 'team-a' : 'team-b'}`, text: `3. Injury Report: ${teamName}` }
+        ];
+    
+        updates.forEach(item => updateElementText(item.id, item.text));
+    }
+    
+    function updateElementText(elId, content) {
+        const el = document.getElementById(elId);
+        if (el) {
+            // Use textContent instead of innerHTML for better performance and security
+            el.textContent = content;
+        }
+    }
+
+
+
+// --- 4.1 UI: Update Comparison Table ---
 function updateMatchupTable() {
     const yr = document.getElementById('season-select').value;
     const idA = document.getElementById('team-a-select').value;
@@ -174,6 +213,7 @@ function updateMatchupTable() {
         </tr>`;
         
     });
+
 }
 
 // --- 5. The Engine: Monte Carlo Controller ---
