@@ -38,13 +38,13 @@
                             </select>
                         </div>
                         <div class="input-group">
-                            <label>Home Team</label>
+                            <label>Team A</label>
                             <select id="team-a-select">
-                                <option value="">Select Team...</option>
+                                <option value="">Select Team...</option>                              
                                 </select>
                         </div>
                         <div class="input-group">
-                            <label>Away Team</label>
+                            <label>Team B</label>
                             <select id="team-b-select">
                                 <option value="">Select Team...</option>
                                 </select>
@@ -52,17 +52,56 @@
                     </div>
                 </div>                
                 
-                <div class="accordion-item">
+                <div class="accordion-item ">
                     <button class="accordion-header">
                         <span>2. Situational Factors (Future)</span>
                         <span class="arrow">▼</span>
                     </button>
                     <div class="accordion-content">                        
                         <div class="slider-group">
-                            <label>Weather Impact</label>
-                            <input type="range" id="weather-select" min="-2" max="0" step="1" value="0">
+                            <label>Home Field Advantage</label>
+                            <input type="range" id="hfa-select" min="1" max="3" step="1" value="2">
                             <div class="range-labels">
-                                <small>Snow/Very Cold</small><small>Rain/Wind</small><small>Dome/Clear</small>
+                                <small id="hfa-teamA">Team A</small><small>Neutral</small><small id="hfa-teamB">Team B</small>
+                            </div>                            
+                        </div>
+                      <div class="slider-group">
+                            <label>West To East Travel</label>
+                            <input type="range" id="travel-select" min="1" max="3" step="1" value="2">
+                            <div class="range-labels">
+                                <small id="travel-teamA">Team A</small><small>Neutral</small><small id="travel-teamB">Team B</small>
+                            </div>                            
+                        </div>
+                      
+                      
+                        <div class="slider-group">
+                            <label>Winds</label>
+                            <input type="range" id="winds-select" min="0" max="2" step="1" value="0">
+                            <div class="range-labels">
+                                <small>0-10 mph</small><small>15-20 mph</small><small>25+ mph</small>
+                            </div>                            
+                        </div>
+                      <div class="slider-group">
+                            <label id="rest-gap-teamA">Rest Gap for Team A</label>
+                            <input type="range" id="team-a-rest-select" min="0" max="2" step="1" value="1">
+                            <div class="range-labels">
+                                <small>Short (4-5 Days)</small><small>Standard (6-8 Days)</small><small>Bye Week (10+)</small>
+                            </div>                            
+                        </div>
+                      <div class="slider-group">
+                            <label id="rest-gap-teamB">Rest Gap for Team B</label>
+                            <input type="range" id="team-b-rest-select" min="0" max="2" step="1" value="1">
+                            <div class="range-labels">
+                                <small>Short (4-5 Days)</small><small>Standard (6-8 Days)</small><small>Bye Week (10+)</small>
+                            </div>                            
+                        </div>
+
+
+                        <div class="slider-group">
+                            <label>Momentum</label>
+                            <input type="range" id="momentum-select" min="0" max="2" step="1" value="1">
+                            <div class="range-labels">
+                                <small id="team-a-momentum">Team A</small><small>Neutral</small><small id="team-b-momentum">Team B</small>
                             </div>                            
                         </div>
                     </div>
@@ -70,36 +109,101 @@
 
                 <div class="accordion-item">
                     <button class="accordion-header">
-                        <span>3. Momentum & Injuries (Future)</span>
+                        <span id='accordion-header-team-a'>3. Injury Report: Team A </span>
                         <span class="arrow">▼</span>
                     </button>
                     <div class="accordion-content">
                         <div class="slider-group">
-                            <label>Away Team Momentum</label>
-                            <input type="range" id="momentum-a" min="-2" max="2" step="1" value="0">
+                            <label>QB</label>
+                            <input type="range" id="team-a-qb-injury" min="0" max="2" step="1" value="0">
                             <div class="range-labels">
-                                <small>Cold</small><small>Neut</small><small>Hot</small>
+                                <small>Healthy</small><small>Mild Injury</small><small>Out</small>
                             </div>
                         </div>
                         <div class="slider-group">
-                            <label>Home Team Momentum</label>
-                            <input type="range" id="momentum-b" min="-2" max="2" step="1" value="0">
+                            <label>RB</label>
+                            <input type="range" id="team-a-rb-injury" min="0" max="2" step="1" value="0">
                             <div class="range-labels">
-                                <small>Cold</small><small>Neut</small><small>Hot</small>
+                                <small>Healthy</small><small>Mild Injury</small><small>Out</small>
+                            </div>
+                        </div>
+                      <div class="slider-group">
+                            <label>TE</label>
+                            <input type="range" id="team-a-te-injury" min="0" max="2" step="1" value="0">
+                            <div class="range-labels">
+                                <small>Healthy</small><small>Mild Injury</small><small>Out</small>
+                            </div>
+                        </div>
+                      <div class="slider-group">
+                            <label>WR</label>
+                            <input type="range" id="team-a-wr-injury" min="0" max="2" step="1" value="0">
+                            <div class="range-labels">
+                                <small>Healthy</small><small>Mild Injury</small><small>Out</small>
+                            </div>
+                        </div>
+                      <div class="slider-group">
+                            <label>Defensive Line - Key Players</label>
+                            <input type="range" id="team-a-dLine-injury" min="0" max="2" step="1" value="0">
+                            <div class="range-labels">
+                                <small>Healthy</small><small>Mild Injury</small><small>Out</small>
+                            </div>
+                        </div>
+                     <div class="slider-group">
+                            <label>Defense Secondary - Key Players</label>
+                            <input type="range" id="team-a-dSecondary-injury" min="0" max="2" step="1" value="0">
+                            <div class="range-labels">
+                                <small>Healthy</small><small>Mild Injury</small><small>Out</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              
+              <div class="accordion-item">
+                    <button class="accordion-header">
+                        <span id='accordion-header-team-b'>4. Injury Report: Team B </span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="slider-group">
+                            <label>QB</label>
+                            <input type="range" id="team-b-qb-injury" min="0" max="2" step="1" value="0">
+                            <div class="range-labels">
+                                <small>Healthy</small><small>Mild Injury</small><small>Out</small>
                             </div>
                         </div>
                         <div class="slider-group">
-                            <label>Away Key Injuries</label>
-                            <input type="range" id="health-a" min="-2" max="0" step="1" value="0">
+                            <label>RB</label>
+                            <input type="range" id="team-b-rb-injury" min="0" max="2" step="1" value="0">
                             <div class="range-labels">
-                                <small>Lots</small><small>Couple</small><small>None</small>
+                                <small>Healthy</small><small>Mild Injury</small><small>Out</small>
                             </div>
                         </div>
-                        <div class="slider-group">
-                            <label>Home Key Injuries</label>
-                            <input type="range" id="health-b" min="-2" max="0" step="1" value="0">
+                      <div class="slider-group">
+                            <label>TE</label>
+                            <input type="range" id="team-b-te-injury" min="0" max="2" step="1" value="0">
                             <div class="range-labels">
-                                <small>Lots</small><small>Couple</small><small>None</small>
+                                <small>Healthy</small><small>Mild Injury</small><small>Out</small>
+                            </div>
+                        </div>
+                      <div class="slider-group">
+                            <label>WR</label>
+                            <input type="range" id="team-b-wr-injury" min="0" max="2" step="1" value="0">
+                            <div class="range-labels">
+                                <small>Healthy</small><small>Mild Injury</small><small>Out</small>
+                            </div>
+                        </div>
+                      <div class="slider-group">
+                            <label>Defensive Line - Key Players</label>
+                            <input type="range" id="team-b-dLine-injury" min="0" max="2" step="1" value="0">
+                            <div class="range-labels">
+                                <small>Healthy</small><small>Mild Injury</small><small>Out</small>
+                            </div>
+                        </div>
+                     <div class="slider-group">
+                            <label>Defense Secondary - Key Players</label>
+                            <input type="range" id="team-b-dSecondary-injury" min="0" max="2" step="1" value="0">
+                            <div class="range-labels">
+                                <small>Healthy</small><small>Mild Injury</small><small>Out</small>
                             </div>
                         </div>
                     </div>
