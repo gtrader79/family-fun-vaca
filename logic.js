@@ -7,7 +7,7 @@ let teamA = null;
 let teamB = null;
 let results = [];
 let simulationRuns = [];
-let situationFactors = [];
+let factors = [];
 
 const SIM_CONFIG = {
     iterations: 10000,
@@ -141,7 +141,7 @@ function initDropdowns() {
         const updates = [
             { id: `hfa-${suffix}`, text: teamName },
             { id: `rest-gap-${suffix}`, text: `Rest Gap for ${teamName}` },
-            { id: `momentum-${suffix}`, text: teamName },
+            //{ id: `momentum-${suffix}`, text: teamName },
             { id: `travel-${suffix}`, text: `${teamName} Traveled` },
             { id: `accordion-header-${key === 'teamA' ? 'team-a' : 'team-b'}`, text: `3. Injury Report: ${teamName}` }
         ];
@@ -225,10 +225,11 @@ function runSimulationController() {
 
     results =[];
     simulationRuns =[];
+    factors =[];
     
 
     // A. Get Factors from UI
-    const factors = getSituationalFactors();
+    factors = getSituationalFactors();
 
     // B. NEW: The Bridge - Convert Slider Objects to Detailed Injury Arrays
     const createInjuryArray = (injObj) => {
