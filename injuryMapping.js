@@ -46,7 +46,7 @@ const INJURY_MAP = {
         passVolDef: [1.0, 1.04, 1.10], // More passing yards allowed per game
         explosiveDef:[1.0, 1.08, 1.18] // Higher rate of big plays surrendered
     }
-});
+};
 
 
 const getAdjustedTeamStats = (teamStats, injuries) => {
