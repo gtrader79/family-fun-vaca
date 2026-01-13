@@ -1,4 +1,4 @@
-    /* logic.js */
+/* logic.js */
 
 // --- 1. Global State & Constants ---
 let globalData = null;
@@ -16,58 +16,15 @@ const SIM_CONFIG = {
     weights: {
             passVolume: 0.30,   // Reduced from 1.0 because we added WR/TE/QB
             rush: 0.85,         // Stays the primary rushing metric
-            qb: 0.55,           // Efficiency is often more predictive than volume
-            wr: 0.20,           // Represents "Weapon Depth"
-            te: 0.20,           // Represents "Matchup Mismatches"
+            qb: 0.55,           // 
+            wr: 0.20,           // 
+            te: 0.20,           // 
             turnover: 1.50,     // HUGE. Turnovers kill drives and lose games.
             redZone: 0.70,      // Yards don't matter if you can't finish.
             explosive: 0.40,    // Measures "Quick Strike" ability
             pressure: 0.50      // Measures "Disruption" (Sacks/Hurries)
             },
     noiseThreshold: 0.65 // Baseline "Stable"
-};
-
-
-const getSituationalFactors = () => {
-    // Helper to get integer value from slider ID
-    const sVal = (id) => parseInt(document.getElementById(id).value);
-
-    return {
-        // Global Game Context
-        context: {
-            hfa: sVal('hfa-select'),                                // 1=A, 2=N, 3=B
-            travel: sVal('travel-select'),                          // 1=A, 2=N, 3=B
-            windLevel: sVal('winds-select'),                        // 0=Low, 1=Med, 2=High
-            momentum: sVal('momentum-select'),                      // 0=A, 1=N, 2=B
-            divisionMatchUp: (teamA.division === teamB.division)    //True, False
-        },
-
-        // Rest Gaps
-        rest: {
-            teamA: sVal('team-a-rest-select'), // 0=Short, 1=Std, 2=Bye
-            teamB: sVal('team-b-rest-select')  // 0=Short, 1=Std, 2=Bye
-        },
-
-        // Team A Injury Status (0=Healthy, 1=Mild, 2=Out)
-        injuriesA: {
-            qb: sVal('team-a-qb-injury'),
-            rb: sVal('team-a-rb-injury'),
-            te: sVal('team-a-te-injury'),
-            wr: sVal('team-a-wr-injury'),
-            dLine: sVal('team-a-dLine-injury'),
-            dSecondary: sVal('team-a-dSecondary-injury')
-        },
-
-        // Team B Injury Status (0=Healthy, 1=Mild, 2=Out)
-        injuriesB: {
-            qb: sVal('team-b-qb-injury'),
-            rb: sVal('team-b-rb-injury'),
-            te: sVal('team-b-te-injury'),
-            wr: sVal('team-b-wr-injury'),
-            dLine: sVal('team-b-dLine-injury'),
-            dSecondary: sVal('team-b-dSecondary-injury')
-        }
-    };
 };
 
 
@@ -268,11 +225,53 @@ function runSimulationController() {
 
     results =[];
     simulationRuns =[];
-    situationFactors = [];
-
-    situationFactors = getSituationalFactors();
     
-    // A. Pre-calculate League Stats (Context)
+
+    // A. Get Factors from UI
+    const factors = getSituationalFactors();
+
+    // B. NEW: The Bridge - Convert Slider Objects to Detailed Injury Arrays
+    const createInjuryArray = (injObj) => {
+        let arr = [];
+        // Simple Mappings
+        if (injObj.qb > 0) arr.push({ pos: 'qb', level: injObj.qb, role: 'QB1' });
+        if (injObj.rb > 0) arr.push({ pos: 'rb', level: injObj.rb, role: 'RB1' });
+        if (injObj.wr > 0) arr.push({ pos: 'wr', level: injObj.wr, role: 'WR1' });
+        if (injObj.te > 0) arr.push({ pos: 'te', level: injObj.te, role: 'TE1' });
+        if (injObj.dLine > 0) arr.push({ pos: 'dLine', level: injObj.dLine, role: 'Edge1' });
+
+        // CLIFF MAPPINGS (Logic to trigger system failure based on slider severity)
+        
+        // If OL Slider is 2 (Out), we assume catastrophic injury (3+ starters) to trigger the Cliff
+        // If OL Slider is 1 (Questionable), we assume mild injury (1 starter)
+        if (injObj.olLine === 2) {
+             // Push 3 entries to trigger count >= 3 in processor
+             arr.push({ pos: 'olLine', level: 2, role: 'LT' });
+             arr.push({ pos: 'olLine', level: 2, role: 'LG' });
+             arr.push({ pos: 'olLine', level: 2, role: 'C' });
+        } else if (injObj.olLine === 1) {
+             arr.push({ pos: 'olLine', level: 1, role: 'LT' });
+        }
+
+        // If Secondary Slider is 2 (Out), we assume CB1 + CB2 Out to trigger Cliff
+        if (injObj.dSecondary === 2) {
+            arr.push({ pos: 'secondary', level: 2, role: 'CB1' });
+            arr.push({ pos: 'secondary', level: 2, role: 'CB2' });
+        } else if (injObj.dSecondary === 1) {
+            arr.push({ pos: 'secondary', level: 1, role: 'CB1' });
+        }
+
+        return arr;
+    };
+
+    const injuriesListA = createInjuryArray(factors.injuriesA);
+    const injuriesListB = createInjuryArray(factors.injuriesB);
+
+    // C. NEW: Calculate Adjusted Team Stats BEFORE the loop
+    const adjustedTeamA = getAdjustedTeamStats(teamA, injuriesListA);
+    const adjustedTeamB = getAdjustedTeamStats(teamB, injuriesListB);
+    
+    // D. Pre-calculate League Stats (Context)
     const league = {
         offPass: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_pass_yards_per_game)),
         defPass: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_pass_yards_allowed_per_game)),
@@ -305,12 +304,12 @@ function runSimulationController() {
         defPressure: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_pressure_generated_pct))
     };
 
-    // B. Calculate Matchup Z-Scores
+    // E. Calculate Matchup Z-Scores
     const getMatchupDelta = (tA, tB, noise) => {
         // --- PASSING GAME (Distributed Weights) ---
         // Split the "Passing Weight" across Volume, QB Skill, and Weapons
         
-        // Volume: Yards vs Yards Allowed
+        // Volume: Yards vs Yards Allowed                
         const passAdv = (mathUtils.getZ(tA.off_pass_yards_per_game, league.offPass) + mathUtils.generateNoise(noise)) 
                    - (mathUtils.getZ(tB.def_pass_yards_allowed_per_game, league.defPass, true) + mathUtils.generateNoise(noise));
         
@@ -367,9 +366,12 @@ function runSimulationController() {
     // C. The Simulation Loop
     let totalProbA = 0;    
     for (let i = 0; i < SIM_CONFIG.iterations; i++) {
-        //1. Calculat simulated results and delta for this 'any given sunday' simulated run
-        const strA = getMatchupDelta(teamA, teamB, SIM_CONFIG.noiseThreshold) + SIM_CONFIG.hfa;
-        const strB = getMatchupDelta(teamB, teamA, SIM_CONFIG.noiseThreshold);
+        //1. Calculat simulated results and delta for this 'any given sunday' simulated run.  Use adjustedTeamA and adjustedTeamB for injuries
+        //const strA = getMatchupDelta(teamA, teamB, SIM_CONFIG.noiseThreshold) + SIM_CONFIG.hfa;
+        //const strB = getMatchupDelta(teamB, teamA, SIM_CONFIG.noiseThreshold);
+        const strA = getMatchupDelta(adjustedTeamA, adjustedTeamB, SIM_CONFIG.noiseThreshold) + SIM_CONFIG.hfa;
+        const strB = getMatchupDelta(adjustedTeamB, adjustedTeamA, SIM_CONFIG.noiseThreshold);
+        
         const delta = strA - strB;
         //2. Map this delta to a Probability using Sigmoid
         const probA = mathUtils.sigmoid(delta);
