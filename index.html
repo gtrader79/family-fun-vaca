@@ -235,6 +235,7 @@
                 <button class="tab-btn active" data-tab="ball-drop">Visual Sim</button>
                 <button class="tab-btn" data-tab="analytics">Analytics</button>
                 <button class="tab-btn" data-tab="matchup">Team Stats</button>
+                <button class="tab-btn" data-tab="weatherRpt">Game Day Weather</button>
             </div>
 
             <div id="ball-drop" class="tab-content active">
@@ -288,6 +289,15 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+            <div id="weatherRpt" class="tab-content">
+                <div class="table-wrapper">
+                    <iframe src="https://www.rotowire.com/football/weather.php"
+                            title="rotowire"
+                            width="600"
+                            height="400">
+                    </iframe>
                 </div>
             </div>
             <button id="mobile-run-btn" class="fab-btn">
