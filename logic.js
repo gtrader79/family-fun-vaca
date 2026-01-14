@@ -364,38 +364,63 @@ function runSimulationController() {
         return rawDelta / 2.8;
     };
 
-    // C. The Simulation Loop
+    // C. Contextual Situational ZScore Adjustments
+        // 1. Home Field Advantage
+            let hfaValue = 0;
+            if (context.hfa === 1) hfaValue = SIM_CONFIG.hfa;       // Team A Home
+            else if (context.hfa === 3) hfaValue = -SIM_CONFIG.hfa; // Team B Home (Negative for A)
+            // context.hfa === 2 is Neutral (0)
+        
+        // 2. Travel Penalty (Who is tired?)
+            // Approx 0.02 Z-Score penalty (half of HFA)
+            let travelPenalty = 0; 
+            const TRAVEL_PENALTY_VAL = 0.02;
+            if (context.travel === 1) travelPenalty = -TRAVEL_PENALTY_VAL; // A is traveling (Penalty to A)
+            else if (context.travel === 3) travelPenalty = TRAVEL_PENALTY_VAL; // B is traveling (Bonus to A)
+            
+        // 3. Division Matchup
+            // Division games are often tighter/grittier. We compress the final delta.
+            const divisionCompressor = context.divisionMatchUp ? 0.90 : 1.0;
+
+    
+    // d. The Simulation Loop
     let totalProbA = 0;    
     for (let i = 0; i < SIM_CONFIG.iterations; i++) {
-        //1. Calculat simulated results and delta for this 'any given sunday' simulated run.  Use adjustedTeamA and adjustedTeamB for injuries
-        //const strA = getMatchupDelta(teamA, teamB, SIM_CONFIG.noiseThreshold) + SIM_CONFIG.hfa;
-        //const strB = getMatchupDelta(teamB, teamA, SIM_CONFIG.noiseThreshold);
-        const strA = getMatchupDelta(adjustedTeamA, adjustedTeamB, SIM_CONFIG.noiseThreshold) + SIM_CONFIG.hfa;
-        const strB = getMatchupDelta(adjustedTeamB, adjustedTeamA, SIM_CONFIG.noiseThreshold);
+        //1. Calculat simulated results and delta for this 'any given sunday' simulated run.  Use adjustedTeamA and adjustedTeamB for injuries        
+            const strA = getMatchupDelta(adjustedTeamA, adjustedTeamB, SIM_CONFIG.noiseThreshold);
+            const strB = getMatchupDelta(adjustedTeamB, adjustedTeamA, SIM_CONFIG.noiseThreshold);
+
+        //2. Apply Context (HFA + Travel)
+        // Note: strA and strB are raw performance. We add context to the Delta.
+            let delta = (strA - strB) + hfaValue + travelPenalty;
+
+        //3. Apply Division Compression
+            delta = delta * divisionCompressor;
+                
+        //4. Map this delta to a Probability using Sigmoid
+            const probA = mathUtils.sigmoid(delta);
+            const probB = 1 - probA; // Fixed missing variable
         
-        const delta = strA - strB;
-        //2. Map this delta to a Probability using Sigmoid
-        const probA = mathUtils.sigmoid(delta);
-        const probB = 1 - probA; // Fixed missing variable
-        //3. Accumulate and Store
-        totalProbA += probA;
-        results.push(delta);   
-        //4. Store in Simulation for Visual.js
-        simulationRuns.push({
-                simulatedRun: i+1,
-                teamA_Id: teamA.teamId,
-                teamA_Name: teamA.teamName,
-                teamA_Color: teamA.primaryColor,
-                teamB_Id: teamB.teamId,
-                teamB_Name: teamB.teamName,
-                teamB_Color: teamB.primaryColor,
-                teamA_Strength: strA,
-                teamB_Strength: strB,
-                delta,
-                teamA_Prob: probA,
-                teamB_Prob: probB
-                });
-        }
+        //5. Accumulate and Store
+            totalProbA += probA;
+            results.push(delta);   
+        
+        //6. Store in Simulation for Visual.js
+            simulationRuns.push({
+                    simulatedRun: i+1,
+                    teamA_Id: teamA.teamId,
+                    teamA_Name: teamA.teamName,
+                    teamA_Color: teamA.primaryColor,
+                    teamB_Id: teamB.teamId,
+                    teamB_Name: teamB.teamName,
+                    teamB_Color: teamB.primaryColor,
+                    teamA_Strength: strA,
+                    teamB_Strength: strB,
+                    delta,
+                    teamA_Prob: probA,
+                    teamB_Prob: probB
+                    });
+            }
         //Final Calculations
         const winProbA = totalProbA / SIM_CONFIG.iterations;    
         const winProbB = 1 - winProbA;
