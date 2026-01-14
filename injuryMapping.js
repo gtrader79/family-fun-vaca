@@ -6,32 +6,32 @@
 const INJURY_MAP = {
     // --- OFFENSIVE POSITIONS ---
     qb: {
-        passVolume: [1.0, 0.90, 0.75], // Backup QBs throw shorter/safer
+        passVol: [1.0, 0.90, 0.75], // Backup QBs throw shorter/safer
         redZone:    [1.0, 0.88, 0.82], // Timing & processing drop
         explosive:  [1.0, 0.82, 0.65], // Deep ball arm talent/trust gap
         pressure:   [1.0, 1.10, 1.25]  // Backups hold ball longer (more sacks)
     },
     rb: {
-        rushVolume: [1.0, 0.97, 0.92], // Teams still run, but yards per carry dip
-        passVolume: [1.0, 0.98, 0.90], // Impacts check-down/safety valve utility
+        rushVol: [1.0, 0.97, 0.92], // Teams still run, but yards per carry dip
+        passVol: [1.0, 0.98, 0.90], // Impacts check-down/safety valve utility
         explosive:  [1.0, 0.90, 0.80], // Home-run threat drops
         redZone:    [1.0, 0.95, 0.88], // Missing the "finisher" threat
         pressure:   [1.0, 1.05, 1.12]  // Blitz pickup assignment failures
     },
     wr: {
-        passVolume: [1.0, 0.95, 0.90], // Targets shift to lower-efficiency players
+        passVol: [1.0, 0.95, 0.90], // Targets shift to lower-efficiency players
         redZone:    [1.0, 0.98, 0.95], // Moderate impact (TEs usually handle RZ)
         explosive:  [1.0, 0.88, 0.78]  // WR1 loss kills vertical stretching
     },
     te: {
-        passVolume: [1.0, 0.98, 0.95],
+        passVol: [1.0, 0.98, 0.95],
         redZone:    [1.0, 0.90, 0.80], // High impact: TEs are the RZ security blankets
         explosive:  [1.0, 0.97, 0.95],
         pressure:   [1.0, 1.03, 1.08]  // Loss of the "chip" block on edge rushers
     },
     olLine: {
-        rushVolume: [1.0, 0.95, 0.88], // Creating lanes is physical/talent-based
-        passVolume: [1.0, 0.97, 0.92], // Pocket collapses faster
+        rushVol: [1.0, 0.95, 0.88], // Creating lanes is physical/talent-based
+        passVol: [1.0, 0.97, 0.92], // Pocket collapses faster
         explosive:  [1.0, 0.92, 0.80], // No time for 3+ second deep routes
         redZone:    [1.0, 0.95, 0.90],
         pressure:   [1.0, 1.08, 1.22]  // Direct spike in pressure allowed
@@ -39,11 +39,11 @@ const INJURY_MAP = {
 
     // --- DEFENSIVE POSITIONS (Resistance Approach) ---
     dLine: {
-        pressure:   [1.0, 0.95, 0.85], // Sacks/Hurries generated drop (fewer sacks)
+        pressureDef:   [1.0, 0.95, 0.85], // Sacks/Hurries generated drop (fewer sacks)
         rushDef:    [1.0, 1.05, 1.12]  // Increase in yards allowed to opponent
     },
     secondary: {
-        passVolDef: [1.0, 1.04, 1.10], // More passing yards allowed per game
+        passDef: [1.0, 1.04, 1.10], // More passing yards allowed per game
         explosiveDef:[1.0, 1.08, 1.18] // Higher rate of big plays surrendered
     }
 };
@@ -158,7 +158,7 @@ const getSituationalFactors = () => {
             hfa: sVal('hfa-select'),                                
             travel: sVal('travel-select'),                          
             windLevel: sVal('winds-select'),                        
-            momentum: sVal('momentum-select'),                      
+            //momentum: sVal('momentum-select'),                      
             divisionMatchUp: (teamA.division === teamB.division)    
         },
         injuriesA: {
