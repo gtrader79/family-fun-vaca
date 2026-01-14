@@ -130,14 +130,25 @@ const getAdjustedTeamStats = (teamStats, injuries) => {
         mults.passDef *= 1.08;      
     }
 
-    // PHASE 3: Apply Modifiers
+    // --- PHASE 3: Apply WIND (New!) ---
+    // Wind primarily kills passing volume and deep explosives
+    if (windLevel === 1) { // Medium Wind
+        mults.passVol *= 0.95; 
+        mults.explosive *= 0.90;
+    } else if (windLevel === 2) { // High Wind
+        mults.passVol *= 0.85; 
+        mults.explosive *= 0.75;
+        // Note: We don't boost rushing, we just suppress passing, which naturally makes rushing a larger % of the "Delta"
+    }
+
+    // --- PHASE 4: Final Math (Resistance)---
     if (adjusted.off_pass_yards_per_game) adjusted.off_pass_yards_per_game *= mults.passVol;
     if (adjusted.off_rush_yards_per_game) adjusted.off_rush_yards_per_game *= mults.rushVol;
     if (adjusted.off_rz_efficiency_pct) adjusted.off_rz_efficiency_pct *= mults.redZone;
     if (adjusted.off_explosive_play_rate_pct) adjusted.off_explosive_play_rate_pct *= mults.explosive;
     if (adjusted.off_pressure_allowed_pct) adjusted.off_pressure_allowed_pct *= mults.pressureAllowed;
 
-    // Defense Modifiers (Resistance)
+
     if (adjusted.def_pressure_generated_pct) adjusted.def_pressure_generated_pct *= mults.pressureGenerated;
     if (adjusted.def_rush_yards_allowed_per_game) adjusted.def_rush_yards_allowed_per_game *= mults.rushDef;
     if (adjusted.def_pass_yards_allowed_per_game) adjusted.def_pass_yards_allowed_per_game *= mults.passDef;
