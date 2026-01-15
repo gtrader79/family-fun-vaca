@@ -49,7 +49,7 @@ const INJURY_MAP = {
 };
 
 
-const getAdjustedTeamStats = (teamStats, injuries) => {
+const getAdjustedTeamStats = (teamStats, injuries, ctx) => {
     let adjusted = { ...teamStats };
 
     let mults = {
@@ -132,10 +132,10 @@ const getAdjustedTeamStats = (teamStats, injuries) => {
 
     // --- PHASE 3: Apply WIND (New!) ---
     // Wind primarily kills passing volume and deep explosives
-    if (windLevel === 1) { // Medium Wind
+    if (ctx.windLevel === 1) { // Medium Wind
         mults.passVol *= 0.95; 
         mults.explosive *= 0.90;
-    } else if (windLevel === 2) { // High Wind
+    } else if (ctx.windLevel === 2) { // High Wind
         mults.passVol *= 0.85; 
         mults.explosive *= 0.75;
         // Note: We don't boost rushing, we just suppress passing, which naturally makes rushing a larger % of the "Delta"
@@ -171,7 +171,8 @@ const getSituationalFactors = () => {
             windLevel: sVal('winds-select'),                        
             //momentum: sVal('momentum-select'),                      
             divisionMatchUp: (teamA.division === teamB.division),
-            gameMatchUpType: sVal('game-matchup-select')
+            gameMatchUpType: sVal('game-matchup-select'),
+            gameMatchUpMapping: [1.0, 0.92, 0.90, 0.88, 0.85]  
         },
         injuriesA: {
             qb: sVal('team-a-qb-injury'),
