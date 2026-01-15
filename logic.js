@@ -266,11 +266,12 @@ function runSimulationController() {
     };
 
     const injuriesListA = createInjuryArray(factors.injuriesA);
-    const injuriesListB = createInjuryArray(factors.injuriesB);
-
+    const injuriesListB = createInjuryArray(factors.injuriesB);    
+    const contextSettings = factors.context;
+    
     // C. NEW: Calculate Adjusted Team Stats BEFORE the loop
-    const adjustedTeamA = getAdjustedTeamStats(teamA, injuriesListA);
-    const adjustedTeamB = getAdjustedTeamStats(teamB, injuriesListB);
+    const adjustedTeamA = getAdjustedTeamStats(teamA, injuriesListA, contextSettings);
+    const adjustedTeamB = getAdjustedTeamStats(teamB, injuriesListB, contextSettings);
     
     // D. Pre-calculate League Stats (Context)
     const league = {
@@ -367,20 +368,25 @@ function runSimulationController() {
     // C. Contextual Situational ZScore Adjustments
         // 1. Home Field Advantage
             let hfaValue = 0;
-            if (context.hfa === 1) hfaValue = SIM_CONFIG.hfa;       // Team A Home
-            else if (context.hfa === 3) hfaValue = -SIM_CONFIG.hfa; // Team B Home (Negative for A)
-            // context.hfa === 2 is Neutral (0)
+            if (contextSettings.hfa === 1) hfaValue = SIM_CONFIG.hfa;       // Team A Home
+            else if (contextSettings.hfa === 3) hfaValue = -SIM_CONFIG.hfa; // Team B Home (Negative for A)
+            // contextSettings.hfa === 2 is Neutral (0)
         
         // 2. Travel Penalty (Who is tired?)
             // Approx 0.02 Z-Score penalty (half of HFA)
             let travelPenalty = 0; 
             const TRAVEL_PENALTY_VAL = 0.02;
-            if (context.travel === 1) travelPenalty = -TRAVEL_PENALTY_VAL; // A is traveling (Penalty to A)
-            else if (context.travel === 3) travelPenalty = TRAVEL_PENALTY_VAL; // B is traveling (Bonus to A)
+            if (contextSettings.travel === 1) travelPenalty = -TRAVEL_PENALTY_VAL; // A is traveling (Penalty to A)
+            else if (contextSettings.travel === 3) travelPenalty = TRAVEL_PENALTY_VAL; // B is traveling (Bonus to A)
             
         // 3. Division Matchup
             // Division games are often tighter/grittier. We compress the final delta.
-            const divisionCompressor = context.divisionMatchUp ? 0.90 : 1.0;
+            const divisionCompressor = contextSettings.divisionMatchUp ? 0.90 : 1.0;
+
+        // 3. Game Matchup Type (e.g. 0=Regular, 3 = Super Bowl
+            // Play off games are often tighter/grittier with each round. We compress the final delta.
+            const gmMatchUpValue = contextSettings.gameMatchUpType;
+            const gmMatchUpCompressor = contextSettings.gameMatchUpMapping[gameMatchUpType];
 
     
     // d. The Simulation Loop
@@ -395,7 +401,7 @@ function runSimulationController() {
             let delta = (strA - strB) + hfaValue + travelPenalty;
 
         //3. Apply Division Compression
-            delta = delta * divisionCompressor;
+            delta = delta * divisionCompressor * gmMatchUpCompressor;
                 
         //4. Map this delta to a Probability using Sigmoid
             const probA = mathUtils.sigmoid(delta);
