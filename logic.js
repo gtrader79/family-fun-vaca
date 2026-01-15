@@ -386,7 +386,7 @@ function runSimulationController() {
         // 3. Game Matchup Type (e.g. 0=Regular, 3 = Super Bowl
             // Play off games are often tighter/grittier with each round. We compress the final delta.
             const gmMatchUpValue = contextSettings.gameMatchUpType;
-            const gmMatchUpCompressor = contextSettings.gameMatchUpMapping[gameMatchUpType];
+            const gmMatchUpCompressor = contextSettings.gameMatchUpMapping[gmMatchUpValue];
 
     
     // d. The Simulation Loop
