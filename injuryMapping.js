@@ -170,7 +170,8 @@ const getSituationalFactors = () => {
             travel: sVal('travel-select'),                          
             windLevel: sVal('winds-select'),                        
             //momentum: sVal('momentum-select'),                      
-            divisionMatchUp: (teamA.division === teamB.division)    
+            divisionMatchUp: (teamA.division === teamB.division),
+            gameMatchUpType: sVal('game-matchup-select')
         },
         injuriesA: {
             qb: sVal('team-a-qb-injury'),
