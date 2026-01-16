@@ -427,19 +427,19 @@ function runSimulationController() {
     // C. Contextual Situational ZScore Adjustments
         // 1. Home Field Advantage
             let hfaValue = 0;
-            if (contextSettings.hfa === 1) hfaValue = SIM_CONFIG.hfa;       // Team A Home
-            else if (contextSettings.hfa === 3) hfaValue = -SIM_CONFIG.hfa; // Team B Home (Negative for A)
+            if (context.hfa === 1) hfaValue = SIM_CONFIG.hfa;       // Team A Home
+            else if (context.hfa === 3) hfaValue = -SIM_CONFIG.hfa; // Team B Home (Negative for A)
             // contextSettings.hfa === 2 is Neutral (0)
         
         // 2. Travel Penalty (Who is tired?)            
             let travelPenalty = 0;             
-            if (contextSettings.travel === 1) travelPenalty = -SIM_CONFIG.travel_penalty_val; // A is traveling (Penalty to A)
-            else if (contextSettings.travel === 3) travelPenalty = SIM_CONFIG.travel_penalty_val; // B is traveling (Bonus to A)
+            if (context.travel === 1) travelPenalty = -SIM_CONFIG.travel_penalty_val; // A is traveling (Penalty to A)
+            else if (context.travel === 3) travelPenalty = SIM_CONFIG.travel_penalty_val; // B is traveling (Bonus to A)
 
         // 3. Momentum (Who has it?)
             let momentumValue = 0;             
-            if (contextSettings.momentum === 1) momentumValue = SIM_CONFIG.momentumValue_val; // A has momentum (Bonus to A)
-            else if (contextSettings.momentum === 3) momentumValue = -SIM_CONFIG.momentumValue_val; // B has momentum (Negative to A)
+            if (context.momentum === 1) momentumValue = SIM_CONFIG.momentumValue_val; // A has momentum (Bonus to A)
+            else if (context.momentum === 3) momentumValue = -SIM_CONFIG.momentumValue_val; // B has momentum (Negative to A)
     
         // 3. Rest Gap (Who is tired?)            
             // 0 = Short (-0.05), 1 = Standard (0.0), 2 = Bye (+0.07)
@@ -457,12 +457,12 @@ function runSimulationController() {
             
         // 4. Division Matchup
             // Division games are often tighter/grittier. We compress the final delta.
-            const divisionCompressor = contextSettings.divisionMatchUp ? 0.90 : 1.0;
+            const divisionCompressor = context.divisionMatchUp ? 0.90 : 1.0;
 
         // 5. Game Matchup Type (e.g. 0=Regular, 3 = Super Bowl
             // Play off games are often tighter/grittier with each round. We compress the final delta.
-            const gmMatchUpValue = contextSettings.gameMatchUpType;
-            const gmMatchUpCompressor = contextSettings.gameMatchUpMapping[gmMatchUpValue];
+            const gmMatchUpValue = context.gameMatchUpType;
+            const gmMatchUpCompressor = context.gameMatchUpMapping[gmMatchUpValue];
 
     
     // d. The Simulation Loop
