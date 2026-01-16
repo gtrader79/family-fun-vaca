@@ -169,7 +169,7 @@ const getSituationalFactors = () => {
             hfa: sVal('hfa-select'),                                
             travel: sVal('travel-select'),                          
             windLevel: sVal('winds-select'),                        
-            //momentum: sVal('momentum-select'),                      
+            momentum: sVal('momentum-select'),                      
             divisionMatchUp: (teamA.division === teamB.division),
             gameMatchUpType: sVal('game-matchup-select'),
             gameMatchUpMapping: [1.0, 0.92, 0.90, 0.88, 0.85]  
