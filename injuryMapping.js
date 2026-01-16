@@ -179,7 +179,7 @@ const getSituationalFactors = () => {
             rb: sVal('team-a-rb-injury'),
             te: sVal('team-a-te-injury'),
             wr: sVal('team-a-wr-injury'),
-            olLine: sVal('team-a-ol-injury'), // NEW: Ensure you add this ID to your HTML
+            olLine: sVal('team-a-olLine-injury'), // NEW: Ensure you add this ID to your HTML
             dLine: sVal('team-a-dLine-injury'),
             dSecondary: sVal('team-a-dSecondary-injury')
         },
@@ -188,7 +188,7 @@ const getSituationalFactors = () => {
             rb: sVal('team-b-rb-injury'),
             te: sVal('team-b-te-injury'),
             wr: sVal('team-b-wr-injury'),
-            olLine: sVal('team-b-ol-injury'), // NEW
+            olLine: sVal('team-b-olLine-injury'), // NEW
             dLine: sVal('team-b-dLine-injury'),
             dSecondary: sVal('team-b-dSecondary-injury')
         }
