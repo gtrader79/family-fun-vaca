@@ -96,6 +96,32 @@ const calculateNormalizationFactor = (weights) => {
 };
 SIM_CONFIG.normalizationFactor = calculateNormalizationFactor(SIM_CONFIG.weights);
 
+/* --- 2.3 Adjusts raw stats based on Strength of Schedule (SoS)
+    * Adjusts raw stats based on Strength of Schedule (SoS)
+    * Assumes 'sos_rating' is a Z-Score or similar relative rating (e.g. +5.0 is hard, -5.0 is easy)
+    * If you don't have SoS data yet, this safely returns the original stats.*/
+
+const applySoSAdjustment = (teamStats, sosRating = 0) => {
+    let adjusted = { ...teamStats };
+    
+    // SoS Factor: 1.0 is neutral. 
+    // A hard schedule (+5.0) might boost offensive stats by 5% (1.05) because they earned them harder.
+    // A soft schedule (-5.0) might lower them by 5% (0.95).
+    const sosFactor = 1 + (sosRating * 0.01); 
+
+    // We apply this to Volume stats, but not necessarily Efficiency stats (like percentages)
+    // as Efficiency is more "sticky" regardless of opponent.
+    if (adjusted.off_pass_yards_per_game) adjusted.off_pass_yards_per_game *= sosFactor;
+    if (adjusted.off_rush_yards_per_game) adjusted.off_rush_yards_per_game *= sosFactor;
+    
+    // For Defense, it's inverse. If you faced a hard schedule (good offenses),
+    // allowing yards is "forgivable", so we lower your allowed stats (improvement).
+    const defSosFactor = 1 - (sosRating * 0.01);
+    if (adjusted.def_pass_yards_allowed_per_game) adjusted.def_pass_yards_allowed_per_game *= defSosFactor;
+    if (adjusted.def_rush_yards_allowed_per_game) adjusted.def_rush_yards_allowed_per_game *= defSosFactor;
+
+    return adjusted;
+};
 
 
 
@@ -245,7 +271,14 @@ function runSimulationController() {
 
     // A. Get Factors from UI
     factors = getSituationalFactors();
+    const { context, rest } = factors;
 
+    // SoS Adjustment (Before Injuries) ---
+    // We try to access 'sos_rating' from your team object. 
+    // If your JSON doesn't have it, it defaults to 0 (no effect).
+    let sosAdjustedA = applySoSAdjustment(teamA, teamA.sos_rating || 0);
+    let sosAdjustedB = applySoSAdjustment(teamB, teamB.sos_rating || 0);
+    
     // B. NEW: The Bridge - Convert Slider Objects to Detailed Injury Arrays
     const createInjuryArray = (injObj) => {
         let arr = [];
@@ -281,12 +314,11 @@ function runSimulationController() {
     };
 
     const injuriesListA = createInjuryArray(factors.injuriesA);
-    const injuriesListB = createInjuryArray(factors.injuriesB);    
-    const contextSettings = factors.context;
+    const injuriesListB = createInjuryArray(factors.injuriesB);        
     
-    // C. NEW: Calculate Adjusted Team Stats BEFORE the loop
-    const adjustedTeamA = getAdjustedTeamStats(teamA, injuriesListA, contextSettings);
-    const adjustedTeamB = getAdjustedTeamStats(teamB, injuriesListB, contextSettings);
+    // C. Adjusted Stats (Injuries + Wind)
+    const adjustedTeamA = getAdjustedTeamStats(sosAdjustedA, injuriesListA, context);
+    const adjustedTeamB = getAdjustedTeamStats(sosAdjustedB, injuriesListB, context);
     
     // D. Pre-calculate League Stats (Context)
     const league = {
@@ -358,7 +390,7 @@ function runSimulationController() {
     
         // Red Zone & Explosiveness (Standard: Higher is Better)
         const redZoneAdv = (mathUtils.getZ(tA.off_rz_efficiency_pct, league.offRZ) + mathUtils.generateNoise(noise)) 
-                         - (mathUtils.getZ(tB.def_rz_efficiency_allowed_pct, league.defRZ, true) + mathUtils.generateNoise(noise));
+                         - (mathUtils.getZ(tB.def_rz_efficiency_allowed_pct, league.defRZ, true) + mathUtils.generateNoise(noise));        
     
         const explosivePlayAdv = (mathUtils.getZ(tA.off_explosive_play_rate_pct, league.offExplosivePlay) + mathUtils.generateNoise(noise)) 
                                - (mathUtils.getZ(tB.def_explosive_play_rate_allowed_pct, league.defExplosivePlay, true) + mathUtils.generateNoise(noise));
@@ -374,10 +406,22 @@ function runSimulationController() {
              + (explosivePlayAdv * SIM_CONFIG.weights.explosive) 
              + (pressureAdv * SIM_CONFIG.weights.pressure);
 
-        // NEW: Normalize the result so we don't break the Sigmoid
-        // 2.8 is a "Magic Number" that approximates the square root of your new weight sum.
-        // It keeps the standard deviation closer to 1.0.
-        return rawDelta / SIM_CONFIG.normalizationFactor;
+        // NEW: Normalize the result so we don't break the Sigmoid        
+        let finalDelta = rawDelta / SIM_CONFIG.normalizationFactor;
+
+        // --- NEW: RED ZONE LEVERAGE MULTIPLIER ---
+        // If one team has a massive RZ advantage (> 1.0 Z-Score), we magnify their "Win" logic.
+        // This simulates "Finishing Drives" vs "Settling for FGs".
+        if (Math.abs(redZoneAdv) > 1.0) {
+            // If the team with the RZ advantage is winning the delta, boost them further.
+            // If they are losing the delta, they might "stick around" longer (catch-up logic), 
+            // but usually RZ advantage magnifies the lead.
+            if ((redZoneAdv > 0 && finalDelta > 0) || (redZoneAdv < 0 && finalDelta < 0)) {
+                 finalDelta *= 1.10; // 10% Boost to the overall strength for being a "Finisher"
+            }
+        }
+
+        return finalDelta;
     };
 
     // C. Contextual Situational ZScore Adjustments
@@ -398,9 +442,18 @@ function runSimulationController() {
             else if (contextSettings.momentum === 3) momentumValue = -SIM_CONFIG.momentumValue_val; // B has momentum (Negative to A)
     
         // 3. Rest Gap (Who is tired?)            
-            //let restValue = 0;             
-            //if (contextSettings.travel === 1) travelPenalty = -SIM_CONFIG.travel_penalty_val; // A is traveling (Penalty to A)
-            //else if (contextSettings.travel === 3) travelPenalty = SIM_CONFIG.travel_penalty_val; // B is traveling (Bonus to A)
+            // 0 = Short (-0.05), 1 = Standard (0.0), 2 = Bye (+0.07)
+            // We give a slightly larger bonus to Bye weeks for coaching prep.
+            const getRestImpact = (val) => {
+                if (val === 0) return -0.05; // Tired / No Prep
+                if (val === 2) return 0.07;  // Rested / Scheme Install
+                return 0.0;
+            };
+            
+            const restImpactA = getRestImpact(rest.teamA);
+            const restImpactB = getRestImpact(rest.teamB);
+            const totalRestDelta = restImpactA - restImpactB; 
+            // Example: A is Bye (0.07), B is Short (-0.05). Total = 0.12 (Significant advantage)
             
         // 4. Division Matchup
             // Division games are often tighter/grittier. We compress the final delta.
@@ -421,7 +474,7 @@ function runSimulationController() {
 
         //2. Apply Context (HFA + Travel)
         // Note: strA and strB are raw performance. We add context to the Delta.
-            let delta = (strA - strB) + hfaValue + travelPenalty;
+            let delta = (strA - strB) + hfaValue + travelPenalty + totalRestDelta;
 
         //3. Apply Division Compression
             delta = delta * divisionCompressor * gmMatchUpCompressor;
