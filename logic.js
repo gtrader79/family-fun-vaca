@@ -11,8 +11,9 @@ let factors = [];
 
 const SIM_CONFIG = {
     iterations: 10000,
-    hfa: 0.037878,      //z score based on 2 Pts of historical HFA; historical Mean Spread of 2.5 pts; historical StdDev of 13.2 points.  Historical is Post 1990
-    k: 0.7,
+    hfa: 0.04,                    //z score based on 2 Pts of historical HFA; historical Mean Spread of 2.5 pts; historical StdDev of 13.2 points.  Historical is Post 1990
+    travel_penalty_val: 0.03,      //z score slighly less than HFA
+    k: 0.65,
     weights: {
             passVolume: 0.30,   // Reduced from 1.0 because we added WR/TE/QB
             rush: 0.85,         // Stays the primary rushing metric
@@ -24,7 +25,8 @@ const SIM_CONFIG = {
             explosive: 0.40,    // Measures "Quick Strike" ability
             pressure: 0.50      // Measures "Disruption" (Sacks/Hurries)
             },
-    noiseThreshold: 0.65 // Baseline "Stable"
+    noiseThreshold: 0.65 // Baseline "Stable",
+    SIM_CONFIG.normalizationFactor = calculateNormalizationFactor(SIM_CONFIG.weights);
 };
 
 
@@ -82,6 +84,18 @@ const analysisUtils = {
         return "Highly unpredictable; a true toss-up.";
     }
 };
+
+// --- 2.2 Normalize total score to keep std ~ 1 ---
+const calculateNormalizationFactor = (weights) => {
+    let sumOfSquares = 0;
+    for (let key in weights) {
+        sumOfSquares += (weights[key] * weights[key]);
+    }
+    // Multiply by sqrt(2) because we are comparing two independent variables (Team A vs Team B)
+    return Math.sqrt(sumOfSquares) * 1.414;
+};
+
+
 
 
 // --- 3. Initialization & Event Listeners ---
@@ -362,7 +376,7 @@ function runSimulationController() {
         // NEW: Normalize the result so we don't break the Sigmoid
         // 2.8 is a "Magic Number" that approximates the square root of your new weight sum.
         // It keeps the standard deviation closer to 1.0.
-        return rawDelta / 2.8;
+        return rawDelta / SIM_CONFIG.normalizationFactor;
     };
 
     // C. Contextual Situational ZScore Adjustments
@@ -374,10 +388,9 @@ function runSimulationController() {
         
         // 2. Travel Penalty (Who is tired?)
             // Approx 0.02 Z-Score penalty (half of HFA)
-            let travelPenalty = 0; 
-            const TRAVEL_PENALTY_VAL = 0.02;
-            if (contextSettings.travel === 1) travelPenalty = -TRAVEL_PENALTY_VAL; // A is traveling (Penalty to A)
-            else if (contextSettings.travel === 3) travelPenalty = TRAVEL_PENALTY_VAL; // B is traveling (Bonus to A)
+            let travelPenalty = 0;             
+            if (contextSettings.travel === 1) travelPenalty = -SIM_CONFIG.travel_penalty_val; // A is traveling (Penalty to A)
+            else if (contextSettings.travel === 3) travelPenalty = SIM_CONFIG.travel_penalty_val; // B is traveling (Bonus to A)
             
         // 3. Division Matchup
             // Division games are often tighter/grittier. We compress the final delta.
