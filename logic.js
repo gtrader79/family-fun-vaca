@@ -25,10 +25,9 @@ const SIM_CONFIG = {
             explosive: 0.40,    // Measures "Quick Strike" ability
             pressure: 0.50      // Measures "Disruption" (Sacks/Hurries)
             },
-    noiseThreshold: 0.65 // Baseline "Stable",
-    SIM_CONFIG.normalizationFactor = calculateNormalizationFactor(SIM_CONFIG.weights);
+    noiseThreshold: 0.65 // Baseline "Stable"    
 };
-
+    SIM_CONFIG.normalizationFactor = calculateNormalizationFactor(SIM_CONFIG.weights);
 
 
 // --- 2. Core Math Utilities ---
