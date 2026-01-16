@@ -27,7 +27,7 @@ const SIM_CONFIG = {
             },
     noiseThreshold: 0.65 // Baseline "Stable"    
 };
-    SIM_CONFIG.normalizationFactor = calculateNormalizationFactor(SIM_CONFIG.weights);
+    
 
 
 // --- 2. Core Math Utilities ---
@@ -93,6 +93,7 @@ const calculateNormalizationFactor = (weights) => {
     // Multiply by sqrt(2) because we are comparing two independent variables (Team A vs Team B)
     return Math.sqrt(sumOfSquares) * 1.414;
 };
+SIM_CONFIG.normalizationFactor = calculateNormalizationFactor(SIM_CONFIG.weights);
 
 
 
