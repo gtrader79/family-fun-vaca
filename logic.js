@@ -13,6 +13,7 @@ const SIM_CONFIG = {
     iterations: 10000,
     hfa: 0.04,                    //z score based on 2 Pts of historical HFA; historical Mean Spread of 2.5 pts; historical StdDev of 13.2 points.  Historical is Post 1990
     travel_penalty_val: 0.03,      //z score slighly less than HFA
+    momentumValue_val: 0.03,       //z score slighly less than HFA
     k: 0.65,
     weights: {
             passVolume: 0.30,   // Reduced from 1.0 because we added WR/TE/QB
@@ -155,7 +156,7 @@ function initDropdowns() {
         const updates = [
             { id: `hfa-${suffix}`, text: teamName },
             { id: `rest-gap-${suffix}`, text: `Rest Gap for ${teamName}` },
-            //{ id: `momentum-${suffix}`, text: teamName },
+            { id: `momentum-${suffix}`, text: teamName },
             { id: `travel-${suffix}`, text: `${teamName} Traveled` },
             { id: `accordion-header-${key === 'teamA' ? 'team-a' : 'team-b'}`, text: `3. Injury Report: ${teamName}` }
         ];
@@ -386,17 +387,26 @@ function runSimulationController() {
             else if (contextSettings.hfa === 3) hfaValue = -SIM_CONFIG.hfa; // Team B Home (Negative for A)
             // contextSettings.hfa === 2 is Neutral (0)
         
-        // 2. Travel Penalty (Who is tired?)
-            // Approx 0.02 Z-Score penalty (half of HFA)
+        // 2. Travel Penalty (Who is tired?)            
             let travelPenalty = 0;             
             if (contextSettings.travel === 1) travelPenalty = -SIM_CONFIG.travel_penalty_val; // A is traveling (Penalty to A)
             else if (contextSettings.travel === 3) travelPenalty = SIM_CONFIG.travel_penalty_val; // B is traveling (Bonus to A)
+
+        // 3. Momentum (Who has it?)
+            let momentumValue = 0;             
+            if (contextSettings.momentum === 1) momentumValue = SIM_CONFIG.momentumValue_val; // A has momentum (Bonus to A)
+            else if (contextSettings.momentum === 3) momentumValue = -SIM_CONFIG.momentumValue_val; // B has momentum (Negative to A)
+    
+        // 3. Rest Gap (Who is tired?)            
+            //let restValue = 0;             
+            //if (contextSettings.travel === 1) travelPenalty = -SIM_CONFIG.travel_penalty_val; // A is traveling (Penalty to A)
+            //else if (contextSettings.travel === 3) travelPenalty = SIM_CONFIG.travel_penalty_val; // B is traveling (Bonus to A)
             
-        // 3. Division Matchup
+        // 4. Division Matchup
             // Division games are often tighter/grittier. We compress the final delta.
             const divisionCompressor = contextSettings.divisionMatchUp ? 0.90 : 1.0;
 
-        // 3. Game Matchup Type (e.g. 0=Regular, 3 = Super Bowl
+        // 5. Game Matchup Type (e.g. 0=Regular, 3 = Super Bowl
             // Play off games are often tighter/grittier with each round. We compress the final delta.
             const gmMatchUpValue = contextSettings.gameMatchUpType;
             const gmMatchUpCompressor = contextSettings.gameMatchUpMapping[gmMatchUpValue];
