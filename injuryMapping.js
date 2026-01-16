@@ -164,6 +164,10 @@ const getAdjustedTeamStats = (teamStats, injuries, ctx) => {
 const getSituationalFactors = () => {
     const sVal = (id) => parseInt(document.getElementById(id)?.value || 0);
 
+    // Get Rest Values - Default to '1' (Standard) if not found
+    const restA = document.getElementById('team-a-rest-select') ? parseInt(document.getElementById('team-a-rest-select').value, 10) : 1;
+    const restB = document.getElementById('team-b-rest-select') ? parseInt(document.getElementById('team-b-rest-select').value, 10) : 1;
+
     return {
         context: {
             hfa: sVal('hfa-select'),                                
@@ -191,6 +195,10 @@ const getSituationalFactors = () => {
             olLine: sVal('team-b-olLine-injury'), // NEW
             dLine: sVal('team-b-dLine-injury'),
             dSecondary: sVal('team-b-dSecondary-injury')
+        },
+        rest: {
+            teamA: restA,
+            teamB: restB
         }
     };
 };
