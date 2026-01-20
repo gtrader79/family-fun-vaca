@@ -105,9 +105,9 @@ const applySoSAdjustment = (teamStats, sosRating = 0) => {
     let adjusted = { ...teamStats };
     
     // SoS Factor: 1.0 is neutral. 
-    // A hard schedule (+1.50) might boost offensive stats by 4.5% (1.045) because they earned them harder.
-    // A soft schedule (-1.50) might lower them by 4.5% (0.955).
-    const sosFactor = 1 + (sosRating * 0.03); 
+    // A hard schedule (+2.0) might boost offensive stats by ~5% (1.05) because they earned them harder.
+    // A soft schedule (-2.0 might lower them by ~5% (0.95).
+    const sosFactor = 1 + (sosRating * 0.025); 
 
     // We apply this to Volume stats, but not necessarily Efficiency stats (like percentages)
     // as Efficiency is more "sticky" regardless of opponent.
@@ -252,8 +252,7 @@ function updateMatchupTable() {
 
     const tbody = document.getElementById('stats-table-body');
     tbody.innerHTML = `<tr><td>Record</td><td>${teamA.wins}-${teamA.losses}</td><td>${teamB.wins}-${teamB.losses}</td></tr>`;
-    tbody.innerHTML += `<tr>
-                        <td style="padding-left:45px">Strength of Schedule</td>
+    tbody.innerHTML += `<tr><td>Strength of Schedule</td>
                         <td>${teamA.strength_of_schedule} <small>(${mathUtils.toOrdinal(teamA.strength_of_schedule_rank)})</small></td>
                         <td>${teamB.strength_of_schedule} <small>(${mathUtils.toOrdinal(teamB.strength_of_schedule_rank)})</small></td>
                     </tr>`;
