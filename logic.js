@@ -265,6 +265,7 @@ function updateMatchupTable() {
             tbody.innerHTML +=`<tr><td style="padding-left:20px">Defense</td><td id='table-header2-a'></td><td  id='table-header2-b'></td></tr>`;
         } else if (i === 24) {
             tbody.innerHTML +=`<tr><td style="padding-left:20px">Special Teams</td><td id='table-header3-a'></td><td  id='table-header3-b'></td></tr>`;
+        }
         tbody.innerHTML += `<tr>
             <td style="padding-left:45px">${m.label}</td>
             <td>${teamA[m.key]} <small>(${mathUtils.toOrdinal(teamA[m.r])})</small></td>
