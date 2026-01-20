@@ -105,9 +105,9 @@ const applySoSAdjustment = (teamStats, sosRating = 0) => {
     let adjusted = { ...teamStats };
     
     // SoS Factor: 1.0 is neutral. 
-    // A hard schedule (+5.0) might boost offensive stats by 5% (1.05) because they earned them harder.
-    // A soft schedule (-5.0) might lower them by 5% (0.95).
-    const sosFactor = 1 + (sosRating * 0.01); 
+    // A hard schedule (+1.50) might boost offensive stats by 4.5% (1.045) because they earned them harder.
+    // A soft schedule (-1.50) might lower them by 4.5% (0.955).
+    const sosFactor = 1 + (sosRating * 0.03); 
 
     // We apply this to Volume stats, but not necessarily Efficiency stats (like percentages)
     // as Efficiency is more "sticky" regardless of opponent.
@@ -245,14 +245,14 @@ function updateMatchupTable() {
         { label: "4th Down Conversion Allowed %", key: "def_4th_down_allowed_pct", r: "def_4th_down_rank" },
 
         { label: "Field Goal %", key: "off_fg_accuracy_pct", r: "off_fg_accuracy_rank" },
-        { label: "Offensive Avg Field Pos", key: "off_avg_starting_field_pos", r: "off_avg_starting_field_pos" },
-        { label: "Def Avg Field Pos Allowed", key: "off_avg_starting_field_pos", r: "off_avg_starting_field_pos" },
+        { label: "Offensive Avg Field Pos", key: "off_avg_starting_field_pos", r: "off_avg_starting_field_pos_rank" },
+        { label: "Def Avg Field Pos Allowed", key: "def_avg_starting_field_pos_allowed", r: "def_avg_starting_field_pos_rank" },
         { label: "Total Penalty Yards / gm", key: "penalties_yards_per_game", r: "penalties_yards_rank" }
     ];
 
     const tbody = document.getElementById('stats-table-body');
     tbody.innerHTML = `<tr><td>Record</td><td>${teamA.wins}-${teamA.losses}</td><td>${teamB.wins}-${teamB.losses}</td></tr>`;
-    tbody.innerHTML = `<tr>
+    tbody.innerHTML += `<tr>
                         <td style="padding-left:45px">Strength of Schedule</td>
                         <td>${teamA.strength_of_schedule} <small>(${mathUtils.toOrdinal(teamA.strength_of_schedule_rank)})</small></td>
                         <td>${teamB.strength_of_schedule} <small>(${mathUtils.toOrdinal(teamB.strength_of_schedule_rank)})</small></td>
@@ -300,8 +300,8 @@ function runSimulationController() {
     // SoS Adjustment (Before Injuries) ---
     // We try to access 'sos_rating' from your team object. 
     // If your JSON doesn't have it, it defaults to 0 (no effect).  strength_of_schedule
-    let sosAdjustedA = applySoSAdjustment(teamA, teamA.sos_rating || 0);
-    let sosAdjustedB = applySoSAdjustment(teamB, teamB.sos_rating || 0);
+    let sosAdjustedA = applySoSAdjustment(teamA, teamA.strength_of_schedule || 0);
+    let sosAdjustedB = applySoSAdjustment(teamB, teamB.strength_of_schedule || 0);
     
     // B. NEW: The Bridge - Convert Slider Objects to Detailed Injury Arrays
     const createInjuryArray = (injObj) => {
@@ -374,7 +374,23 @@ function runSimulationController() {
         defExplosivePlay: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_explosive_play_rate_allowed_pct)),
         
         offPressure: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_pressure_allowed_pct)),
-        defPressure: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_pressure_generated_pct))
+        defPressure: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_pressure_generated_pct)),
+
+        strengthOfSchedule: mathUtils.getStats(currentSeasonData.teams.map(t => t.strength_of_schedule)),
+        
+        off3rdConversion: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_3rd_down_pct)),
+        def3rdConversion: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_3rd_down_allowed_pct)),
+
+        off4thConversion: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_4th_down_pct)),
+        def4thConversion: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_4th_down_allowed_pct)),
+
+        fieldGoal: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_fg_accuracy_pct)),
+
+        offStartingFieldPos: mathUtils.getStats(currentSeasonData.teams.map(t => t.off_avg_starting_field_pos)),
+        defStartingFieldPos: mathUtils.getStats(currentSeasonData.teams.map(t => t.def_avg_starting_field_pos_allowed)),
+
+        penaltyYards: mathUtils.getStats(currentSeasonData.teams.map(t => t.penalties_yards_per_game))
+        
     };
 
     // E. Calculate Matchup Z-Scores
