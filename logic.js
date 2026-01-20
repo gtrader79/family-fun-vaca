@@ -246,7 +246,7 @@ function updateMatchupTable() {
 
         { label: "Field Goal %", key: "off_fg_accuracy_pct", r: "off_fg_accuracy_rank" },
         { label: "Offensive Avg Field Pos", key: "off_avg_starting_field_pos", r: "off_avg_starting_field_pos" },
-        { label: "Def Avg Field Pos Allowed", key: "off_avg_starting_field_pos", r: "off_avg_starting_field_pos" }
+        { label: "Def Avg Field Pos Allowed", key: "off_avg_starting_field_pos", r: "off_avg_starting_field_pos" },
         { label: "Total Penalty Yards / gm", key: "penalties_yards_per_game", r: "penalties_yards_rank" }
     ];
 
