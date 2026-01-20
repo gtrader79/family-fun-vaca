@@ -228,6 +228,8 @@ function updateMatchupTable() {
         { label: "Red Zone Efficiency %", key: "off_rz_efficiency_pct", r: "off_rz_efficiency_rank" },
         { label: "Explosive Plays %", key: "off_explosive_play_rate_pct", r: "off_explosive_play_rate_rank" },
         { label: "Offensive Pressure Allowed %", key: "off_pressure_allowed_pct", r: "off_pressure_allowed_rank" },
+        { label: "3rd Down Conversion %", key: "off_3rd_down_pct", r: "off_3rd_down_rank" },
+        { label: "4th Down Conversion %", key: "off_4th_down_pct", r: "off_4th_down_rank" },
         
         { label: "Points Allowed", key: "def_points_allowed_per_game", r: "def_points_rank" },
         { label: "Def Pass Yds Allowed", key: "def_pass_yards_allowed_per_game", r: "def_pass_yards_allowed_per_game_rank" },
@@ -238,18 +240,31 @@ function updateMatchupTable() {
         { label: "Turnovers Forced / gm", key: "def_turnovers_forced_per_game", r: "def_turnovers_rank" },
         { label: "Red Zone Efficiency Allowed %", key: "def_rz_efficiency_allowed_pct", r: "def_rz_efficiency_rank" },
         { label: "Explosive Plays Allowed %", key: "def_explosive_play_rate_allowed_pct", r: "def_explosive_play_rate_rank" },
-        { label: "Defensive Pressure Generated %", key: "def_pressure_generated_pct", r: "def_pressure_generated_rank" }
+        { label: "Defensive Pressure Generated %", key: "def_pressure_generated_pct", r: "def_pressure_generated_rank" },
+        { label: "3rd Down Conversion Allowed %", key: "def_3rd_down_allowed_pct", r: "def_3rd_down_rank" },
+        { label: "4th Down Conversion Allowed %", key: "def_4th_down_allowed_pct", r: "def_4th_down_rank" },
+
+        { label: "Field Goal %", key: "off_fg_accuracy_pct", r: "off_fg_accuracy_rank" },
+        { label: "Offensive Avg Field Pos", key: "off_avg_starting_field_pos", r: "off_avg_starting_field_pos" },
+        { label: "Def Avg Field Pos Allowed", key: "off_avg_starting_field_pos", r: "off_avg_starting_field_pos" }
+        { label: "Total Penalty Yards / gm", key: "penalties_yards_per_game", r: "penalties_yards_rank" }
     ];
 
     const tbody = document.getElementById('stats-table-body');
     tbody.innerHTML = `<tr><td>Record</td><td>${teamA.wins}-${teamA.losses}</td><td>${teamB.wins}-${teamB.losses}</td></tr>`;
+    tbody.innerHTML = `<tr>
+                        <td style="padding-left:45px">Strength of Schedule</td>
+                        <td>${teamA.strength_of_schedule} <small>(${mathUtils.toOrdinal(teamA.strength_of_schedule_rank)})</small></td>
+                        <td>${teamB.strength_of_schedule} <small>(${mathUtils.toOrdinal(teamB.strength_of_schedule_rank)})</small></td>
+                    </tr>`;
     
     metrics.forEach((m, i) => {
         if (i === 0) {
             tbody.innerHTML +=`<tr><td style="padding-left:20px">Offense</td><td></td><td></td></tr>`;
-        } else if (i === 10) {
-            tbody.innerHTML +=`<tr><td style="padding-left:20px">Defense</td><td></td><td></td></tr>`;
-        } 
+        } else if (i === 12) {
+            tbody.innerHTML +=`<tr><td style="padding-left:20px">Defense</td><td id='table-header2-a'></td><td  id='table-header2-b'></td></tr>`;
+        } else if (i === 24) {
+            tbody.innerHTML +=`<tr><td style="padding-left:20px">Special Teams</td><td id='table-header3-a'></td><td  id='table-header3-b'></td></tr>`;
         tbody.innerHTML += `<tr>
             <td style="padding-left:45px">${m.label}</td>
             <td>${teamA[m.key]} <small>(${mathUtils.toOrdinal(teamA[m.r])})</small></td>
@@ -257,6 +272,14 @@ function updateMatchupTable() {
         </tr>`;
         
     });
+    document.getElementById('table-header2-a').textContent = teamA.teamId;
+    document.getElementById('table-header2-a').style.borderBottom = `4px solid ${teamA.primaryColor}`;
+    document.getElementById('table-header2-b').textContent = teamB.teamId;
+    document.getElementById('table-header2-b').style.borderBottom = `4px solid ${teamB.primaryColor}`;
+    document.getElementById('table-header3-a').textContent = teamA.teamId;
+    document.getElementById('table-header3-a').style.borderBottom = `4px solid ${teamA.primaryColor}`;
+    document.getElementById('table-header3-b').textContent = teamB.teamId;
+    document.getElementById('table-header3-b').style.borderBottom = `4px solid ${teamB.primaryColor}`;
 
 }
 
@@ -275,7 +298,7 @@ function runSimulationController() {
 
     // SoS Adjustment (Before Injuries) ---
     // We try to access 'sos_rating' from your team object. 
-    // If your JSON doesn't have it, it defaults to 0 (no effect).
+    // If your JSON doesn't have it, it defaults to 0 (no effect).  strength_of_schedule
     let sosAdjustedA = applySoSAdjustment(teamA, teamA.sos_rating || 0);
     let sosAdjustedB = applySoSAdjustment(teamB, teamB.sos_rating || 0);
     
