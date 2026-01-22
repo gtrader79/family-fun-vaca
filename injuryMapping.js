@@ -144,8 +144,8 @@ const getAdjustedTeamStats = (teamStats, injuries, ctx) => {
     // --- PHASE 4: Apply Rain/Snow  ---
     // Rain/Snow primarily increased fumbles but also impacts passing accuracy
     let weatherChaosFactor = 1.0;
-        if (rainLevel === 1) {weatherChaosFactor = 1.35; rainPassImpact = .94;} // Rain: 35% more likely to fumble
-        if (rainLevel === 2) {weatherChaosFactor = 1.45; rainPassImpact = .94;}// Snow: 45% more likely (vision + slick)
+        if (ctx.rainLevel === 1) {weatherChaosFactor = 1.35; rainPassImpact = .94;} // Rain: 35% more likely to fumble
+        if (ctx.rainLevel === 2) {weatherChaosFactor = 1.45; rainPassImpact = .94;}// Snow: 45% more likely (vision + slick)
 
         if (adjusted.off_turnovers_per_game) adjusted.off_turnovers_per_game *= weatherChaosFactor;
         if (adjusted.off_passer_rating) adjusted.off_passer_rating *= rainPassImpact;
