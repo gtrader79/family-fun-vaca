@@ -130,7 +130,7 @@ const getAdjustedTeamStats = (teamStats, injuries, ctx) => {
         mults.passDef *= 1.08;      
     }
 
-    // --- PHASE 3: Apply WIND (New!) ---
+    // --- PHASE 3: Apply WIND  ---
     // Wind primarily kills passing volume and deep explosives
     if (ctx.windLevel === 1) { // Medium Wind
         mults.passVol *= 0.95; 
@@ -141,6 +141,18 @@ const getAdjustedTeamStats = (teamStats, injuries, ctx) => {
         // Note: We don't boost rushing, we just suppress passing, which naturally makes rushing a larger % of the "Delta"
     }
 
+    // --- PHASE 4: Apply Rain/Snow  ---
+    // Rain/Snow primarily increased fumbles but also impacts passing accuracy
+    let weatherChaosFactor = 1.0;
+        if (rainLevel === 1) {weatherChaosFactor = 1.35; rainPassImpact = .94;} // Rain: 35% more likely to fumble
+        if (rainLevel === 2) {weatherChaosFactor = 1.45; rainPassImpact = .94;}// Snow: 45% more likely (vision + slick)
+
+        if (adjusted.off_turnovers_per_game) adjusted.off_turnovers_per_game *= weatherChaosFactor;
+        if (adjusted.off_passer_rating) adjusted.off_passer_rating *= rainPassImpact;
+
+        
+
+    
     // --- PHASE 4: Final Math (Resistance)---
     if (adjusted.off_pass_yards_per_game) adjusted.off_pass_yards_per_game *= mults.passVol;
     if (adjusted.off_rush_yards_per_game) adjusted.off_rush_yards_per_game *= mults.rushVol;
