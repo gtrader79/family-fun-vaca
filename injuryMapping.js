@@ -171,12 +171,15 @@ const getSituationalFactors = () => {
     return {
         context: {
             hfa: sVal('hfa-select'),                                
+            gameMatchUpType: sVal('game-matchup-select'),
+            gameMatchUpMapping: [1.0, 0.92, 0.90, 0.88, 0.85],  
             travel: sVal('travel-select'),                          
             windLevel: sVal('winds-select'),                        
+            rainLevel: sVal('winds-select'),                        
             momentum: sVal('momentum-select'),                      
             divisionMatchUp: (teamA.division === teamB.division),
-            gameMatchUpType: sVal('game-matchup-select'),
-            gameMatchUpMapping: [1.0, 0.92, 0.90, 0.88, 0.85]  
+            sosAdjustment: sVal('sos-select')            
+            
         },
         injuriesA: {
             qb: sVal('team-a-qb-injury'),
