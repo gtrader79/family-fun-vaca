@@ -103,11 +103,14 @@ SIM_CONFIG.normalizationFactor = calculateNormalizationFactor(SIM_CONFIG.weights
 
 const applySoSAdjustment = (teamStats, sosRating = 0) => {
     let adjusted = { ...teamStats };
+
+    //Get sosAdjustment setting variable.  If sosAdjustment = 0 then sosRating becomes 0 which will not apply the adjustment
+    const applySOS = factors.context.sosAdjustment;
     
     // SoS Factor: 1.0 is neutral. 
     // A hard schedule (+2.0) might boost offensive stats by ~5% (1.05) because they earned them harder.
     // A soft schedule (-2.0 might lower them by ~5% (0.95).
-    const sosFactor = 1 + (sosRating * 0.025); 
+    const sosFactor = 1 + (sosRating * 0.025 * applySOS); 
 
     // We apply this to Volume stats, but not necessarily Efficiency stats (like percentages)
     // as Efficiency is more "sticky" regardless of opponent.
