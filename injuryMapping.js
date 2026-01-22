@@ -187,7 +187,7 @@ const getSituationalFactors = () => {
             gameMatchUpMapping: [1.0, 0.92, 0.90, 0.88, 0.85],  
             travel: sVal('travel-select'),                          
             windLevel: sVal('winds-select'),                        
-            rainLevel: sVal('winds-select'),                        
+            rainLevel: sVal('rain-select'),                        
             momentum: sVal('momentum-select'),                      
             divisionMatchUp: (teamA.division === teamB.division),
             sosAdjustment: sVal('sos-select')            
