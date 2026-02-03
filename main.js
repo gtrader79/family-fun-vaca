@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // FIX: Define these elements immediately so they are available to all functions
     const selA = document.getElementById(DOM_IDS.teamA);
     const selB = document.getElementById(DOM_IDS.teamB);
+    const selSeason = document.getElementById(DOM_IDS.seasonSelect);
+    
     const runBtns = [
         document.getElementById(DOM_IDS.runBtn), 
         document.getElementById(DOM_IDS.mobileRunBtn)
@@ -103,6 +105,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // --- Helpers ---
+    function populateSeasonSelects() {        
+        const seasons = App.data.allSeasons.seasons;
+        //Sort Descendingly
+        seasons.sort((a, b) => b.season - a.season);
+
+        let seasonOptions = '<option value="">-- Select Season --</option>';
+        seasons.forEach(s => {
+            seasonOptions += `<option value="${s.season}">${s.season} Season</option>`;
+        });
+
+        if(selSeason) selSeason.innerHTML = seasonOptions;
+
+    }
     function populateTeamSelects() {
         const teams = App.data.teams;
         // Sort alphabetically by Full Name
