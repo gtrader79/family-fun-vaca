@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>    
 </head>
 <body>
 
@@ -54,7 +54,7 @@
                 
                 <div class="accordion-item ">
                     <button class="accordion-header">
-                        <span>2. Situational Factors</span>
+                        <span>2. Venue & Weather</span>
                         <span class="arrow">▼</span>
                     </button>
                     <div class="accordion-content">                        
@@ -65,22 +65,6 @@
                                 <small id="hfa-teamA">Team A</small><small>Neutral</small><small id="hfa-teamB">Team B</small>
                             </div>                            
                         </div>
-                        <div class="slider-group">
-                            <label>Game Match Up</label>
-                            <input type="range" id="game-matchup-select" min="0" max="4" step="1" value="0">
-                            <div class="range-labels">
-                                <small>Regular</small><small>Wild Card</small><small>Divisional</small><small>Conference</small><small>Super Bowl</small>
-                            </div>                            
-                        </div>
-                      <div class="slider-group">
-                            <label>West To East Travel</label>
-                            <input type="range" id="travel-select" min="1" max="3" step="1" value="2">
-                            <div class="range-labels">
-                                <small id="travel-teamA">Team A</small><small>Neutral</small><small id="travel-teamB">Team B</small>
-                            </div>                            
-                        </div>
-                      
-                      
                         <div class="slider-group">
                             <label>Winds</label>
                             <input type="range" id="winds-select" min="0" max="2" step="1" value="0">
@@ -95,6 +79,22 @@
                                 <small>None</small><small>Rain</small><small>Snow</small>
                             </div>                            
                         </div>
+                    </div>
+                </div>
+                      
+                <div class="accordion-item ">
+                    <button class="accordion-header">
+                        <span>3. Schedule & Fatigue</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    <div class="accordion-content">                                                
+                      <div class="slider-group">
+                            <label>West To East Travel</label>
+                            <input type="range" id="travel-select" min="1" max="3" step="1" value="2">
+                            <div class="range-labels">
+                                <small id="travel-teamA">Team A</small><small>Neutral</small><small id="travel-teamB">Team B</small>
+                            </div>                            
+                        </div>                      
                       <div class="slider-group">
                             <label id="rest-gap-teamA">Rest Gap for Team A</label>
                             <input type="range" id="team-a-rest-select" min="0" max="2" step="1" value="1">
@@ -109,28 +109,44 @@
                                 <small>Short (4-5 Days)</small><small>Standard (6-8 Days)</small><small>Bye Week (10+)</small>
                             </div>                            
                         </div>
-
-
-                        <div class="slider-group">
-                            <label>Momentum</label>
-                            <input type="range" id="momentum-select" min="0" max="2" step="1" value="1">
-                            <div class="range-labels">
-                                <small id="momentum-teamA">Team A</small><small>Neutral</small><small id="momentum-teamB">Team B</small>
-                            </div>                            
-                        </div>
                         <div class="slider-group">
                             <label>Apply Strength of Schedule Adjustment</label>
                             <input type="range" id="sos-select" min="0" max="1" step="1" value="0">
                             <div class="range-labels">
                                 <small>No</small><small>Yes</small>
                             </div>                            
-                        </div>
+                        </div>                        
                     </div>
                 </div>
 
+                <div class="accordion-item ">
+                    <button class="accordion-header">
+                        <span>4. Competitive Factors</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    <div class="accordion-content">                                                
+                        <div class="slider-group">
+                            <label>Game Match Up</label>
+                            <input type="range" id="game-matchup-select" min="0" max="4" step="1" value="0">
+                            <div class="range-labels">
+                                <small>Regular</small><small>Wild Card</small><small>Divisional</small><small>Conference</small><small>Super Bowl</small>
+                            </div>                            
+                        </div>
+                        <div class="slider-group">
+                            <label>Momentum</label>
+                            <input type="range" id="momentum-select" min="0" max="2" step="1" value="1">
+                            <div class="range-labels">
+                                <small id="momentum-teamA">Team A</small><small>Neutral</small><small id="momentum-teamB">Team B</small>
+                            </div>                            
+                        </div>                        
+                    </div>
+                </div>
+
+                                
+
                 <div class="accordion-item">
                     <button class="accordion-header">
-                        <span id='accordion-header-team-a'>3. Injury Report: Team A </span>
+                        <span id='accordion-header-team-a'>5. Injury Report: Team A </span>
                         <span class="arrow">▼</span>
                     </button>
                     <div class="accordion-content">
@@ -188,7 +204,7 @@
               
               <div class="accordion-item">
                     <button class="accordion-header">
-                        <span id='accordion-header-team-b'>4. Injury Report: Team B </span>
+                        <span id='accordion-header-team-b'>6. Injury Report: Team B </span>
                         <span class="arrow">▼</span>
                     </button>
                     <div class="accordion-content">
@@ -302,7 +318,7 @@
                                 <th id="table-header-b">Team B</th>
                             </tr>
                         </thead>
-                        <tbody id="stats-table-body">
+                        <tbody id="matchup-table-body">
                             <tr>
                                 <td>Example Metric</td>
                                 <td>--</td>
@@ -331,9 +347,14 @@
         </main>
     </div>
 
-    <script src="ui.js"></script>    
-    <script src="logic.js"></script>
-    <script src="injuryMapping.js"></script>
-    <script src="visuals.js" defer></script>
+    <script src="config.js"></script>    
+    <script src="state.js"></script>    
+    <script src="utils.js"></script>    
+    <script src="inputs.js"></script>    
+    <script src="engine.js"></script>    
+    <script src="render.js"></script>    
+    <script src="visuals.js"></script>    
+    <script src="main.js"></script>    
+
 </body>
 </html>
