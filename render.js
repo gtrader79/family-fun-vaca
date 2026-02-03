@@ -53,7 +53,10 @@ const Renderer = {
                 { label: "Field Goal %", key: "off_fg_accuracy_pct", rank: "off_fg_accuracy_rank" },
                 { label: "Offensive Avg Field Pos", key: "off_avg_starting_field_pos", rank: "off_avg_starting_field_pos_rank" },
                 { label: "Def Avg Field Pos Allowed", key: "def_avg_starting_field_pos_allowed", rank: "def_avg_starting_field_pos_rank" },
-                { label: "Total Penalty Yards / gm", key: "penalties_yards_per_game", rank: "penalties_yards_rank" }
+                { label: "Offensive Penalties / gm", key: "off_penalties_per_game", rank: "off_penalties_freq_rank" },
+                { label: "Offensive Yds / penalty", key: "off_penalty_yards_per_penalty", rank: "off_penalty_severity_rank" },                
+                { label: "Defensive Penalties / gm", key: "def_penalties_per_game", rank: "def_penalties_freq_rank" },
+                { label: "Defensive Yds / penalty", key: "def_penalty_yards_per_penalty", rank: "def_penalty_severity_rank" }
             ];
         let html = '';
         
