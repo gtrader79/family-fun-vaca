@@ -33,9 +33,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         App.data.allSeasons = jsonData;
         
         // Get the most recent year.        
-        App.data.teams = jsonData.seasons[jsonData.seasons.length-1].teams; 
-
+        App.data.teams = jsonData.seasons[jsonData.seasons.length-1].teams;         
+        
         // Populate Dropdowns (Now safe because selA/selB are defined)
+        populateSeasonSelects();
+        console.log("Seasons loaded:", App.data.allSeasons.length);
         populateTeamSelects();
         console.log("Teams loaded:", App.data.teams.length);
 
