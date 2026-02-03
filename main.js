@@ -14,10 +14,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         // Populate State
         App.data.allSeasons = jsonData;
-        // Default to most recent year (assuming 2024 for example)
-        // You might need logic to pick the year if your JSON is array of years
-        // For now, assuming jsonData is the array of teams for the current year:
-        App.data.teams = jsonData; 
+        // Default to most recent year
+        App.data.teams = jsonData.seasons[jsonData.seasons.length-1].teams; 
 
         populateTeamSelects();
     } catch (e) {
