@@ -66,9 +66,9 @@ const Renderer = {
             html += `
                 <tr>
                     <td>${label}</td>
-                    <td>${tA.stats[m.rank] || '-'}</td>
-                    <td>${tB.stats[m.rank] || '-'}</td>
-                    <td>${getAdvantage(tA.stats[m.rank], tB.stats[m.rank])}</td>
+                    <td>${tA[m.rank] || '-'}</td>
+                    <td>${tB[m.rank] || '-'}</td>
+                    <td>${getAdvantage(tA[m.rank], tB[m.rank])}</td>
                 </tr>
             `;
         });
