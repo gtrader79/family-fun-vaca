@@ -13,10 +13,11 @@ const Renderer = {
         // Helper to colorize advantages
         const getAdvantage = (valA, valB, betterDir) => {
             const diff = betterDir === 'Higher' ? valB - valA : valA - valB;
-            if (Math.abs(diff) < 0.05) return `<span class="neutral">Even</span>`; // Tie
+            if (Math.abs(diff) < 0.05) return `<span class="neutral" style="color:#888;">Even</span>`; 
+            
             return diff > 0 
-                ? `<span class="team-a-adv">+${diff.toFixed(0)} ${tA.teamId}</span>` 
-                : `<span class="team-b-adv">+${Math.abs(diff).toFixed(0)} ${tB.teamId}</span>`;
+                ? `<span class="team-a-adv" style="color:${tA.primaryColor}; font-weight:bold;">+${diff.toFixed(0)} ${tA.teamId}</span>` 
+                : `<span class="team-b-adv" style="color:${tB.primaryColor}; font-weight:bold;">+${Math.abs(diff).toFixed(0)} ${tB.teamId}</span>`;
         };
 
         const tableBody = document.getElementById('matchup-table-body');
