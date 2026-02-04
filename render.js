@@ -66,8 +66,8 @@ const Renderer = {
             html += `
                 <tr>
                     <td>${label}</td>
-                    <td>${tA[m.rank] || '-'}</td>
-                    <td>${tB[m.rank] || '-'}</td>
+                    <td>${tA[m.key] || '-'}</td>
+                    <td>${tB[m.key] || '-'}</td>
                     <td>${getAdvantage(tA[m.rank], tB[m.rank])}</td>
                 </tr>
             `;
@@ -76,8 +76,8 @@ const Renderer = {
         tableBody.innerHTML = html;
         
         // Update Headers
-        document.getElementById('team-a-header').innerText = tA.teamName;
-        document.getElementById('team-b-header').innerText = tB.teamName;
+        document.getElementById('table-header-a').innerText = tA.teamName;
+        document.getElementById('table-header-b').innerText = tB.teamName;
     },
 
     // 2. Main Result Renderer (Post-Sim)
