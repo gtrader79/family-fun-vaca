@@ -4,7 +4,7 @@
 
 const Renderer = {
     
-    // 1. Update the "Tale of the Tape" (Pre-Sim Table)
+    // 1a. Update the "Tale of the Tape" (Pre-Sim Table)
     updateMatchupTable: function() {
         const tA = App.data.teamA;
         const tB = App.data.teamB;
@@ -12,7 +12,8 @@ const Renderer = {
 
         // Helper to colorize advantages
         const getAdvantage = (valA, valB, betterDir) => {
-            const diff = betterDir === 'Lower' ? valB - valA : valA - valB;
+            //const diff = betterDir === 'Lower' ? valB - valA : valA - valB;
+            const diff = valA - valB;
             if (Math.abs(diff) < 0.05) return `<span class="neutral" style="color:#888;">Even</span>`; 
             
             return diff > 0 
@@ -72,7 +73,7 @@ const Renderer = {
             // 1. HEADER ROW - Added toggle function
             html += `
                 <tr class="accordion-header" style="cursor:pointer;" 
-                    onclick="toggleTableGroup('${groupCode}', this)">
+                    onclick="Renderer.toggleTableGroup('${groupCode}', this)">
                     <td colspan="4">
                         <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
                             <span>${categoryName}</span>
@@ -100,6 +101,15 @@ const Renderer = {
         // Update Headers
         document.getElementById('table-header-a').innerText = tA.teamName;
         document.getElementById('table-header-b').innerText = tB.teamName;
+    },
+
+    //1b. "Tale of Tape" function for accordion structure
+    toggleTableGroup: function(groupCode, headerElement) {
+        headerElement.classList.toggle('active');
+        const rows = document.querySelectorAll(`.group-${groupCode}`);
+        rows.forEach(row => {
+            row.style.display = (row.style.display === 'none') ? 'table-row' : 'none';
+        });
     },
 
     // 2. Main Result Renderer (Post-Sim)
