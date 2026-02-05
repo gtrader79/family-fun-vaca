@@ -1,15 +1,34 @@
+/*---Dark Mode 
 :root {
     --bg-dark: #121212;
     --bg-panel: #1e1e1e;
     --bg-light: #2c2c2c;
     --text-main: #ffffff;
     --text-muted: #b0b0b0;
-    --accent: #00d4ff; /* Modern sports analytics blue */
+    --accent: #00d4ff; /* Modern sports analytics blue *//*
     --accent-hover: #00a3cc;
     --danger: #ff4b4b;
     --border: #333;
     --header-height: 60px;
 }
+---*/
+
+/* Light Mode Overrides */
+/*[data-theme="light"] */
+:root {
+  --bg-dark: #f5f7f8;       /* Clean off-white background */
+  --bg-panel: #ffffff;      /* Pure white for cards/panels */
+  --bg-light: #eef1f2;      /* Light gray for subtle sections */
+  --text-main: #1a1a1a;     /* Near-black for readability */
+  --text-muted: #595959;    /* Dark gray for secondary info */
+  --accent: #007ba0;        /* Your Brand Blue (Light-ready) */
+  --accent-hover: #005f7a;  /* Darker blue for hover states */
+  --danger: #d32f2f;        /* Standard accessible "Alert" red */
+  --border: #dcdcdc;        /* Light silver borders */
+  --header-height: 60px;
+}
+
+
 
 * {
     box-sizing: border-box;
