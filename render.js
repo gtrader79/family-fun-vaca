@@ -67,12 +67,12 @@ const Renderer = {
 
         // Object.entries returns [key, value] where 'items' is the array of metrics for that 'c' value
         for (const [groupCode, items] of Object.entries(groupedMetrics)) {
-            // Get label from first item in the group
-            const categoryName = items[0].category; 
+            const categoryName = items[0].category; // Corrected: access first item in array
         
-            // 1. HEADER ROW (Matches your .accordion-header style)
+            // 1. HEADER ROW - Added toggle function
             html += `
-                <tr class="accordion-header active" style="cursor:pointer;" onclick="this.nextElementSibling.classList.toggle('active')">
+                <tr class="accordion-header" style="cursor:pointer;" 
+                    onclick="toggleTableGroup('${groupCode}', this)">
                     <td colspan="4">
                         <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
                             <span>${categoryName}</span>
@@ -82,11 +82,10 @@ const Renderer = {
                 </tr>
             `;
         
-            // 2. CONTENT CONTAINER (Matches your .accordion-content style)
-            // We wrap the group's rows in a nested structure or use a class to toggle visibility
+            // 2. DATA ROWS - Default to 'display: none'
             items.forEach(m => {
                 html += `
-                    <tr class="accordion-content active group-${groupCode}">
+                    <tr class="accordion-content group-${groupCode}" style="display: none;">
                         <td>${m.label}</td>
                         <td>${tA[m.key] || '-'} (${Utils.toOrdinal(tA[m.rank])})</td>
                         <td>${tB[m.key] || '-'} (${Utils.toOrdinal(tB[m.rank])})</td>
@@ -95,20 +94,6 @@ const Renderer = {
                 `;
             });
         }
-
-        
-        /*metrics.forEach(m => {
-             // Pull from the metrics
-            const label = m.label;
-            html += `
-                <tr>
-                    <td>${label}</td>
-                    <td>${tA[m.key] || '-'} (${Utils.toOrdinal(tA[m.rank])})</td>
-                    <td>${tB[m.key] || '-'} (${Utils.toOrdinal(tB[m.rank])})</td>
-                    <td>${getAdvantage(tA[m.rank], tB[m.rank], tA[m.better])}</td>
-                </tr>
-            `;
-        });*/
 
         tableBody.innerHTML = html;
         
