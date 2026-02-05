@@ -163,23 +163,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             if(target) target.classList.add('active');
         });
     });
-
-    //Accordion Logic for Head to Head matchups
-    function toggleTableGroup(groupCode, headerElement) {
-        // Toggle the "active" class on the header for arrow rotation
-        headerElement.classList.toggle('active');
-        
-        // Find all rows belonging to this group
-        const rows = document.querySelectorAll(`.group-${groupCode}`);
-        
-        rows.forEach(row => {
-            // Toggle visibility between table-row and none
-            if (row.style.display === 'none') {
-                row.style.display = 'table-row';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    }
+    
     
 });
