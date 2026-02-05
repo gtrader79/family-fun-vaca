@@ -12,7 +12,7 @@ const Renderer = {
 
         // Helper to colorize advantages
         const getAdvantage = (valA, valB, betterDir) => {
-            const diff = betterDir === 'Higher' ? valB - valA : valA - valB;
+            const diff = betterDir === 'Lower' ? valB - valA : valA - valB;
             if (Math.abs(diff) < 0.05) return `<span class="neutral" style="color:#888;">Even</span>`; 
             
             return diff > 0 
@@ -25,43 +25,79 @@ const Renderer = {
 
         // Build Rows (This matches your original table structure)
             const metrics = [
-                { label: "Points Scored / gm", key: "off_points_scored_per_game", rank: "off_points_scored_per_game_rank", better: "Higher"},
-                { label: "Pass Yds / gm", key: "off_pass_yards_per_game", rank: "off_pass_yards_per_game_rank", better: "Higher" },
-                { label: "Rush Yds / gm", key: "off_rush_yards_per_game", rank: "off_rush_yards_per_game_rank", better: "Higher" },
-                { label: "QB Rating", key: "off_passer_rating", rank: "off_passer_rating_rank", better: "Higher" },
-                { label: "TE Yds / gm", key: "off_te_yards_per_game", rank: "off_te_performance_rank", better: "Higher" },
-                { label: "WR Yds / gm", key: "off_wr_yards_per_game", rank: "off_wr_performance_rank", better: "Higher" },
-                { label: "Turnovers / gm", key: "off_turnovers_per_game", rank: "off_turnovers_rank", better: "Lower" },
-                { label: "Red Zone Efficiency %", key: "off_rz_efficiency_pct", rank: "off_rz_efficiency_rank", better: "Higher" },
-                { label: "Explosive Plays %", key: "off_explosive_play_rate_pct", rank: "off_explosive_play_rate_rank", better: "Higher" },
-                { label: "Offensive Pressure Allowed %", key: "off_pressure_allowed_pct", rank: "off_pressure_allowed_rank", better: "Higher" },
-                { label: "3rd Down Conversion %", key: "off_3rd_down_pct", rank: "off_3rd_down_rank", better: "Higher" },
-                { label: "4th Down Conversion %", key: "off_4th_down_pct", rank: "off_4th_down_rank", better: "Higher" },
+                { label: "Points Scored / gm", key: "off_points_scored_per_game", rank: "off_points_scored_per_game_rank", better: "Higher", category: "Core", c:1},
+                { label: "Pass Yds / gm", key: "off_pass_yards_per_game", rank: "off_pass_yards_per_game_rank", better: "Higher", category: "Core", c:1},
+                { label: "Rush Yds / gm", key: "off_rush_yards_per_game", rank: "off_rush_yards_per_game_rank", better: "Higher", category: "Core", c:1},
+                { label: "QB Rating", key: "off_passer_rating", rank: "off_passer_rating_rank", better: "Higher", category: "Position", c:2},
+                { label: "TE Yds / gm", key: "off_te_yards_per_game", rank: "off_te_performance_rank", better: "Higher", category: "Position", c:2},
+                { label: "WR Yds / gm", key: "off_wr_yards_per_game", rank: "off_wr_performance_rank", better: "Higher", category: "Position", c:2},
+                { label: "Turnovers / gm", key: "off_turnovers_per_game", rank: "off_turnovers_rank", better: "Lower", category: "Turnovers / Penalties", c:5},
+                { label: "Red Zone Efficiency %", key: "off_rz_efficiency_pct", rank: "off_rz_efficiency_rank", better: "Higher", category: "Advanced", c:6},
+                { label: "Explosive Plays %", key: "off_explosive_play_rate_pct", rank: "off_explosive_play_rate_rank", better: "Higher", category: "Advanced", c:6},
+                { label: "Offensive Pressure Allowed %", key: "off_pressure_allowed_pct", rank: "off_pressure_allowed_rank", better: "Higher", category: "Advanced", c:6},
+                { label: "3rd Down Conversion %", key: "off_3rd_down_pct", rank: "off_3rd_down_rank", better: "Higher", category: "Conversion %", c:3},
+                { label: "4th Down Conversion %", key: "off_4th_down_pct", rank: "off_4th_down_rank", better: "Higher", category: "Conversion %", c:3},
                 
-                { label: "Points Allowed", key: "def_points_allowed_per_game", rank: "def_points_rank", better: "Lower" },
-                { label: "Def Pass Yds Allowed", key: "def_pass_yards_allowed_per_game", rank: "def_pass_yards_allowed_per_game_rank", better: "Lower"  },
-                { label: "Def Rush Yds Allowed", key: "def_rush_yards_allowed_per_game", rank: "def_rush_yards_allowed_per_game_rank", better: "Lower"  },
-                { label: "QB Rating Allowed", key: "def_passer_rating_allowed", rank: "def_passer_rating_rank", better: "Lower"  },
-                { label: "TE Yds Allowed / gm", key: "def_te_yards_allowed_per_game", rank: "def_te_performance_rank", better: "Lower" },
-                { label: "WR Yds Allowed / gm", key: "def_wr_yards_allowed_per_game", rank: "def_wr_performance_rank", better: "Lower" },
-                { label: "Turnovers Forced / gm", key: "def_turnovers_forced_per_game", rank: "def_turnovers_rank", better: "Higher" },
-                { label: "Red Zone Efficiency Allowed %", key: "def_rz_efficiency_allowed_pct", rank: "def_rz_efficiency_rank", better: "Lower" },
-                { label: "Explosive Plays Allowed %", key: "def_explosive_play_rate_allowed_pct", rank: "def_explosive_play_rate_rank", better: "Lower" },
-                { label: "Defensive Pressure Generated %", key: "def_pressure_generated_pct", rank: "def_pressure_generated_rank", better: "Lower" },
-                { label: "3rd Down Conversion Allowed %", key: "def_3rd_down_allowed_pct", rank: "def_3rd_down_rank", better: "Lower" },
-                { label: "4th Down Conversion Allowed %", key: "def_4th_down_allowed_pct", rank: "def_4th_down_rank", better: "Lower" },
+                { label: "Points Allowed", key: "def_points_allowed_per_game", rank: "def_points_rank", better: "Lower", category: "Core", c:1},
+                { label: "Def Pass Yds Allowed", key: "def_pass_yards_allowed_per_game", rank: "def_pass_yards_allowed_per_game_rank", better: "Lower", category: "Core", c:1},
+                { label: "Def Rush Yds Allowed", key: "def_rush_yards_allowed_per_game", rank: "def_rush_yards_allowed_per_game_rank", better: "Lower", category: "Core", c:1},
+                { label: "QB Rating Allowed", key: "def_passer_rating_allowed", rank: "def_passer_rating_rank", better: "Lower", category: "Position", c:2},
+                { label: "TE Yds Allowed / gm", key: "def_te_yards_allowed_per_game", rank: "def_te_performance_rank", better: "Lower", category: "Position", c:2},
+                { label: "WR Yds Allowed / gm", key: "def_wr_yards_allowed_per_game", rank: "def_wr_performance_rank", better: "Lower", category: "Position", c:2},
+                { label: "Turnovers Forced / gm", key: "def_turnovers_forced_per_game", rank: "def_turnovers_rank", better: "Higher", category: "Turnovers / Penalties", c:5},
+                { label: "Red Zone Efficiency Allowed %", key: "def_rz_efficiency_allowed_pct", rank: "def_rz_efficiency_rank", better: "Lower", category: "Advanced", c:6 },
+                { label: "Explosive Plays Allowed %", key: "def_explosive_play_rate_allowed_pct", rank: "def_explosive_play_rate_rank", better: "Lower", category: "Advanced", c:6},
+                { label: "Defensive Pressure Generated %", key: "def_pressure_generated_pct", rank: "def_pressure_generated_rank", better: "Lower", category: "Advanced", c:6},
+                { label: "3rd Down Conversion Allowed %", key: "def_3rd_down_allowed_pct", rank: "def_3rd_down_rank", better: "Lower", category: "Conversion %", c:3},
+                { label: "4th Down Conversion Allowed %", key: "def_4th_down_allowed_pct", rank: "def_4th_down_rank", better: "Lower", category: "Conversion %", c:3},
         
-                { label: "Field Goal %", key: "off_fg_accuracy_pct", rank: "off_fg_accuracy_rank", better: "Higher"  },
-                { label: "Offensive Avg Field Pos", key: "off_avg_starting_field_pos", rank: "off_avg_starting_field_pos_rank", better: "Higher" },
-                { label: "Def Avg Field Pos Allowed", key: "def_avg_starting_field_pos_allowed", rank: "def_avg_starting_field_pos_rank", better: "Lower" },
-                { label: "Offensive Penalties / gm", key: "off_penalties_per_game", rank: "off_penalties_freq_rank", better: "Lower" },
-                { label: "Offensive Yds / penalty", key: "off_penalty_yards_per_penalty", rank: "off_penalty_severity_rank", better: "Lower" },    
-                { label: "Defensive Penalties / gm", key: "def_penalties_per_game", rank: "def_penalties_freq_rank", better: "Lower" },
-                { label: "Defensive Yds / penalty", key: "def_penalty_yards_per_penalty", rank: "def_penalty_severity_rank", better: "Lower" }
-            ];
+                { label: "Field Goal %", key: "off_fg_accuracy_pct", rank: "off_fg_accuracy_rank", better: "Higher", category: "Special Teams", c:4},
+                { label: "Offensive Avg Field Pos", key: "off_avg_starting_field_pos", rank: "off_avg_starting_field_pos_rank", better: "Higher", category: "Special Teams", c:4},
+                { label: "Def Avg Field Pos Allowed", key: "def_avg_starting_field_pos_allowed", rank: "def_avg_starting_field_pos_rank", better: "Lower", category: "Special Teams", c:4},
+                { label: "Offensive Penalties / gm", key: "off_penalties_per_game", rank: "off_penalties_freq_rank", better: "Lower", category: "Turnovers / Penalties", c:1},
+                { label: "Offensive Yds / penalty", key: "off_penalty_yards_per_penalty", rank: "off_penalty_severity_rank", better: "Lower", category: "Turnovers / Penalties", c:5}, 
+                { label: "Defensive Penalties / gm", key: "def_penalties_per_game", rank: "def_penalties_freq_rank", better: "Lower", category: "Turnovers / Penalties", c:5},
+                { label: "Defensive Yds / penalty", key: "def_penalty_yards_per_penalty", rank: "def_penalty_severity_rank", better: "Lower", category: "Turnovers / Penalties", c:5}
+            ];        
+
+        //Group by c for easier read.  c is a numerical grouping of the category
+        const groupedMetrics = Object.groupBy(metrics, m => m.c);
+        
         let html = '';
+
+        // Object.entries returns [key, value] where 'items' is the array of metrics for that 'c' value
+        for (const [groupCode, items] of Object.entries(groupedMetrics)) {
+            // Get label from first item in the group
+            const categoryName = items[0].category; 
         
-        metrics.forEach(m => {
+            // 1. HEADER ROW (Matches your .accordion-header style)
+            html += `
+                <tr class="accordion-header active" style="cursor:pointer;" onclick="this.nextElementSibling.classList.toggle('active')">
+                    <td colspan="4">
+                        <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                            <span>${categoryName}</span>
+                            <span class="arrow">▼</span>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        
+            // 2. CONTENT CONTAINER (Matches your .accordion-content style)
+            // We wrap the group's rows in a nested structure or use a class to toggle visibility
+            items.forEach(m => {
+                html += `
+                    <tr class="accordion-content active group-${groupCode}">
+                        <td>${m.label}</td>
+                        <td>${tA[m.key] || '-'} (${Utils.toOrdinal(tA[m.rank])})</td>
+                        <td>${tB[m.key] || '-'} (${Utils.toOrdinal(tB[m.rank])})</td>
+                        <td>${getAdvantage(tA[m.rank], tB[m.rank], tA[m.better])}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        
+        /*metrics.forEach(m => {
              // Pull from the metrics
             const label = m.label;
             html += `
@@ -72,7 +108,7 @@ const Renderer = {
                     <td>${getAdvantage(tA[m.rank], tB[m.rank], tA[m.better])}</td>
                 </tr>
             `;
-        });
+        });*/
 
         tableBody.innerHTML = html;
         
