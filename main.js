@@ -54,57 +54,72 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- 4. Event Listeners ---
 
-    // A. Team Selectors Logic
-    function handleTeamChange() {
-        // 1. Get IDs
-        const idA = selA ? selA.value : null;
-        const idB = selB ? selB.value : null;
-
-        // 2. Find Objects
-        if(idA) App.data.teamA = App.data.teams.find(t => t.teamId === idA);
-        if(idB) App.data.teamB = App.data.teams.find(t => t.teamId === idB);
-
-        // 3. Update UI
-        Renderer.updateMatchupTable();
-    }
-
-    if(selA) selA.addEventListener('change', handleTeamChange);
-    if(selB) selB.addEventListener('change', handleTeamChange);
-
-
-    // B. Run Simulation Buttons (Desktop & Mobile)
-    runBtns.forEach(btn => {
-        if(btn) {
-            btn.addEventListener('click', () => {
-                // 1. Validation
-                if (!App.data.teamA || !App.data.teamB) {
-                    alert("Please select both Team A and Team B.");
-                    return;
-                }
-
-                // 2. Gather Inputs (Reads DOM)
-                const factors = InputManager.getFactors();
-                App.inputs.factors = factors; // Persist for debugging
-
-                // 3. Run Engine (Pure Math)
-                Engine.run(App.data.teamA, App.data.teamB, factors);
-
-                // 4. Render Results (Updates DOM)
-                Renderer.renderResults();
-
-                // 5. Trigger Visuals (Physics)
-                if (typeof dropBalls === 'function') {
-                    dropBalls();
-                }
-
-                // 6. Mobile UX: Close Sidebar if open
-                const sidebar = document.getElementById('sidebar');
-                if (sidebar && sidebar.classList.contains('open')) {
-                    sidebar.classList.remove('open');
-                }
-            });
+        // A. Team Selectors Logic
+        function handleTeamChange() {
+            // 1. Get IDs
+            const idA = selA ? selA.value : null;
+            const idB = selB ? selB.value : null;
+    
+            // 2. Find Objects
+            if(idA) App.data.teamA = App.data.teams.find(t => t.teamId === idA);
+            if(idB) App.data.teamB = App.data.teams.find(t => t.teamId === idB);
+    
+            // 3. Update UI
+            Renderer.updateMatchupTable();
         }
-    });
+    
+        if(selA) selA.addEventListener('change', handleTeamChange);
+        if(selB) selB.addEventListener('change', handleTeamChange);
+    
+    
+        // B. Run Simulation Buttons (Desktop & Mobile)
+        runBtns.forEach(btn => {
+            if(btn) {
+                btn.addEventListener('click', () => {
+                    // 1. Validation
+                    if (!App.data.teamA || !App.data.teamB) {
+                        alert("Please select both Team A and Team B.");
+                        return;
+                    }
+    
+                    // 2. Gather Inputs (Reads DOM)
+                    const factors = InputManager.getFactors();
+                    App.inputs.factors = factors; // Persist for debugging
+    
+                    // 3. Run Engine (Pure Math)
+                    Engine.run(App.data.teamA, App.data.teamB, factors);
+    
+                    // 4. Render Results (Updates DOM)
+                    Renderer.renderResults();
+    
+                    // 5. Trigger Visuals (Physics)
+                    if (typeof dropBalls === 'function') {
+                        dropBalls();
+                    }
+    
+                    // 6. Mobile UX: Close Sidebar if open
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar && sidebar.classList.contains('open')) {
+                        sidebar.classList.remove('open');
+                    }
+                });
+            }
+        });
+    
+        // C. Accordion Logic
+        const accHeaders = document.querySelectorAll('.accordion-header');
+    
+        accHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const item = header.parentElement;
+                
+                // Optional: Close others? For now, we allow multiple open
+                item.classList.toggle('active');
+            });
+        });
+    
+    
+    
 
     // --- Helpers ---
     function populateSeasonSelects() {        
