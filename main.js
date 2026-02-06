@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- 4. Event Listeners ---
 
         // A. Team Selectors Logic
-        function handleTeamChange() {
+        function handleTeamChange(event) {
             // 1. Get IDs
             const idA = selA ? selA.value : null;
             const idB = selB ? selB.value : null;
@@ -64,7 +64,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             if(idA) App.data.teamA = App.data.teams.find(t => t.teamId === idA);
             if(idB) App.data.teamB = App.data.teams.find(t => t.teamId === idB);
     
-            // 3. Update UI
+            // 3. Update Matchup Config
+            const selectedText = event.target.options[event.target.selectedIndex].text;
+            // Determine if it's 'teamA' or 'teamB' based on the ID
+            const teamKey = event.target.id.includes('-a-') ? 'teamA' : 'teamB';
+            
+            populateSituationalInputs(teamKey, selectedText);
+            
+            // 4. Update UI
             Renderer.updateMatchupTable();
         }
     
@@ -148,6 +155,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         if(selA) selA.innerHTML = options;
         if(selB) selB.innerHTML = options;
     }
+    function populateSituationalInputs(key, teamName) {
+        // Standardize IDs so they only differ by the suffix (teamA vs teamB)
+        const suffix = key; 
+    
+        const updates = [
+            { id: `hfa-${suffix}`, text: teamName },
+            { id: `rest-gap-${suffix}`, text: `Rest Gap for ${teamName}` },
+            { id: `momentum-${suffix}`, text: teamName },
+            { id: `travel-${suffix}`, text: `${teamName} Traveled` },
+            { id: `accordion-header-${key === 'teamA' ? 'team-a' : 'team-b'}`, text: `3. Injury Report: ${teamName}` }
+        ];
+    
+        updates.forEach(item => updateElementText(item.id, item.text));
+    }
+    
+    function updateElementText(elId, content) {
+        const el = document.getElementById(elId);
+        if (el) {
+            // Use textContent instead of innerHTML for better performance and security
+            el.textContent = content;
+        }
+    }
+
+    
 
     // Tab Logic (Legacy UI support)
     const tabs = document.querySelectorAll('.tab-btn');
