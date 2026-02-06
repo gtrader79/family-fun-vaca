@@ -17,8 +17,8 @@ const Renderer = {
             const diff = valB - valA;
             if (Math.abs(diff) == 0) return `<span class="neutral" style="color:#888;">Even</span>`; 
             
-            return diff > 0 
-                ? `<span class="team-b-adv" style="color:${tB.primaryColor}; font-weight:bold;">+${diff.toFixed(0)} ${tB.teamId}</span>` 
+            return diff < 0 
+                ? `<span class="team-b-adv" style="color:${tB.primaryColor}; font-weight:bold;">+${Math.abs(diff).toFixed(0)} ${tB.teamId}</span>` 
                 : `<span class="team-a-adv" style="color:${tA.primaryColor}; font-weight:bold;">+${Math.abs(diff).toFixed(0)} ${tA.teamId}</span>`;
         };
 
