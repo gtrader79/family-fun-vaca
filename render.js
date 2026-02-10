@@ -35,7 +35,7 @@ const Renderer = {
 
         { statNm: "offStartingFieldPos", label: "Offensive Avg Field Pos", key: "off_avg_starting_field_pos", rank: "off_avg_starting_field_pos_rank", better: "Higher", category: "Special Teams", c:4},
         { statNm: "defStartingFieldPos", label: "Def Avg Field Pos Allowed", key: "def_avg_starting_field_pos_allowed", rank: "def_avg_starting_field_pos_rank", better: "Lower", category: "Special Teams", c:4},
-        { statNm: "offPen", label: "Offensive Penalties / gm", key: "off_penalties_per_game", rank: "off_penalties_freq_rank", better: "Lower", category: "Turnovers / Penalties", c:1},
+        { statNm: "offPen", label: "Offensive Penalties / gm", key: "off_penalties_per_game", rank: "off_penalties_freq_rank", better: "Lower", category: "Turnovers / Penalties", c:5},
         { statNm: "offYdsPerPen", label: "Offensive Yds / penalty", key: "off_penalty_yards_per_penalty", rank: "off_penalty_severity_rank", better: "Lower", category: "Turnovers / Penalties", c:5}, 
         { statNm: "defPen", label: "Defensive Penalties / gm", key: "def_penalties_per_game", rank: "def_penalties_freq_rank", better: "Lower", category: "Turnovers / Penalties", c:5},
         { statNm: "defYdsPerPen", label: "Defensive Yds / penalty", key: "def_penalty_yards_per_penalty", rank: "def_penalty_severity_rank", better: "Lower", category: "Turnovers / Penalties", c:5},
