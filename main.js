@@ -53,17 +53,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         App.simulation.normalizationFactor = Utils.calculateNormalizationFactor(SIM_CONFIG.weights, 10000);
         
         // Calculate the league Metrics for the Season once on load 
-        const league = Renderer.metrics.reduce((acc, m) => {
-          // We map over the teams to get the array of values for the specific key
-          const values = App.data.teams.map(t => t[m.key]);
-          
-          // Assign the stats to the object using the statNm as the property name
-          acc[m.statNm] = Utils.getStats(values);
-          
-          return acc;
-        }, {});
+        if (Renderer && Renderer.metrics) {
+            const league = Renderer.metrics.reduce((acc, m) => {
+              // We map over the teams to get the array of values for the specific key
+              const values = App.data.teams.map(t => t[m.key]);
+              
+              // Assign the stats to the object using the statNm as the property name
+              acc[m.statNm] = Utils.getStats(values);
+              
+              return acc;
+            }, {});
+        } else {
+            console.log("Renderer.metrics is undefined!");
+        }
         
-        if (league) {App.data.leagueMetrics = league;}
+        if (league) {
+            App.data.leagueMetrics = league;
+        }
         console.log("League metrics calculated and stored");
         
     }
