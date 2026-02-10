@@ -47,9 +47,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // --- 3. Pre-Calculation ---
-    // Calculate the Normalization Factor once on load
+    
     if (App.data.teams) {
-         App.simulation.normalizationFactor = Utils.calculateNormalizationFactor(SIM_CONFIG.weights, 10000);
+        // Calculate the Normalization Factor once on load 
+        App.simulation.normalizationFactor = Utils.calculateNormalizationFactor(SIM_CONFIG.weights, 10000);
+        
+        // Calculate the league Metrics for the Season once on load 
+        const league = metrics.reduce((acc, m) => {
+          // We map over the teams to get the array of values for the specific key
+          const values = App.data.teams.map(t => t[m.key]);
+          
+          // Assign the stats to the object using the statNm as the property name
+          acc[m.statNm] = Uu.getStats(values);
+          
+          return acc;
+        }, {});
+        
+        if (league) {App.data.leagueMetrics = league;}
+        console.log("League metrics calculated and stored");
+        
     }
 
     // --- 4. Event Listeners ---
@@ -90,18 +106,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
     
                     // 2. Gather Inputs (Reads DOM)
-                    const factors = InputManager.getFactors();
+                    const factors = InputManager.getFactors();  //inputs.js
                     App.inputs.factors = factors; // Persist for debugging
     
                     // 3. Run Engine (Pure Math)
                     Engine.run(App.data.teamA, App.data.teamB, factors);
     
                     // 4. Render Results (Updates DOM)
-                    Renderer.renderResults();
+                    //Renderer.renderResults();
     
                     // 5. Trigger Visuals (Physics)
                     if (typeof dropBalls === 'function') {
-                        dropBalls();
+                      //  dropBalls();
                     }
     
                     // 6. Mobile UX: Close Sidebar if open
