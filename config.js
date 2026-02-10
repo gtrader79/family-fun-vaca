@@ -55,7 +55,8 @@ const SIM_CONFIG = {
     hfa_base: 0.05,          // Base Home Field Advantage
     travel_penalty: 0.03,    // Penalty for long travel
     momentum_val: 0.03,      // Momentum factor
-    k: 0.65,                 // Sigmoid steepness (helps account for mid-game injury; mid game weather; bad calls)
+    k: 0.65,                 // Sigmoid steepness (helps account for mid-game injury; mid game weather; bad calls)    
+    boxMuller_Factor: 0.1,   //
     
     // Impact Weights
     weights: {
