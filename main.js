@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           const values = App.data.teams.map(t => t[m.key]);
           
           // Assign the stats to the object using the statNm as the property name
-          acc[m.statNm] = Uu.getStats(values);
+          acc[m.statNm] = Utils.getStats(values);
           
           return acc;
         }, {});
