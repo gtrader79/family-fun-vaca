@@ -66,10 +66,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             console.log("Renderer.metrics is undefined!");
         }
+                
+        App.data.leagueMetrics = league;
         
-        if (league) {
-            App.data.leagueMetrics = league;
-        }
         console.log("League metrics calculated and stored");
         
     }
