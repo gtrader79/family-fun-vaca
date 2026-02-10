@@ -6,14 +6,15 @@ const App = {
     // Raw Data loaded from teams.json
     data: {
         teams: [],
-        teamA: null, // The actual Team Object
+        leagueMetrics: null,   //Stats per metric
+        teamA: null,    // The actual Team Object
         teamB: null
     },
     
     // Inputs from the User (Last run)
     inputs: {
         factors: null
-    },
+    },    
 
     // Simulation Output
     simulation: {
