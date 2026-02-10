@@ -26,7 +26,68 @@ const Engine = {
         return stats;
     },
 
-    // 2. Run the Monte Carlo Simulation
+    // 2. Get MatchUps on each metric.  noise = 0 for true baseline or 1 to allow for noise
+    getMatchUpDelta: function(tA, tB, noise=0) {
+        const bm_f = SIM_CONFIG.boxMuller_Factor;
+        //Passing Volume
+        const passAdv = (Utils.getZ(tA.off_pass_yards_per_game, App.data.leagueMetrics.offPass) + (noise * Utils.boxMuller() * bm_f))
+                    - (Utils.getZ(tB.def_pass_yards_allowed_per_game, App.data.leagueMetrics.defPass, true) + (noise * Utils.boxMuller() * bm_f))
+
+        const qbAdv = (Utils.getZ(tA.off_passer_rating, App.data.leagueMetrics.offQb) + (noise * Utils.boxMuller() * bm_f))
+                    - (Utils.getZ(tB.def_passer_rating_allowed, App.data.leagueMetrics.defQb, true) + (noise * Utils.boxMuller() * bm_f))
+
+        const teAdv = (Utils.getZ(tA.off_te_yards_per_game, App.data.leagueMetrics.offTE) + (noise * Utils.boxMuller() * bm_f))
+                    - (Utils.getZ(tB.def_te_yards_allowed_per_game, App.data.leagueMetrics.defTE, true) + (noise * Utils.boxMuller() * bm_f))
+        
+        const wrAdv = (Utils.getZ(tA.off_wr_yards_per_game, App.data.leagueMetrics.offWR) + (noise * Utils.boxMuller() * bm_f))
+                    - (Utils.getZ(tB.def_wr_yards_allowed_per_game, App.data.leagueMetrics.defWR, true) + (noise * Utils.boxMuller() * bm_f))
+
+        //Russing Volume
+        const rushAdv = (Utils.getZ(tA.off_rush_yards_per_game, App.data.leagueMetrics.offRush) + (noise * Utils.boxMuller() * bm_f))
+                    - (Utils.getZ(tB.def_rush_yards_allowed_per_game, App.data.leagueMetrics.defRush, true) + (noise * Utils.boxMuller() * bm_f))
+
+        //Pressure (Offense wants low, Defense wants High)
+        const pressureAdv = (Utils.getZ(tA.off_pressure_allowed_pct, App.data.leagueMetrics.offPressure, true) + (noise * Utils.boxMuller() * bm_f))
+                    - (Utils.getZ(tB.def_pressure_generated_pct, App.data.leagueMetrics.defPressure) + (noise * Utils.boxMuller() * bm_f))
+
+        //Conversion
+        
+        
+        //Turnovers
+
+        
+        //Red Zone & Explosive Plays
+        const redZoneAdv = (Utils.getZ(tA.off_rz_efficiency_pct, App.data.leagueMetrics.offRZ) + (noise * Utils.boxMuller() * bm_f))
+                    - (Utils.getZ(tB.def_rz_efficiency_allowed_pct, App.data.leagueMetrics.defRZ, true) + (noise * Utils.boxMuller() * bm_f))
+        
+        const explosivePlayAdv = (Utils.getZ(tA.off_explosive_play_rate_pct, App.data.leagueMetrics.offExplosivePlay) + (noise * Utils.boxMuller() * bm_f))
+                    - (Utils.getZ(tB.def_explosive_play_rate_allowed_pct, App.data.leagueMetrics.defExplosivePlay, true) + (noise * Utils.boxMuller() * bm_f))
+
+        
+        //Special Teams
+        
+
+        const rawDelta = (passAdv * SIM_CONFIG.weights.passVolume)
+            + (qbAdv * SIM_CONFIG.weights.qb)
+            + (teAdv * SIM_CONFIG.weights.wr)
+            + (wrAdv * SIM_CONFIG.weights.te)
+            + (rushAdv * SIM_CONFIG.weights.rush) 
+            + (pressureAdv * SIM_CONFIG.weights.pressure)
+            + (redZoneAdv * SIM_CONFIG.weights.redZone) 
+            + (explosivePlayAdv * SIM_CONFIG.weights.explosive) 
+            
+        ;
+
+
+        let finalDelta = rawDelta / App.simulation.normalizationFactor;
+    },
+
+
+
+
+    
+    
+    // 3. Run the Monte Carlo Simulation
     run: function(teamA, teamB, factors) {
         console.time("Simulation Run"); // Debug timer
 
