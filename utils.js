@@ -20,9 +20,9 @@ const Utils = {
     },
 
     // Calculate Z-Score
-    getZ: function(val, mean, std) {
-        if (std === 0) return 0;
-        return (val - mean) / std;
+    getZ: function(val, stats, invert = false) {
+        const z = (val - stats.avg) / stats.stdDev;
+        return invert ? -z : z;
     },
 
     // Pre-calculate the Normalization Factor (Sigma)     
