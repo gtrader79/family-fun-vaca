@@ -27,8 +27,8 @@ const InputManager = {
             momentum: this.getStr(DOM_IDS.momentum),
             sosAdjustment: this.getStr(DOM_IDS.sos),
             divisionMatchup: (App.data.teamA.conference == App.data.teamB.conference),
-            teamA_Rest: this.getStr(DOM_IDS.rest.TeamA),
-            teamB_Rest: this.getStr(DOM_IDS.rest.TeamB)
+            teamA_Rest: this.getStr(DOM_IDS.rest.teamA),
+            teamB_Rest: this.getStr(DOM_IDS.rest.teamB)
         };
 
         // 2. Gather Injuries for Team A
