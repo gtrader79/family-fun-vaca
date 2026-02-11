@@ -57,6 +57,7 @@ const SIM_CONFIG = {
     momentum_val: 0.03,      // Momentum factor
     k: 0.65,                 // Sigmoid steepness (helps account for mid-game injury; mid game weather; bad calls)    
     boxMuller_Factor: 0.1,   //
+    division_Factor: 0.90,   // Division games are tight & grittier.  Use this to compress the final delta
     
     // Impact Weights
     weights: {
