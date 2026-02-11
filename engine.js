@@ -4,29 +4,7 @@
 
 const Engine = {
 
-    // 1. Apply Injuries to Stats
-    // Replaces getAdjustedTeamStats from injuryMapping.js
-    getAdjustedStats: function(team, injuries) {
-        // Clone the stats to avoid mutating original data
-        let stats = { ...team.stats }; 
-        
-        // Iterate through defined injury maps
-        for (let [pos, mapData] of Object.entries(INJURY_MAP)) {
-            const injuryLevel = injuries[pos] || 0; // 0, 1, or 2
-            if (injuryLevel === 0) continue; // Healthy, skip
-
-            // Apply multipliers
-            for (let [statKey, multipliers] of Object.entries(mapData)) {
-                if (stats[statKey] !== undefined) {
-                    // multipliers array matches [Healthy, Ques, Out]
-                    stats[statKey] *= multipliers[injuryLevel];
-                }
-            }
-        }
-        return stats;
-    },
-
-    // 2. Get MatchUps on each metric.  noise = 0 for true baseline or 1 to allow for noise
+    // Get MatchUps on each metric.  noise = 0 for true baseline or 1 to allow for noise
     getMatchUpDelta: function(tA, tB, noise=0) {
         const bm_f = SIM_CONFIG.boxMuller_Factor;
         //Passing Volume
@@ -82,13 +60,119 @@ const Engine = {
         let finalDelta = rawDelta / App.simulation.normalizationFactor;
     },
 
+    getHomeFieldAdvantage: function () {
+        let hfaValue = 0;
+        if (App.inputs.factors.context.hfa == 1) hfaValue = SIM_CONFIG.hfa_base;               //Team A Home
+        else if (App.inputs.factors.context.hfa == 3) hfaValue = -SIM_CONFIG.hfa_base;         //Team B Home (Negative for A)
+        return hfaValue;
+    },
 
+    getTravelPenalty: function () {
+        let travelPenalty = 0;
+        if (App.inputs.factors.context.travel == 1) travelPenalty = -SIM_CONFIG.travel_penalty;  //A is traveling (Penalty to A)
+        if (App.inputs.factors.context.travel == 3) travelPenalty =  SIM_CONFIG.travel_penalty;  //B is traveling (Bonus to A)
+        return travelPenalty;
+    },
 
+    getTotalRestDelta: function () {
+        let restImpactA = 0.0;
+        if (App.inputs.factors.context.teamA_Rest == 0) restImpactA = -0.05;                    //Team A is tired 
+        if (App.inputs.factors.context.teamA_Rest == 2) restImpactA =  0.07;                    //Team A is rested
 
+        let restImpactB = 0.0;
+        if (App.inputs.factors.context.teamB_Rest == 0) restImpactB = -0.05;                    //Team B is tired 
+        if (App.inputs.factors.context.teamB_Rest == 2) restImpactB =  0.07;                    //Team B is rested
+
+        const totalRestDelta = restImpactA - restImpactB;
+        return totalRestDelta;
+    },
+
+    getMomentumAdvantage: function () {
+        let momentumValue = 0;
+        if (App.inputs.factors.context.momentum == 1) momentumValue =  SIM_CONFIG.momentum_val  //A has momentum (Bonus to A)
+        if (App.inputs.factors.context.momentum == 3) momentumValue = -SIM_CONFIG.momentum_val  //B has momentum (Negative to A)
+        return momentumValue;
+    },
     
-    
-    // 3. Run the Monte Carlo Simulation
+    getDivisionCompressor: function () {
+        const divisionCompressor = App.inputs.factors.context.divisionMatchup ? SIM_CONFIG.division_Factor : 1.0;
+        return divisionCompressor;
+    },
+
+    getMatchUpCompressor: function () {
+        const gameMatchUpValue = App.inputs.factors.context.gameMatchUpType;
+        const gameMatchUpCompressor = SIM_CONFIG.matchupMap[gameMatchUpValue];
+        return gameMatchUpCompressor;
+    },
+
+
+
+    //Run the Monte Carlo Simulation
     run: function(teamA, teamB, factors) {
+        //capture base results with no noise or adjustments or injuries
+        const baseA = this.getMatchUpDelta(teamA, teamB, 0);
+        const baseB = this.getMatchUpDelta(teamB, teamA, 0);
+        const baseDelta = (baseA - baseB);
+        const baseProbA = Utils.sigmoid(baseDelta, SIM_CONFIG.k);
+        const baseProbB = 1-baseProbA;
+
+        //One-time capture Context Factor to be added to Delta
+        console.log(this.getHomeFieldAdvantage());
+        console.log(this.getTravelPenalty());
+        console.log(this.getTotalRestDelta());
+        console.log(this.getMomentumAdvantage());
+        console.log(this.getDivisionCompressor());
+        console.log(this.getMatchUpCompressor());
+        const contextFactors = this.getHomeFieldAdvantage() + this.getTravelPenalty() + this.getTotalRestDelta() + this.getMomentumAdvantage();
+
+        console.log(`Total Factors: ${contextFactors}`);
+
+        //One-time capture Context Compressor to be multiplied to Delta
+        const contextCompressor = this.getDivisionCompressor() * this.getMatchUpCompressor();
+
+        console.log(`Total Compression: ${contextCompressor}`);
+        
+        
+        for (let i = 0; i < config.iterations; i++) {
+            
+        }
+    },
+
+
+
+
+
+
+
+    
+
+    
+    
+    // Apply Injuries to Stats    
+    getAdjustedStats: function(team, injuries) {
+        // Clone the stats to avoid mutating original data
+        let stats = { ...team.stats }; 
+        
+        // Iterate through defined injury maps
+        for (let [pos, mapData] of Object.entries(INJURY_MAP)) {
+            const injuryLevel = injuries[pos] || 0; // 0, 1, or 2
+            if (injuryLevel === 0) continue; // Healthy, skip
+
+            // Apply multipliers
+            for (let [statKey, multipliers] of Object.entries(mapData)) {
+                if (stats[statKey] !== undefined) {
+                    // multipliers array matches [Healthy, Ques, Out]
+                    stats[statKey] *= multipliers[injuryLevel];
+                }
+            }
+        }
+        return stats;
+    },
+
+      
+    
+    // Run the Monte Carlo Simulation
+    runNeedToRewrite: function(teamA, teamB, factors) {
         console.time("Simulation Run"); // Debug timer
 
         // A. Adjust Stats for Injuries
