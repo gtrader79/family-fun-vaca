@@ -25,7 +25,10 @@ const InputManager = {
             windLevel: this.getStr(DOM_IDS.wind),
             rainLevel: this.getStr(DOM_IDS.rain),
             momentum: this.getStr(DOM_IDS.momentum),
-            sosAdjustment: this.getStr(DOM_IDS.sos)
+            sosAdjustment: this.getStr(DOM_IDS.sos),
+            divisionMatchup: (App.data.teamA.conference == App.data.teamB.conference),
+            teamA_Rest: this.getStr(DOM_IDS.rest.TeamA),
+            teamB_Rest: this.getStr(DOM_IDS.rest.TeamB)
         };
 
         // 2. Gather Injuries for Team A
