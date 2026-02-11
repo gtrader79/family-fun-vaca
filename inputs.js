@@ -26,7 +26,7 @@ const InputManager = {
             rainLevel: this.getStr(DOM_IDS.rain),
             momentum: this.getStr(DOM_IDS.momentum),
             sosAdjustment: this.getStr(DOM_IDS.sos),
-            divisionMatchup: (App.data.teamA.conference == App.data.teamB.conference),
+            divisionMatchup: (App.data.teamA.division == App.data.teamB.division),
             teamA_Rest: this.getStr(DOM_IDS.rest.teamA),
             teamB_Rest: this.getStr(DOM_IDS.rest.teamB)
         };
