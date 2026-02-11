@@ -116,24 +116,22 @@ const Engine = {
         const baseProbA = Utils.sigmoid(baseDelta, SIM_CONFIG.k);
         const baseProbB = 1-baseProbA;
 
-        //One-time capture Context Factor to be added to Delta
-        console.log(this.getHomeFieldAdvantage());
-        console.log(this.getTravelPenalty());
-        console.log(this.getTotalRestDelta());
-        console.log(this.getMomentumAdvantage());
-        console.log(this.getDivisionCompressor());
-        console.log(this.getMatchUpCompressor());
+        //One-time capture Context Factor to be added to Delta        
         const contextFactors = this.getHomeFieldAdvantage() + this.getTravelPenalty() + this.getTotalRestDelta() + this.getMomentumAdvantage();
-
         console.log(`Total Factors: ${contextFactors}`);
 
         //One-time capture Context Compressor to be multiplied to Delta
         const contextCompressor = this.getDivisionCompressor() * this.getMatchUpCompressor();
-
         console.log(`Total Compression: ${contextCompressor}`);
+
+
+        //Base with context factors & compressor
+        const baseDelta_Factors = (baseDelta + contextFactors) * contextCompressor;
+        const baseDelta_Factors_ProbA = Utils.sigmoid(baseDelta_Factors, SIM_CONFIG.k);
+        const baseDelta_Factors_ProbB = 1-baseDelta_Factors_ProbA;
         
         
-        for (let i = 0; i < config.iterations; i++) {
+        for (let i = 0; i < SIM_CONFIG.iterations; i++) {
             
         }
     },
