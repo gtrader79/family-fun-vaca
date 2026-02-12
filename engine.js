@@ -105,16 +105,48 @@ const Engine = {
         return gameMatchUpCompressor;
     },
 
+    storeRun: function (lbl, teamStrengthA, teamStrengthB, factors = 0, compressor=1) {        
+        let delta = 0.00;
+        delta += (teamStrengthA - teamStrengthB) + factors; 
+        delta *= compressor;
+        
+        const probA = Utils.sigmoid(delta, SIM_CONFIG.k);
+        const probB = 1-probA;
+
+            
+        App.simulation.runs.push({
+            runLabel: lbl,
+            teamStrength_A: teamStrengthA,
+            teamStrength_B: teamStrengthB,
+            delta: delta,
+            winProb_A: probA,
+            winProb_B: probB,
+            
+            // Synthetic score generation for display
+            teamA_Score: Math.round(24 + (delta * 10)), 
+            teamB_Score: Math.round(24 - (delta * 10)),
+            adjustmentFactors: factors,
+            compressionValue: compressor
+            
+        });
+        
+    },
+
 
 
     //Run the Monte Carlo Simulation
     run: function(teamA, teamB, factors) {
+        // Reset Results
+        App.simulation.results = [];
+        App.simulation.runs = [];
+        
         //capture base results with no noise or adjustments or injuries
         const baseA = this.getMatchUpDelta(teamA, teamB, 0);
         const baseB = this.getMatchUpDelta(teamB, teamA, 0);
-        const baseDelta = (baseA - baseB);
-        const baseProbA = Utils.sigmoid(baseDelta, SIM_CONFIG.k);
-        const baseProbB = 1-baseProbA;
+        //const baseDelta = (baseA - baseB);  
+
+        //Store results
+        this.storeRun('Baseline with no adjustments', baseA, baseB);
 
         //One-time capture Context Factor to be added to Delta        
         const contextFactors = this.getHomeFieldAdvantage() + this.getTravelPenalty() + this.getTotalRestDelta() + this.getMomentumAdvantage();
@@ -126,12 +158,19 @@ const Engine = {
 
 
         //Base with context factors & compressor
-        const baseDelta_Factors = (baseDelta + contextFactors) * contextCompressor;
-        const baseDelta_Factors_ProbA = Utils.sigmoid(baseDelta_Factors, SIM_CONFIG.k);
-        const baseDelta_Factors_ProbB = 1-baseDelta_Factors_ProbA;
+        //const baseDelta_Factors = (baseDelta + contextFactors) * contextCompressor;        
+        //Store results
+        this.storeRun('Baseline with adjustments', baseA, baseB, contextFactors, contextCompressor);
+                
         
+
         
         for (let i = 0; i < SIM_CONFIG.iterations; i++) {
+            //get team strength with slight 'noise' applied to each team stat metric
+            //3rd variable is noise.  value = 1 allows boxMuller variance to be adjusted
+            const tsA = this.getMatchUpDelta(teamA, teamB, 1);  
+            const tsB = this.getMatchUpDelta(teamB, teamA, 1);  
+            this.storeRun('Monte Carlo Simulation', tsA, tsB, contextFactors, contextCompressor);
             
         }
     },
@@ -170,7 +209,7 @@ const Engine = {
       
     
     // Run the Monte Carlo Simulation
-    runNeedToRewrite: function(teamA, teamB, factors) {
+    run__Bad__Do_NOT_RUN: function(teamA, teamB, factors) {
         console.time("Simulation Run"); // Debug timer
 
         // A. Adjust Stats for Injuries
