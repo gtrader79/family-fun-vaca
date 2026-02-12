@@ -26,26 +26,19 @@ const Utils = {
     },
 
     // Pre-calculate the Normalization Factor (Sigma)     
-    calculateNormalizationFactor: function(weights, iterations) {
+    calculateNormalizationFactor: function(weights) {
         console.log("Initializing Normalization Factor...");
-        let sumSqDiff = 0;
-        
-        // We simulate a "Standard" matchup to see natural variance
-        for (let i = 0; i < iterations; i++) {
-            let score = 0;
-            // Iterate over weights to generate random variance
-            for (let key in weights) {
-                // Random noise for each stat category
-                let r = (Math.random() - 0.5) * 2; // -1 to 1
-                score += r * weights[key];
-            }
-            sumSqDiff += score * score;
+        let sumSquares = 0;
+                
+        for (let key in weights) {
+            sumSquares += (weights[key] * weights[key]);
         }
-        
-        const variance = sumSqDiff / iterations;
-        const sigma = Math.sqrt(variance);
+
+        // Multiply by sqrt(2) because we are comparing two independent variables (Team A vs Team B)
+        const sigma = Math.sqrt(sumSquares) * 1.414;
         console.log("Normalization Factor (Sigma):", sigma);
         return sigma;
+                
     },
 
     //Stats
