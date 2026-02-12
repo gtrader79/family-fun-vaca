@@ -58,6 +58,7 @@ const Engine = {
 
 
         let finalDelta = rawDelta / App.simulation.normalizationFactor;
+        return finalDelta;
     },
 
     getHomeFieldAdvantage: function () {
