@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if (App.data.teams) {
         // Calculate the Normalization Factor once on load 
-        App.simulation.normalizationFactor = Utils.calculateNormalizationFactor(SIM_CONFIG.weights, 10000);
+        App.simulation.normalizationFactor = Utils.calculateNormalizationFactor(SIM_CONFIG.weights);
         
         // Calculate the league Metrics for the Season once on load         
         let league = {};
