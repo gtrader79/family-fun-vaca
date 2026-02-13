@@ -106,7 +106,7 @@ const Engine = {
         return gameMatchUpCompressor;
     },
 
-    storeRun: function (lbl, teamStrengthA, teamStrengthB, factors = 0, compressor=1) {        
+    storeRun: function (order, lbl, teamStrengthA, teamStrengthB, factors = 0, compressor=1) {        
         let delta = 0.00;
         delta += (teamStrengthA - teamStrengthB) + factors; 
         delta *= compressor;
@@ -116,6 +116,7 @@ const Engine = {
 
             
         App.simulation.runs.push({
+            labelOrder: order,
             runLabel: lbl,
             teamStrength_A: teamStrengthA,
             teamStrength_B: teamStrengthB,
@@ -144,7 +145,7 @@ const Engine = {
         //const baseDelta = (baseA - baseB);  
 
         //Store results
-        this.storeRun('Baseline with no adjustments', baseA, baseB);
+        this.storeRun(1, 'Baseline with no adjustments', baseA, baseB);
 
         //One-time capture Context Factor to be added to Delta        
         const contextFactors = this.getHomeFieldAdvantage() + this.getTravelPenalty() + this.getTotalRestDelta() + this.getMomentumAdvantage();
@@ -155,10 +156,9 @@ const Engine = {
         console.log(`Total Compression: ${contextCompressor}`);
 
 
-        //Base with context factors & compressor
-        //const baseDelta_Factors = (baseDelta + contextFactors) * contextCompressor;        
+        //Base with context factors & compressor        
         //Store results
-        this.storeRun('Baseline with adjustments', baseA, baseB, contextFactors, contextCompressor);
+        this.storeRun(2, 'Baseline with adjustments', baseA, baseB, contextFactors, contextCompressor);
                 
         
 
@@ -168,7 +168,7 @@ const Engine = {
             //3rd variable is noise.  value = 1 allows boxMuller variance to be adjusted
             const tsA = this.getMatchUpDelta(teamA, teamB, 1);  
             const tsB = this.getMatchUpDelta(teamB, teamA, 1);  
-            this.storeRun('Monte Carlo Simulation', tsA, tsB, contextFactors, contextCompressor);
+            this.storeRun(3, 'Monte Carlo Simulation', tsA, tsB, contextFactors, contextCompressor);
             
         }
 
@@ -208,6 +208,7 @@ const Engine = {
           };
         });
         
+        return stats;
     },
 
 
@@ -217,6 +218,22 @@ const Engine = {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     
     
 
@@ -254,80 +271,6 @@ const Engine = {
         const statsA = this.getAdjustedStats(teamA, factors.injuriesA);
         const statsB = this.getAdjustedStats(teamB, factors.injuriesB);
 
-        // B. Setup Variables
-        const config = SIM_CONFIG;
-        const weights = config.weights;
-        const sigma = App.simulation.normalizationFactor || 1.0;
-        
-        // Reset Results
-        App.simulation.results = [];
-        App.simulation.runs = [];
-
-        // C. Calculate Static Factors (do this OUTSIDE the loop)
-        // (Simplified logic for brevity - mimics your getSituationalFactors)
-        let staticDelta = 0;
-        
-        // HFA
-        if (factors.context.hfa === 'teamA') staticDelta += config.hfa_base;
-        else if (factors.context.hfa === 'teamB') staticDelta -= config.hfa_base;
-
-        // Travel
-        if (factors.context.travel === 'teamA_travel') staticDelta -= config.travel_penalty;
-        if (factors.context.travel === 'teamB_travel') staticDelta += config.travel_penalty;
-
-        // D. Monte Carlo Loop
-        for (let i = 0; i < config.iterations; i++) {
-            let runDelta = staticDelta;
-
-            // Iterate over weighted categories
-            for (let key in weights) {
-                // Get base stats
-                let valA = statsA[key] || 0;
-                let valB = statsB[key] || 0;
-                
-                // Add Noise (Box-Muller)
-                // We add randomness to the PERFORMANCE of the stat                    
-                let perfA = valA + (Utils.boxMuller() * 0.1); // 10% variance
-                let perfB = valB + (Utils.boxMuller() * 0.1);                    
-                
-                // Compare
-                let diff = perfA - perfB;
-                runDelta += diff * weights[key];
-            }
-
-            // Normalize
-            let zScore = runDelta / sigma;
-            let probA = Utils.sigmoid(zScore, config.k);
-            
-            // Store Raw Delta
-            App.simulation.results.push(runDelta);
-            
-            // Store Detailed Run (Optimized: Only store what Visuals.js needs)
-            App.simulation.runs.push({
-                teamA_Prob: probA,
-                teamB_Prob: 1 - probA,
-                // Synthetic score generation for display
-                teamA_Score: Math.round(24 + (runDelta * 10)), 
-                teamB_Score: Math.round(24 - (runDelta * 10)),
-                runDelta: runDelta
-            });
-        }
-
-        // E. Calculate Summary Stats
-        this.calculateSummary();
-        
-        console.timeEnd("Simulation Run");
-    },
-
-    calculateSummary2: function() {
-        const results = App.simulation.results;
-        const winsA = results.filter(r => r > 0).length;
-        const total = results.length;
-
-        App.simulation.summary = {
-            winProbA: winsA / total,
-            winProbB: 1 - (winsA / total),
-            count: total
-        };
+       
     }
 };
