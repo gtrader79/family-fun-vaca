@@ -122,10 +122,6 @@ const Engine = {
             delta: delta,
             winProb_A: probA,
             winProb_B: probB,
-            
-            // Synthetic score generation for display
-            teamA_Score: Math.round(24 + (delta * 10)), 
-            teamB_Score: Math.round(24 - (delta * 10)),
             adjustmentFactors: factors,
             compressionValue: compressor
             
@@ -136,7 +132,8 @@ const Engine = {
 
 
     //Run the Monte Carlo Simulation
-    run: function(teamA, teamB, factors) {
+    run: function(teamA, teamB, factors) {                
+        
         // Reset Results
         App.simulation.results = [];
         App.simulation.runs = [];
@@ -174,6 +171,43 @@ const Engine = {
             this.storeRun('Monte Carlo Simulation', tsA, tsB, contextFactors, contextCompressor);
             
         }
+
+        //Calculate Summary Stats by Label
+        const runSummary = this.calculateSummary(App.simulation.runs);
+        //Store results in App
+        App.simulation.summary = runSummary;
+    },
+
+    
+    calculateSummary: function(data) {
+        // 1. Group values into arrays by runLabel
+        const groups = data.reduce((acc, { runLabel, winProb_A }) => {
+          acc[runLabel] = acc[runLabel] || [];
+          acc[runLabel].push(winProb_A);
+          return acc;
+        }, {});
+        
+        // Helper to calculate percentile from a sorted array
+        const getPercentile = (arr, p) => {
+          const idx = (arr.length - 1) * p;
+          const lower = Math.floor(idx);
+          const upper = Math.ceil(idx);
+          const weight = idx - lower;
+          return arr[lower] * (1 - weight) + arr[upper] * weight;
+        };
+        
+        // 2. Map groups to final statistics
+        const stats = Object.entries(groups).map(([label, values]) => {
+          values.sort((a, b) => a - b); // Percentiles require sorted data
+          return {
+            runLabel: label,
+            avg: values.reduce((a, b) => a + b, 0) / values.length,
+            p5: getPercentile(values, 0.05),
+            p50: getPercentile(values, 0.50), // Median
+            p95: getPercentile(values, 0.95)
+          };
+        });
+        
     },
 
 
@@ -182,6 +216,8 @@ const Engine = {
 
 
 
+
+    
     
 
     
@@ -207,6 +243,7 @@ const Engine = {
         return stats;
     },
 
+    
       
     
     // Run the Monte Carlo Simulation
@@ -282,7 +319,7 @@ const Engine = {
         console.timeEnd("Simulation Run");
     },
 
-    calculateSummary: function() {
+    calculateSummary2: function() {
         const results = App.simulation.results;
         const winsA = results.filter(r => r > 0).length;
         const total = results.length;
