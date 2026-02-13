@@ -131,13 +131,66 @@ const Engine = {
     },
 
 
+    getWeatherAdjustedStats: function (teamStats) {
+        //capture context in easier variable
+        const ctx = App.inputs.factors.context;
+        //make a copy
+        let adjusted = {...teamStats};
+        
+        //create an object for multipliers --- Inputs from ctx (pulled from App.inputs.factors.context) will adjust multiplier value.
+        let multipliers = {
+            passVol: 1.0
+            , rushVol: 1.0
+            , redZone: 1.0
+            , explosive: 1.0
+            , pressureAllowed: 1.0
+            , turnovers: 1.0            
+            , pressureGenerated: 1.0
+            , rushDef: 1.0
+            , passDef: 1.0
+            , explosiveDef: 1.0
+        };
+        //Apply Wind  
+        if (ctx.windLevel === 1) { //Medium Wind
+            multipliers.passVol *= .95;
+            multipliers.explosive *= .90;
+        } else if (ctx.windLevel === 2) { //High Wind
+            multipliers.passVol *= .85;
+            multipliers.explosive *= .80;
+            multipliers.turnovers *= 1.05;
+        }
+
+        //Apply Rain and Snow  
+        if (ctx.rainLevel === 1) { //Rain
+            multipliers.passVol *= .95;
+            multipliers.explosive *= .95;
+            multipliers.turnovers *= 1.25;
+        } else if (ctx.windLevel === 2) { //Snow
+            multipliers.passVol *= .92;
+            multipliers.explosive *= .82;
+            multipliers.turnovers *= 1.35;
+        }
+    
+        //Resistance Mode: Apply multipliers to stats.
+        adjusted.off_pass_yards_per_game *= multipliers.pass_vol;
+        adjusted.off_rush_yards_per_game *= multipliers.rushVol;
+        adjusted.off_rz_efficiency_pct *= multipliers.redZone;
+        adjusted.off_explosive_play_rate_pct *= multipliers.explosive;
+        adjusted.off_pressure_allowed_pct *= multipliers.pressureAllowed;
+        adjusted.turnovers_per_game *= multipliers.turnovers;
+    
+
+        return adjusted;
+    },
+
 
     //Run the Monte Carlo Simulation
     run: function(teamA, teamB, factors) {                
         
         // Reset Results
         App.simulation.results = [];
-        App.simulation.runs = [];
+        App.simulation.runs = [];        
+        
         
         //capture base results with no noise or adjustments or injuries
         const baseA = this.getMatchUpDelta(teamA, teamB, 0);
@@ -159,16 +212,26 @@ const Engine = {
         //Base with context factors & compressor        
         //Store results
         this.storeRun(2, 'Baseline with adjustments', baseA, baseB, contextFactors, contextCompressor);
-                
-        
 
-        
+        //Monte Carlo with out adjustments
         for (let i = 0; i < SIM_CONFIG.iterations; i++) {
             //get team strength with slight 'noise' applied to each team stat metric
             //3rd variable is noise.  value = 1 allows boxMuller variance to be adjusted
             const tsA = this.getMatchUpDelta(teamA, teamB, 1);  
             const tsB = this.getMatchUpDelta(teamB, teamA, 1);  
             this.storeRun(3, 'Monte Carlo Simulation', tsA, tsB, contextFactors, contextCompressor);
+            
+        }
+
+        //Monte Carlo with weather adjustments
+        const weatherAdjTeamA = getWeatherAdjustedStats(teamA);
+        const weatherAdjTeamB = getWeatherAdjustedStats(teamB);
+        for (let i = 0; i < SIM_CONFIG.iterations; i++) {
+            //get team strength with slight 'noise' applied to each team stat metric
+            //3rd variable is noise.  value = 1 allows boxMuller variance to be adjusted
+            const tsA_weather = this.getMatchUpDelta(weatherAdjTeamA, weatherAdjTeamB, 1);  
+            const tsB_weather = this.getMatchUpDelta(weatherAdjTeamB, weatherAdjTeamA, 1);  
+            this.storeRun(4, 'Monte Carlo Simulation - Weather Adjusted', tsA_weather, tsB_weather, contextFactors, contextCompressor);
             
         }
 
