@@ -224,8 +224,8 @@ const Engine = {
         }
 
         //Monte Carlo with weather adjustments
-        const weatherAdjTeamA = getWeatherAdjustedStats(teamA);
-        const weatherAdjTeamB = getWeatherAdjustedStats(teamB);
+        const weatherAdjTeamA = this.getWeatherAdjustedStats(teamA);
+        const weatherAdjTeamB = this.getWeatherAdjustedStats(teamB);
         for (let i = 0; i < SIM_CONFIG.iterations; i++) {
             //get team strength with slight 'noise' applied to each team stat metric
             //3rd variable is noise.  value = 1 allows boxMuller variance to be adjusted
