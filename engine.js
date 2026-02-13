@@ -172,7 +172,7 @@ const Engine = {
         }
     
         //Resistance Mode: Apply multipliers to stats.
-        adjusted.off_pass_yards_per_game *= multipliers.pass_vol;
+        adjusted.off_pass_yards_per_game *= multipliers.passvol;
         adjusted.off_rush_yards_per_game *= multipliers.rushVol;
         adjusted.off_rz_efficiency_pct *= multipliers.redZone;
         adjusted.off_explosive_play_rate_pct *= multipliers.explosive;
@@ -226,7 +226,8 @@ const Engine = {
         //Monte Carlo with weather adjustments
         const weatherAdjTeamA = this.getWeatherAdjustedStats(teamA);
         const weatherAdjTeamB = this.getWeatherAdjustedStats(teamB);
-        for (let i = 0; i < SIM_CONFIG.iterations; i++) {
+        
+        for (let j = 0; j < SIM_CONFIG.iterations; j++) {
             //get team strength with slight 'noise' applied to each team stat metric
             //3rd variable is noise.  value = 1 allows boxMuller variance to be adjusted
             const tsA_weather = this.getMatchUpDelta(weatherAdjTeamA, weatherAdjTeamB, 1);  
