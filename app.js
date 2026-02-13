@@ -1,4 +1,4 @@
-/* state.js 
+/* app.js 
     Central Truth - used for debugging in Console
 */
 
@@ -21,12 +21,7 @@ const App = {
         normalizationFactor: 0, // Calculated once on load
         results: [],     // Raw Delta array
         runs: [],        // Detailed run data (for Visuals/Physics)
-        summary: {       // Calculated Stats
-            winProbA: 0,
-            winProbB: 0,
-            meanMargin: 0,
-            stdDev: 0
-        },
+        summary: [],       // Calculated Stats            
         keysToSuccess: {} // Text explanation
     }
 };
