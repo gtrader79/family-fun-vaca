@@ -19,16 +19,16 @@ const InputManager = {
     getFactors: function() {
         // 1. Gather Context
         const context = {
-            hfa: this.getStr(DOM_IDS.hfa),
-            gameMatchUpType: this.getStr(DOM_IDS.matchup),
-            travel: this.getStr(DOM_IDS.travel),
-            windLevel: this.getStr(DOM_IDS.wind),
-            rainLevel: this.getStr(DOM_IDS.rain),
-            momentum: this.getStr(DOM_IDS.momentum),
-            sosAdjustment: this.getStr(DOM_IDS.sos),
+            hfa: this.getVal(DOM_IDS.hfa),
+            gameMatchUpType: this.getVal(DOM_IDS.matchup),
+            travel: this.getVal(DOM_IDS.travel),
+            windLevel: this.getVal(DOM_IDS.wind),
+            rainLevel: this.getVal(DOM_IDS.rain),
+            momentum: this.getVal(DOM_IDS.momentum),
+            sosAdjustment: this.getVal(DOM_IDS.sos),
             divisionMatchup: (App.data.teamA.division == App.data.teamB.division),
-            teamA_Rest: this.getStr(DOM_IDS.rest.teamA),
-            teamB_Rest: this.getStr(DOM_IDS.rest.teamB)
+            teamA_Rest: this.getVal(DOM_IDS.rest.teamA),
+            teamB_Rest: this.getVal(DOM_IDS.rest.teamB)
         };
 
         // 2. Gather Injuries for Team A
