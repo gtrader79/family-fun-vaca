@@ -165,7 +165,7 @@ const Engine = {
             multipliers.passVol *= .95;
             multipliers.explosive *= .95;
             multipliers.turnovers *= 1.25;
-        } else if (ctx.windLevel === 2) { //Snow
+        } else if (ctx.rainLevel === 2) { //Snow
             multipliers.passVol *= .92;
             multipliers.explosive *= .82;
             multipliers.turnovers *= 1.35;
@@ -177,7 +177,7 @@ const Engine = {
         adjusted.off_rz_efficiency_pct *= multipliers.redZone;
         adjusted.off_explosive_play_rate_pct *= multipliers.explosive;
         adjusted.off_pressure_allowed_pct *= multipliers.pressureAllowed;
-        adjusted.turnovers_per_game *= multipliers.turnovers;
+        adjusted.off_turnovers_per_game *= multipliers.turnovers;
     
 
         return adjusted;
@@ -326,15 +326,4 @@ const Engine = {
 
     
       
-    
-    // Run the Monte Carlo Simulation
-    run__Bad__Do_NOT_RUN: function(teamA, teamB, factors) {
-        console.time("Simulation Run"); // Debug timer
-
-        // A. Adjust Stats for Injuries
-        const statsA = this.getAdjustedStats(teamA, factors.injuriesA);
-        const statsB = this.getAdjustedStats(teamB, factors.injuriesB);
-
-       
-    }
 };
