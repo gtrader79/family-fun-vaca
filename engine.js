@@ -172,7 +172,7 @@ const Engine = {
         }
     
         //Resistance Mode: Apply multipliers to stats.
-        adjusted.off_pass_yards_per_game *= multipliers.passvol;
+        adjusted.off_pass_yards_per_game *= multipliers.passVol;
         adjusted.off_rush_yards_per_game *= multipliers.rushVol;
         adjusted.off_rz_efficiency_pct *= multipliers.redZone;
         adjusted.off_explosive_play_rate_pct *= multipliers.explosive;
