@@ -22,6 +22,7 @@ const App = {
         results: [],     // Raw Delta array
         runs: [],        // Detailed run data (for Visuals/Physics)
         summary: [],       // Calculated Stats            
-        keysToSuccess: {} // Text explanation
+        keysToSuccess: {}, // Text explanation
+        keyMatchup:  [],     //KeyMatchups         
     }
 };
