@@ -5,7 +5,7 @@
 const Engine = {
 
     // Get MatchUps on each metric.  noise = 0 for true baseline or 1 to allow for noise
-    getMatchUpDelta: function(tA, tB, noise=0) {
+    getMatchUpDelta: function(tA, tB, noise=0, team_label='') {
         const bm_f = SIM_CONFIG.boxMuller_Factor;
         //Passing Volume
         const passAdv = (Utils.getZ(tA.off_pass_yards_per_game, App.data.leagueMetrics.offPass) + (noise * Utils.boxMuller() * bm_f))
@@ -45,10 +45,26 @@ const Engine = {
         //Special Teams
         
 
+        //Push to team specific matchUp Object
+        if (team_label !== '') {
+            App.simulation.keyMatchup.push({
+                team_label: team_label
+                , passAdv: (passAdv * SIM_CONFIG.weights.passVolume)
+                , qbAdv: (qbAdv * SIM_CONFIG.weights.qb)
+                , teAdv: (teAdv * SIM_CONFIG.weights.te)
+                , wrAdv: (wrAdv * SIM_CONFIG.weights.wr)
+                , rushAdv: (rushAdv * SIM_CONFIG.weights.rush) 
+                , pressureAdv: (pressureAdv * SIM_CONFIG.weights.pressure)
+                , redZoneAdv: (redZoneAdv * SIM_CONFIG.weights.redZone) 
+                , explosivePlayAdv: (explosivePlayAdv * SIM_CONFIG.weights.explosive)
+            });
+        };
+
+        //Calculate rawDelta
         const rawDelta = (passAdv * SIM_CONFIG.weights.passVolume)
             + (qbAdv * SIM_CONFIG.weights.qb)
-            + (teAdv * SIM_CONFIG.weights.wr)
-            + (wrAdv * SIM_CONFIG.weights.te)
+            + (teAdv * SIM_CONFIG.weights.te)
+            + (wrAdv * SIM_CONFIG.weights.wr)
             + (rushAdv * SIM_CONFIG.weights.rush) 
             + (pressureAdv * SIM_CONFIG.weights.pressure)
             + (redZoneAdv * SIM_CONFIG.weights.redZone) 
@@ -189,7 +205,8 @@ const Engine = {
         
         // Reset Results
         App.simulation.results = [];
-        App.simulation.runs = [];        
+        App.simulation.runs = [];     
+        App.simulation.keyMatchup = [];
         
         
         //capture base results with no noise or adjustments or injuries
@@ -230,8 +247,8 @@ const Engine = {
         for (let j = 0; j < SIM_CONFIG.iterations; j++) {
             //get team strength with slight 'noise' applied to each team stat metric
             //3rd variable is noise.  value = 1 allows boxMuller variance to be adjusted
-            const tsA_weather = this.getMatchUpDelta(weatherAdjTeamA, weatherAdjTeamB, 1);  
-            const tsB_weather = this.getMatchUpDelta(weatherAdjTeamB, weatherAdjTeamA, 1);  
+            const tsA_weather = this.getMatchUpDelta(weatherAdjTeamA, weatherAdjTeamB, 1, 'teamA');  //add teamA label to push matchups to App.simulation.keyMatchup object
+            const tsB_weather = this.getMatchUpDelta(weatherAdjTeamB, weatherAdjTeamA, 1, 'teamB');  //add teamB label to push matchups to App.simulation.keyMatchup object
             this.storeRun(4, 'Monte Carlo Simulation - Weather Adjusted', tsA_weather, tsB_weather, contextFactors, contextCompressor);
             
         }
