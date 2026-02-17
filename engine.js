@@ -336,6 +336,20 @@ const Engine = {
     },
 
 
+    sortMatchUps: function (lbl) {
+        //Get team specific averages
+        const teamData = App.simulation.keyMatchup.find(r=>r.team_label === lbl).averages;
+        
+        //Sort based on values High -> Low
+        const sortedTeamA = Object.keys(teamData)
+            .sort((a, b) => teamData[b] - teamData[a]) // Compare values
+            .reduce((acc, key) => {
+                acc[key] = teamData[key];
+                return acc;
+            }, {});
+        
+        return teamData;
+    }
 
 
 
