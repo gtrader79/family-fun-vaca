@@ -257,6 +257,14 @@ const Engine = {
         const runSummary = this.calculateSummary(App.simulation.runs);
         //Store results in App
         App.simulation.summary = runSummary;
+
+
+        //Calculate keyMatchUp summary stats by label
+        const matchUpSummary = this.summarizeMatchUps(App.simulation.keyMatchup);
+        //remove placeholder data from keyMatchup
+        App.simulation.keyMatchup = [];
+        //Store results in App
+        App.simulation.keyMatchup = matchUpSummary;
     },
 
     
@@ -290,6 +298,41 @@ const Engine = {
         });
         
         return stats;
+    },
+
+
+    summarizeMatchUps: function(data) {
+        const averages = App.simulation.keyMatchup.reduce((acc, entry) => {
+            const team = entry.team_label;
+    
+            // Initialize team object if it doesn't exist
+            if (!acc[team]) {
+                acc[team] = { count: 0, sums: {} };
+            }
+    
+            acc[team].count++;
+    
+            // Sum up all numeric metrics
+            for (const [key, value] of Object.entries(entry)) {
+                if (typeof value === 'number') {
+                    acc[team].sums[key] = (acc[team].sums[key] || 0) + value;
+                }
+            }
+    
+            return acc;
+        }, {});
+
+        // Final step: Divide sums by count to get the average
+        const result = Object.keys(averages).map(team => ({
+            team_label: team,
+            averages: Object.fromEntries(
+                Object.entries(averages[team].sums).map(([key, sum]) => [
+                    key, sum / averages[team].count
+                ])
+            )
+        }));
+
+        return result;
     },
 
 
