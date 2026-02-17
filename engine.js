@@ -349,7 +349,7 @@ const Engine = {
             }, {});
         
         return teamData;
-    }
+    },
 
 
 
