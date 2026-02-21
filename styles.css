@@ -215,6 +215,7 @@ input[type="range"] {
     position: relative;
 }
 
+/* --- Primary-tab Logic --- */
 .tabs-nav {
     display: flex;
     background: var(--bg-panel);
@@ -248,6 +249,40 @@ input[type="range"] {
     display: flex; /* Flex to center content */
     flex-direction: column;
 }
+
+
+/* --- Sub-Tabs Logic --- */
+.sub-tabs-nav {
+    display: flex;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.sub-tab-btn {
+    padding: 0.8rem 1.5rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.9rem;
+    border-bottom: 2px solid transparent;
+}
+
+.sub-tab-btn.active {
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+}
+
+.sub-tab-content {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+}
+
+.sub-tab-content.active {
+    display: flex; /* Makes the active sub-tab visible */
+}
+
 
 /* Visual Placeholder / Canvas */
 .canvas-container {
