@@ -289,8 +289,9 @@
 
             <div id="analytics" class="tab-content">                
                 <div class="sub-tabs-nav">
-                    <button class="sub-tab-btn" data-subtab="analytics_win_percent">Win % Analysis</button>                    
-                    <button class="sub-tab-btn" data-subtab="analytics_keyMatchups">Head to Head Matchups</button>                                        
+                    <button class="sub-tab-btn" data-subtab="analytics_win_percent">Win % Analysis</button>
+                    <button class="sub-tab-btn" data-subtab="analytics_keyMatchupsTeamA_offense" id="analytics_keyMatchupsTeamA_offense">Team A Off vs Team B Def</button>
+                    <button class="sub-tab-btn" data-subtab="analytics_keyMatchupsTeamB_offense" id="analytics_keyMatchupsTeamB_offense">Team B Off vs Team A Def</button>
                 </div>
                 
                 <div id="analytics_win_percent" class="sub-tab-content active">
@@ -300,10 +301,16 @@
                         <canvas id="chart_win_percent"></canvas>
                     </div>
                 </div>
-                <div id="analytics_keyMatchups" class="sub-tab-content">
+                <div id="analytics_keyMatchupsTeamA_offense" class="sub-tab-content">
                     
                     <div class="chart-container">                        
-                        <canvas id="chart_key_matchups"></canvas>
+                        <canvas id="chart_key_matchupsTeamA"></canvas>
+                    </div>
+                </div>
+                <div id="analytics_keyMatchupsTeamB_offense" class="sub-tab-content">
+                    
+                    <div class="chart-container">                        
+                        <canvas id="chart_key_matchupsTeamB"></canvas>
                     </div>
                 </div>
             </div>
