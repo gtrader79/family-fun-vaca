@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
                     // 5. Trigger Visuals (Physics)
                     if (typeof dropBalls === 'function') {
-                      //  dropBalls();
+                        dropBalls();
                     }
     
                     // 6. Mobile UX: Close Sidebar if open
@@ -212,6 +212,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             tabContents.forEach(c => c.classList.remove('active'));
             tab.classList.add('active');
             const targetId = tab.getAttribute('data-tab');
+            
+            if (targetId === 'ball-drop') {
+                dropBalls();
+            } 
+            
             const target = document.getElementById(targetId);
             if(target) target.classList.add('active');
         });
@@ -229,7 +234,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Add active to the clicked sub-tab
             tab.classList.add('active');
-            const targetId = tab.getAttribute('data-subtab');            
+            const targetId = tab.getAttribute('data-subtab');  
+
+            if (targetId === 'analytics_win_percent') {
+                //function that renders chart
+            } else if (targetId === 'analytics_win_percent') {
+                //function that renders chart
+            }
+            
             document.getElementById(targetId).classList.add('active');            
         });
     });
