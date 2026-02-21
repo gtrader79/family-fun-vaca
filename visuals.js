@@ -1,5 +1,5 @@
 /* visuals.js 
-    All Data pulling from App State (App.simulation (populated by engige.js)) 
+    All Data pulling from App State (App.simulation (populated by engige.js and chart.js)) 
 */
 
 // --- 1. Matter.js Setup (The Physics Engine) ---
@@ -42,14 +42,6 @@ function initPhysics() {
     
     runner = Runner.create();
     Runner.run(runner, physicsEngine);
-}
-
-// Helper to rebuild pegs on resize
-function createPegs(width) {
-    // Re-implement your loop for creating static circles here
-    // If you need this code, I can generate it, but I assume you have it.
-    const ground = Bodies.rectangle(width / 2, 610, width, 20, { isStatic: true, render: { visible: false } });
-    Composite.add(world, ground);
 }
 
 
@@ -109,3 +101,72 @@ function dropBalls() {
         
     }, 10); // Fast interval
 }
+
+
+
+// --- 2. Key Matchups Logic ---
+function chartKeyMatchups() {
+    //1. Get the data
+    const labelsA= Object.keys(App.simulation.keyMatchup[0].averages)
+    const valuesA= Object.values(App.simulation.keyMatchup[0].averages)
+    const labelsB= Object.keys(App.simulation.keyMatchup[1].averages)
+    const valuesB= Object.values(App.simulation.keyMatchup[1].averages)
+    
+    //2. Initialize Chart.js
+    const newChart = document.getElementById('chart_key_matchups').getContext('2d');
+    new Chart(newChart, {
+      type: 'bar',
+      data: {
+        labels: labelsA,    
+        datasets: [{
+          label: 'Advantage Metrics',      
+          data: valuesA,
+          // Optional: Color positive/negative bars differently
+          backgroundColor: valuesA.map(v => v >= 0 ? 'rgba(75, 192, 192, 0.6)' : 'rgba(255, 99, 132, 0.6)'),
+          borderWidth: 1.5, 
+          borderColor: 'rgba(50,50,50,.6)',
+        }]
+      },
+      options: {
+      indexAxis: 'y',
+      scales: {
+        x: { // Primary X-axis (Bottom)
+          title: {
+            display: true,
+            text: 'Negative Advantage (Team B Wins the match up)',
+            color: '#ff6384',
+            font: { size: 14, weight: 'bold' }
+          },
+          // Ensure the axis is centered
+          suggestedMin: -0.6,
+          suggestedMax: 0.6,
+        },
+        x2: { // Secondary X-axis (Top)
+          position: 'top',
+          title: {
+            display: true,
+            text: 'Positive Advantage (Team A Wins matchups )',
+            color: '#4bc0c0',
+            font: { size: 14, weight: 'bold' }
+          },
+          // Mirror the primary axis settings
+          suggestedMin: -0.6,
+          suggestedMax: 0.6,
+          ticks: { display: false }, // Hide the numbers on the top to keep it clean
+          grid: { display: false }   // Hide extra grid lines
+        },
+        y: {
+          beginAtZero: true
+        }       
+      },
+        plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+    });
+}
+
+
+
