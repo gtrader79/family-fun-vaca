@@ -285,6 +285,7 @@ input[type="range"] {
 
 
 /* Visual Placeholder / Canvas */
+/*Ball Drop*/
 .canvas-container {
     flex: 1;
     width: 100%;
@@ -297,6 +298,19 @@ input[type="range"] {
     position: relative;
     overflow: hidden;
 }
+/*Charts*/
+.chart-container {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    /* These two 'min' properties are the magic fix for Chart.js in Flexbox */
+    min-height: 0; 
+    min-width: 0; 
+    padding: 1rem;
+}
+
+
+
 
 .placeholder-text {
     text-align: center;
