@@ -180,16 +180,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     function populateSituationalInputs(key, teamName) {
         // Standardize IDs so they only differ by the suffix (teamA vs teamB)
         const suffix = key; 
-    
+        const tA = App.data.teamA;
+        const tB = App.data.teamB;
         const updates = [
             { id: `hfa-${suffix}`, text: teamName },
             { id: `rest-gap-${suffix}`, text: `Rest Gap for ${teamName}` },
             { id: `momentum-${suffix}`, text: teamName },
             { id: `travel-${suffix}`, text: `${teamName} Traveled` },
-            { id: `accordion-header-${key === 'teamA' ? 'team-a' : 'team-b'}`, text: `3. Injury Report: ${teamName}` }
+            { id: `accordion-header-${key === 'teamA' ? 'team-a' : 'team-b'}`, text: `3. Injury Report: ${teamName}` },
+            { id: `analytics_keyMatchupsTeamA_offense`, text: `${(tA === null) ? 'Team A' : tB.teamId} Off vs ${(tB === null) ? 'Team B' : tB.teamId} Def`},
+            { id: `analytics_keyMatchupsTeamB_offense`, text: `${(tB === null) ? 'Team B' : tB.teamId} Off vs ${(tA === null) ? 'Team A' : tA.teamId} Def`}
         ];
     
-        updates.forEach(item => updateElementText(item.id, item.text));
+        updates.forEach(item => updateElementText(item.id, item.text));        
+        
     }
     
     function updateElementText(elId, content) {
