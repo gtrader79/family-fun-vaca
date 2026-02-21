@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             { id: `momentum-${suffix}`, text: teamName },
             { id: `travel-${suffix}`, text: `${teamName} Traveled` },
             { id: `accordion-header-${key === 'teamA' ? 'team-a' : 'team-b'}`, text: `3. Injury Report: ${teamName}` },
-            { id: `analytics_keyMatchupsTeamA_offense`, text: `${(tA === null) ? 'Team A' : tB.teamId} Off vs ${(tB === null) ? 'Team B' : tB.teamId} Def`},
+            { id: `analytics_keyMatchupsTeamA_offense`, text: `${(tA === null) ? 'Team A' : tA.teamId} Off vs ${(tB === null) ? 'Team B' : tB.teamId} Def`},
             { id: `analytics_keyMatchupsTeamB_offense`, text: `${(tB === null) ? 'Team B' : tB.teamId} Off vs ${(tA === null) ? 'Team A' : tA.teamId} Def`}
         ];
     
