@@ -1,7 +1,8 @@
 /* visuals.js */
 
 // --- 1. Matter.js Setup (The Physics Engine) ---
-const { Engine, Render, Runner, Bodies, Composite } = Matter;
+//renaming Engine since I am aleady using Engine in engine.js
+const { Engine: Matter_Engine, Render, Runner, Bodies, Composite } = Matter;
 
 let engine, render, runner, world; // Added world to global scope
 
@@ -25,8 +26,8 @@ function initPhysics() {
     // Default is 2; try increasing it slightly if they still giggle
     Matter.Resolver._restingThresh = 6; 
     
-    //create the engine
-    engine = Engine.create({
+    //create the engine -- note using Matter_Engine
+    engine = Matter_Engine.create({
       enableSleeping: true // Add this line
     });
     
@@ -103,10 +104,14 @@ function dropBalls() {
 
     let ballCount = 0;    
     const maxBalls = 600; // 600 is usually plenty for visual density without lag
+
+    const simRuns = App.simulation.runs;
+    const simRunMaxRun = Math.max(...simRuns.map(a=>a.labelOrder));
+    const simRunFinal = simRuns.filter(a => a.labelOrder === simRunMaxRun);
     
     // 1. Shuffling: Ensure we pick random runs, not just the sorted first 1000
     // Simple helper to get random index
-    const getRandomIndex = () => Math.floor(Math.random() * simulationRuns.length);
+    const getRandomIndex = () => Math.floor(Math.random() * simRunFinal.length);
     
     const intervalId = setInterval(() => {
         if (ballCount >= maxBalls) {
@@ -116,7 +121,7 @@ function dropBalls() {
       
         // 2. Grab a RANDOM simulation run, not sequential
         const runIndex = getRandomIndex();
-        const runProb = simulationRuns[runIndex].teamA_Prob;
+        const runProb = simRunFinal[runIndex].winProb_A;
         
         // 3. COLLAPSE THE WAVE FUNCTION
         // Instead of checking if (runProb > 0.5), we roll the dice against the probability.
@@ -137,7 +142,7 @@ function dropBalls() {
             label: 'ball',     
             render: {
                 // Use the result of our dice roll for the color
-                fillStyle: isTeamA ? teamA.primaryColor : teamB.primaryColor
+                fillStyle: isTeamA ? App.data.teamA.primaryColor : App.data.teamB.primaryColor
             }
         });
       
@@ -172,41 +177,43 @@ function chartKeyMatchups() {
         }]
       },
       options: {
-      indexAxis: 'y',
-      scales: {
-        x: { // Primary X-axis (Bottom)
-          title: {
-            display: true,
-            text: 'Negative Advantage (Team B Wins the match up)',
-            color: '#ff6384',
-            font: { size: 14, weight: 'bold' }
+          responsive: true,
+          maintainspectRatio: false,
+          indexAxis: 'y',
+          scales: {
+            x: { // Primary X-axis (Bottom)
+              title: {
+                display: true,
+                text: 'Negative Advantage (Team B Wins the match up)',
+                color: '#ff6384',
+                font: { size: 14, weight: 'bold' }
+              },
+              // Ensure the axis is centered
+              suggestedMin: -0.6,
+              suggestedMax: 0.6,
+            },
+            x2: { // Secondary X-axis (Top)
+              position: 'top',
+              title: {
+                display: true,
+                text: 'Positive Advantage (Team A Wins matchups )',
+                color: '#4bc0c0',
+                font: { size: 14, weight: 'bold' }
+              },
+              // Mirror the primary axis settings
+              suggestedMin: -0.6,
+              suggestedMax: 0.6,
+              ticks: { display: false }, // Hide the numbers on the top to keep it clean
+              grid: { display: false }   // Hide extra grid lines
+            },
+            y: {
+              beginAtZero: true
+            }       
           },
-          // Ensure the axis is centered
-          suggestedMin: -0.6,
-          suggestedMax: 0.6,
-        },
-        x2: { // Secondary X-axis (Top)
-          position: 'top',
-          title: {
-            display: true,
-            text: 'Positive Advantage (Team A Wins matchups )',
-            color: '#4bc0c0',
-            font: { size: 14, weight: 'bold' }
-          },
-          // Mirror the primary axis settings
-          suggestedMin: -0.6,
-          suggestedMax: 0.6,
-          ticks: { display: false }, // Hide the numbers on the top to keep it clean
-          grid: { display: false }   // Hide extra grid lines
-        },
-        y: {
-          beginAtZero: true
-        }       
-      },
-        plugins: {
-        legend: {
-          display: false
-        }
+          plugins: {
+          legend: {
+            display: false
+            }
       }
     }
     });
