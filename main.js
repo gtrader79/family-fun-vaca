@@ -216,6 +216,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             if(target) target.classList.add('active');
         });
     });
+
+    // --- Sub-Tabs Logic ---
+    const subTabs = document.querySelectorAll('.sub-tab-btn');
+    const subTabContents = document.querySelectorAll('.sub-tab-content');
+
+    subTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active from all sub-tabs
+            subTabs.forEach(t => t.classList.remove('active'));
+            subTabContents.forEach(c => c.classList.remove('active'));
+
+            // Add active to the clicked sub-tab
+            tab.classList.add('active');
+            const targetId = tab.getAttribute('data-subtab');            
+            document.getElementById(targetId).classList.add('active');            
+        });
+    });
     
     
 });
