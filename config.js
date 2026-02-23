@@ -10,6 +10,10 @@ const DOM_IDS = {
     runBtn: 'run-sim-btn',
     mobileRunBtn: 'mobile-run-btn',
     resetBtn: 'reset-btn', 
+    mobileBtn: 'mobile-settings-btn', 
+    closeSidebarBtn: 'close-mobile-sidebar', 
+    sidebar: 'sidebar',
+    
     
     // Factors
     hfa: 'hfa-select',
