@@ -124,13 +124,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     // 5. Trigger Visuals (Physics)
                     if (typeof dropBalls === 'function') {
                         dropBalls();
-                    }
-    
-                    // 6. Mobile UX: Close Sidebar if open
-                    const sidebar = document.getElementById('sidebar');
-                    if (sidebar && sidebar.classList.contains('open')) {
-                        sidebar.classList.remove('open');
-                    }
+                    }                    
+                    
                 });
             }
         });
@@ -146,6 +141,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 item.classList.toggle('active');
             });
         });
+
+
+        // D. Mobile SetUP
+        const mobileBtn = document.getElementById(DOM_IDS.mobileBtn);
+        const closeSidebarBtn = document.getElementById(DOM_IDS.closeSidebarBtn);
+        const sidebar = document.getElementById(DOM_IDS.sidebar);
+    
+        if (mobileBtn) {
+            mobileBtn.addEventListener('click', () => {
+                sidebar.classList.add('open');
+            });
+        }
+    
+        if (closeSidebarBtn) {
+            closeSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+            });
+        }
+
+        if (sidebar && sidebar.classList.contains('open')) {
+            sidebar.classList.remove('open');
+        }
     
     
     
