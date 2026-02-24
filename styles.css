@@ -280,7 +280,8 @@ input[type="range"] {
 }
 
 .sub-tab-content.active {
-    display: flex; /* Makes the active sub-tab visible */
+    /*display: flex; /* Makes the active sub-tab visible */
+    display: block;
     flex-direction: column;
 }
 
