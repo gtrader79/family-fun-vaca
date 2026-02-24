@@ -302,9 +302,8 @@ input[type="range"] {
 .chart-container {
     position: relative;
     flex: 1;
-    width: 100%;
-    /* These two 'min' properties are the magic fix for Chart.js in Flexbox */
-    min-height: 0; 
+    width: 100%;    
+    min-height: 400px; 
     min-width: 0; 
     padding: 1rem;
 }
