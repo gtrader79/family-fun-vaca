@@ -249,21 +249,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     subTabs.forEach(tab => {
         tab.addEventListener('click', () => {
-            // Remove active from all sub-tabs
+            // 1. Remove active from all sub-tabs
             subTabs.forEach(t => t.classList.remove('active'));
             subTabContents.forEach(c => c.classList.remove('active'));
 
-            // Add active to the clicked sub-tab
+            // 2. Add active to the clicked sub-tab
             tab.classList.add('active');
-            const targetId = tab.getAttribute('data-subtab');  
+            const targetId = tab.getAttribute('data-subtab');
+            document.getElementById(targetId).classList.add('active');
 
-            if (targetId === 'analytics_win_percent') {
-                //function that renders chart
-            } else if (targetId === 'analytics_win_percent') {
-                //function that renders chart
-            }
-            
-            document.getElementById(targetId).classList.add('active');            
+            // 3. Render the specific chart NOW (so it animates on screen!)
+            // use setTimeout with 0ms to let the browser paint the display:block first
+            setTimeout(() => {
+                if (targetId === 'analytics_keyMatchupsTeamA_offense') {
+                    // Replace 'teamA' and 'teamB' with your actual variable tracking the selected teams
+                    chartKeyMatchups('teamA', 'teamB', 'chart_key_matchupsTeamA');
+                } 
+                else if (targetId === 'analytics_keyMatchupsTeamB_offense') {
+                    // Swap the order for Team B's offense!
+                    chartKeyMatchups('teamB', 'teamA', 'chart_key_matchupsTeamB');
+                }
+                else if (targetId === 'analytics_win_percent') {
+                    // Future function for your win percent chart!
+                    // chartWinPercent('chart_win_percent');
+                }
+            }, 300);  //300 milliseconds = .3 seconds
         });
     });
     
