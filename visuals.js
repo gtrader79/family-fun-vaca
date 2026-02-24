@@ -154,38 +154,44 @@ function dropBalls() {
 
 
 // --- 2. Key Matchups Logic ---
-function chartKeyMatchups() {
+function chartKeyMatchups(offTeam, defTeam, chtID) {
     //1. Get the data
-    const labelsA= Object.keys(App.simulation.keyMatchup[0].averages)
-    const valuesA= Object.values(App.simulation.keyMatchup[0].averages)
-    const labelsB= Object.keys(App.simulation.keyMatchup[1].averages)
-    const valuesB= Object.values(App.simulation.keyMatchup[1].averages)
+    const labels = Object.keys(App.simulation.keyMatchup.find(obj=>obj.team_label === offTeam).averages);
+    const values = Object.values(App.simulation.keyMatchup.find(obj=>obj.team_label === offTeam).averages);    
     
-    //2. Initialize Chart.js
-    const newChart = document.getElementById('chart_key_matchups').getContext('2d');
-    new Chart(newChart, {
+    //2. Check for existing chart and destroy it
+    const canvas = document.getElementById(chtID);
+    const existingChart = Chart.getChart(canvas); 
+    if (existingChart) {
+        existingChart.destroy();
+    }
+    
+    //3. Initialize Chart.js
+    const ctx = canvas.getContext('2d');
+        
+    new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: labelsA,    
+        labels: labels,    
         datasets: [{
           label: 'Advantage Metrics',      
-          data: valuesA,
+          data: values,
           // Optional: Color positive/negative bars differently
-          backgroundColor: valuesA.map(v => v >= 0 ? 'rgba(75, 192, 192, 0.6)' : 'rgba(255, 99, 132, 0.6)'),
+          backgroundColor: values.map(v => v >= 0 ? App.data[offTeam].primaryColor : App.data[defTeam].primaryColor),
           borderWidth: 1.5, 
           borderColor: 'rgba(50,50,50,.6)',
         }]
       },
       options: {
           responsive: true,
-          maintainspectRatio: false,
+          maintainAspectRatio: false,
           indexAxis: 'y',
           scales: {
             x: { // Primary X-axis (Bottom)
               title: {
                 display: true,
-                text: 'Negative Advantage (Team B Wins the match up)',
-                color: '#ff6384',
+                text: `Negative Advantage (${App.data[defTeam].teamName} Wins the match up)`,
+                color: App.data[defTeam].primaryColor,
                 font: { size: 14, weight: 'bold' }
               },
               // Ensure the axis is centered
@@ -196,8 +202,8 @@ function chartKeyMatchups() {
               position: 'top',
               title: {
                 display: true,
-                text: 'Positive Advantage (Team A Wins matchups )',
-                color: '#4bc0c0',
+                text: `Positive Advantage (${App.data[offTeam].teamName} Wins matchups)`,
+                color: App.data[offTeam].primaryColor,
                 font: { size: 14, weight: 'bold' }
               },
               // Mirror the primary axis settings
