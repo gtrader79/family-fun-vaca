@@ -190,7 +190,7 @@ function chartKeyMatchups(offTeam, defTeam, chtID) {
             x: { // Primary X-axis (Bottom)
               title: {
                 display: true,
-                text: `Negative Advantage (${App.data[defTeam].teamName} Wins the match up)`,
+                text: `Negative Advantage (${App.data[defTeam].teamName} Defense Wins the match up)`,
                 color: App.data[defTeam].primaryColor,
                 font: { size: 14, weight: 'bold' }
               },
@@ -202,7 +202,7 @@ function chartKeyMatchups(offTeam, defTeam, chtID) {
               position: 'top',
               title: {
                 display: true,
-                text: `Positive Advantage (${App.data[offTeam].teamName} Wins matchups)`,
+                text: `Positive Advantage (${App.data[offTeam].teamName} Offense Wins matchups)`,
                 color: App.data[offTeam].primaryColor,
                 font: { size: 14, weight: 'bold' }
               },
@@ -223,6 +223,8 @@ function chartKeyMatchups(offTeam, defTeam, chtID) {
       }
     }
     });
+
+    console.log ("Chart has been generated!");
 }
 
 
