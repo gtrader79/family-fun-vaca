@@ -300,12 +300,11 @@ input[type="range"] {
 }
 /*Charts*/
 .chart-container {
-    position: relative;
-    flex: 1;
+    position: relative;    
     width: 100%;    
-    min-height: 400px; 
-    min-width: 0; 
+    height: 400px;     
     padding: 1rem;
+    margin: 0 auto;
 }
 
 
