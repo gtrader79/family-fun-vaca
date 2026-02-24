@@ -158,7 +158,7 @@ function chartKeyMatchups(offTeam, defTeam, chtID) {
     //1. Get the data
     const obj = App.simulation.keyMatchup.find(obj=>obj.team_label === offTeam).averages;
     const sortedObj = Object.fromEntries(
-        Object.entries(s).sort(([,a], [,b]) => b - a)
+        Object.entries(obj).sort(([,a], [,b]) => b - a)
         );
     
     const labels = Object.keys(sortedObj);
