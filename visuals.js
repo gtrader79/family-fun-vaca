@@ -156,8 +156,13 @@ function dropBalls() {
 // --- 2. Key Matchups Logic ---
 function chartKeyMatchups(offTeam, defTeam, chtID) {
     //1. Get the data
-    const labels = Object.keys(App.simulation.keyMatchup.find(obj=>obj.team_label === offTeam).averages);
-    const values = Object.values(App.simulation.keyMatchup.find(obj=>obj.team_label === offTeam).averages);    
+    const obj = App.simulation.keyMatchup.find(obj=>obj.team_label === offTeam).averages;
+    const sortedObj = Object.fromEntries(
+        Object.entries(s).sort(([,a], [,b]) => b - a)
+        );
+    
+    const labels = Object.keys(sortedObj);
+    const values = Object.values(sortedObj);    
     
     //2. Check for existing chart and destroy it
     const canvas = document.getElementById(chtID);
@@ -223,8 +228,7 @@ function chartKeyMatchups(offTeam, defTeam, chtID) {
       }
     }
     });
-
-    console.log ("Chart has been generated!");
+    
 }
 
 
