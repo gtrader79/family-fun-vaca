@@ -272,7 +272,7 @@
                 <button class="tab-btn active" data-tab="ball-drop">Visual Sim</button>
                 <button class="tab-btn" data-tab="analytics">Analytics</button>
                 <button class="tab-btn" data-tab="matchup">Team Stats</button>
-                <button class="tab-btn" data-tab="weatherRpt">Game Day Weather</button>                
+                <button class="tab-btn" data-tab="weatherRpt">Game Day Weather</button>
             </div>
 
             <div id="ball-drop" class="tab-content active">
@@ -288,29 +288,28 @@
             </div>
 
             <div id="analytics" class="tab-content">                
-                -<div class="sub-tabs-nav">
+                <div class="sub-tabs-nav">
                     <button class="sub-tab-btn" data-subtab="analytics_win_percent">Win % Analysis</button>
                     <button class="sub-tab-btn" data-subtab="analytics_keyMatchupsTeamA_offense" id="keyMatchupsTeamA_offense">Team A Off vs Team B Def</button>
                     <button class="sub-tab-btn" data-subtab="analytics_keyMatchupsTeamB_offense" id="keyMatchupsTeamB_offense">Team B Off vs Team A Def</button>
-                </div> 
+                </div>
                 
-                <div id="analytics_win_percent" class="sub-tab-content ">
+                <div id="analytics_win_percent" class="sub-tab-content active">
                     
                     <div class="chart-container">  
                         analytics win percent<br>
                         <canvas id="chart_win_percent"></canvas>
                     </div>
                 </div>
-                <div id="analytics_keyMatchupsTeamA_offense" class="sub-tab-content active">
+                <div id="analytics_keyMatchupsTeamA_offense" class="sub-tab-content">
                     
-                    <div class="chart-container">                         
+                    <div class="chart-container">                          
                         <canvas id="chart_key_matchupsTeamA"></canvas>
                     </div>
                 </div>
                 <div id="analytics_keyMatchupsTeamB_offense" class="sub-tab-content">
                     
-                    <div class="chart-container">                        
-                        keyMatchup Team B<br>
+                    <div class="chart-container">                                                
                         <canvas id="chart_key_matchupsTeamB"></canvas>
                     </div>
                 </div>
@@ -349,9 +348,7 @@
                             src='https://nflweather.com/widgets/current_week.js'>                        
                     </script>
                 </div>
-            </div>            
-
-            
+            </div>
             <button id="mobile-run-btn" class="fab-btn">
                 <span>RUN SIM</span> 🏈
             </button>
