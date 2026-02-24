@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     
     
-    
+        // E. Reset    
 
     // --- Helpers ---
     function populateSeasonSelects() {        
