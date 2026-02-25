@@ -119,9 +119,14 @@ function dropBalls() {
             return;
         }
       
-        // 2. Grab a RANDOM simulation run, not sequential
+        // 1. Grab a RANDOM simulation run, not sequential
         const runIndex = getRandomIndex();
         const runProb = simRunFinal[runIndex].winProb_A;
+
+        //2. Get Team Colors.  If the colors are too close (more than 85% overlap) then use secondary color for team B.  If Secondary is black use Third color
+            const teamA_Color = App.data.teamA.primaryColor;
+            const teamB_Color = (colorSimularity(App.data.teamA.primaryColor, App.data.teamB.primaryColor) < 85) 
+                                ? App.data.teamB.primaryColor : (App.data.teamB.secondaryColor == '#000000') ? App.data.teamB.thirdColor : App.data.teamB.secondaryColor;
         
         // 3. COLLAPSE THE WAVE FUNCTION
         // Instead of checking if (runProb > 0.5), we roll the dice against the probability.
@@ -142,7 +147,7 @@ function dropBalls() {
             label: 'ball',     
             render: {
                 // Use the result of our dice roll for the color
-                fillStyle: isTeamA ? App.data.teamA.primaryColor : App.data.teamB.primaryColor
+                fillStyle: isTeamA ? teamA_Color : teamB_Color
             }
         });
       
@@ -163,15 +168,20 @@ function chartKeyMatchups(offTeam, defTeam, chtID) {
     
     const labels = Object.keys(sortedObj);
     const values = Object.values(sortedObj);    
+
+    //2. Get Team Colors.  If the colors are too close (more than 85% overlap) then use secondary color for team B.  If Secondary is black use Third color
+    const offColor = App.data[offTeam].primaryColor;
+    const defColor = (colorSimularity(App.data[offTeam].primaryColor, App.data[defTeam].primaryColor) < 85) 
+                        ? App.data[defTeam].primaryColor : (App.data[defTeam].secondaryColor == '#000000') ? App.data[defTeam].thirdColor : App.data[defTeam].secondaryColor;
     
-    //2. Check for existing chart and destroy it
+    //3. Check for existing chart and destroy it
     const canvas = document.getElementById(chtID);
     const existingChart = Chart.getChart(canvas); 
     if (existingChart) {
         existingChart.destroy();
     }
     
-    //3. Initialize Chart.js
+    //4. Initialize Chart.js
     const ctx = canvas.getContext('2d');
         
     new Chart(ctx, {
@@ -182,7 +192,7 @@ function chartKeyMatchups(offTeam, defTeam, chtID) {
           label: 'Advantage Metrics',      
           data: values,
           // Optional: Color positive/negative bars differently
-          backgroundColor: values.map(v => v >= 0 ? App.data[offTeam].primaryColor : App.data[defTeam].primaryColor),
+          backgroundColor: values.map(v => v >= 0 ? offColor : defColor),
           borderWidth: 1.5, 
           borderColor: 'rgba(50,50,50,.6)',
         }]
@@ -195,8 +205,8 @@ function chartKeyMatchups(offTeam, defTeam, chtID) {
             x: { // Primary X-axis (Bottom)
               title: {
                 display: true,
-                text: `Negative Advantage (${App.data[defTeam].teamName} Defense Wins the match up)`,
-                color: App.data[defTeam].primaryColor,
+                text: `${App.data[defTeam].teamName} Defense Wins the match up`,
+                color: defColor,
                 font: { size: 14, weight: 'bold' }
               },
               // Ensure the axis is centered
@@ -208,7 +218,7 @@ function chartKeyMatchups(offTeam, defTeam, chtID) {
               title: {
                 display: true,
                 text: `Positive Advantage (${App.data[offTeam].teamName} Offense Wins matchups)`,
-                color: App.data[offTeam].primaryColor,
+                color: offColor,
                 font: { size: 14, weight: 'bold' }
               },
               // Mirror the primary axis settings
@@ -233,3 +243,26 @@ function chartKeyMatchups(offTeam, defTeam, chtID) {
 
 
 
+
+
+
+//Helper Functions
+function colorSimularity(color1, color2){
+    //convert HEX to RGB
+    const hexToRGB = hex => hex.replace('#', '').match(/.{1,2}/g).map(c=>parseInt(c,16));
+    const [r1, g1, b1] = hexToRGB(color1);
+    const [r2, g2, b2] = hexToRGB(color2);
+
+    //apply Euclidean distance formula
+    const distance = Math.sqrt(
+        Math.pow(r2 - r1, 2) + 
+        Math.pow(g2 - g1, 2) + 
+        Math.pow(b2 - b1, 2)
+    );
+
+    //Max distance is 441.67 (sqrt of 255^2 + 255^2 + 255^2)
+    //return a simularity score between 0% - 100%
+    const maxDistance = 441.67;
+    return (1-(distance / maxDistance)) * 100;
+    
+}
