@@ -93,9 +93,12 @@ function initPhysics() {
     
         // Position labels relative to the bucket coordinates you already defined
         const labelY = 400 - (container.offsetHeight * 0.25) - 20; // Slightly above the bucket top
-    
-        context.fillText(App.data.teamA.teamName, container.offsetWidth * 0.25, labelY);
-        context.fillText(App.data.teamB.teamName, container.offsetWidth * 0.75, labelY);
+
+        const tA_Name = (App.data.teamA.teamName) ? App.data.teamA.teamName : 'Team A';
+        const tB_Name = (App.data.teamB.teamName) ? App.data.teamB.teamName : 'Team B';
+        
+        context.fillText(tA_Name, container.offsetWidth * 0.25, labelY);
+        context.fillText(tB_Name, container.offsetWidth * 0.75, labelY);
     });
     
     // 3. Run the engine and renderer
