@@ -84,7 +84,20 @@ function initPhysics() {
     Composite.add(world, [...bucket1, ...bucket2]);
 
    
-
+    //Add labels to the bucket
+    Matter.Events.on(render, 'afterRender', () => {
+        const context = render.context; // Access the canvas drawing context
+        context.font = "bold 24px Arial";
+        context.fillStyle = "#515151";
+        context.textAlign = "center";
+    
+        // Position labels relative to the bucket coordinates you already defined
+        const labelY = 400 - (container.offsetHeight * 0.25) - 20; // Slightly above the bucket top
+    
+        context.fillText(App.data.teamA.teamName, container.offsetWidth * 0.25, labelY);
+        context.fillText(App.data.teamB.teamName, container.offsetWidth * 0.75, labelY);
+    });
+    
     // 3. Run the engine and renderer
     //const render = Render.create({ element: document.body, engine: engine });
     Render.run(render);
