@@ -50,6 +50,11 @@ const Renderer = {
         const tB = App.data.teamB;
         if (!tA || !tB) return;
 
+        //Get Team Colors.  If the colors are too close (more than 85% overlap) then use secondary color for team B.  If Secondary is black use Third color
+            const teamA_Color = App.data.teamA.primaryColor;
+            const teamB_Color = (colorSimularity(App.data.teamA.primaryColor, App.data.teamB.primaryColor) < 85) 
+                                ? App.data.teamB.primaryColor : (App.data.teamB.secondaryColor == '#000000') ? App.data.teamB.thirdColor : App.data.teamB.secondaryColor;
+
         // Helper to colorize advantages
         const getAdvantage = (valA, valB, betterDir) => {
             //const diff = betterDir === 'Lower' ? valB - valA : valA - valB;
@@ -58,8 +63,8 @@ const Renderer = {
             if (Math.abs(diff) == 0) return `<span class="neutral" style="color:#888;">Even</span>`; 
             
             return diff < 0 
-                ? `<span class="team-b-adv" style="color:${tB.primaryColor}; font-weight:bold;">+${Math.abs(diff).toFixed(0)} ${tB.teamId}</span>` 
-                : `<span class="team-a-adv" style="color:${tA.primaryColor}; font-weight:bold;">+${Math.abs(diff).toFixed(0)} ${tA.teamId}</span>`;
+                ? `<span class="team-b-adv" style="color:${teamB_Color}; font-weight:bold;">+${Math.abs(diff).toFixed(0)} ${tB.teamId}</span>` 
+                : `<span class="team-a-adv" style="color:${teamA_Color}; font-weight:bold;">+${Math.abs(diff).toFixed(0)} ${tA.teamId}</span>`;
         };
 
         const tableBody = document.getElementById('matchup-table-body');
