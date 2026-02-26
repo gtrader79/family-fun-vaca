@@ -264,7 +264,7 @@ function chartWinPercent(chtID) {
     //1. Get the Data
     const obj = App.simulation.summary;
     const labels = obj.map(a=>a.runLabel);
-    const values = obj.map(a=>a.p50);
+    const values = obj.map(a=>a.p50 * 100);
 
     //2. Get Team Colors.  If the colors are too close (more than 85% overlap) then use secondary color for team B.  If Secondary is black use Third color
     const teamA_Color = App.data.teamA.primaryColor;
@@ -292,14 +292,14 @@ function chartWinPercent(chtID) {
                     backgroundColor: teamA_Color,
                     borderWidth: 1.5, 
                     borderColor: 'rgba(50,50,50,.6)',
-                    stack: 'Stack 0',
+                    //stack: 'Stack 0',
                 },
                 {   label: App.data.teamB.teamName,
                     data: values.map(a=>1-a),
                     backgroundColor: teamB_Color,
                     borderWidth: 1.5, 
                     borderColor: 'rgba(50,50,50,.6)',
-                    stack: 'Stack 0',
+                    //stack: 'Stack 0',
                 }
             ]
         },
@@ -315,6 +315,18 @@ function chartWinPercent(chtID) {
                 },
                 tickFormat: {
                     style: 'percent',
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        // Include a percentage sign in the ticks
+                        callback: function(value, index, values) {
+                            return value + " %"; // Appends a '%' to the value
+                        },
+                        min: 0, // Optional: ensure the scale starts at 0
+                        max: 100 // Optional: ensure the scale goes to 100
+                    }
                 }
             }
         }
