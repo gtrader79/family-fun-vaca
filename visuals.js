@@ -92,7 +92,7 @@ function initPhysics() {
         context.textAlign = "center";
     
         // Position labels relative to the bucket coordinates you already defined
-        const labelY = 400 - (container.offsetHeight * 0.25) - 20; // Slightly above the bucket top
+        const labelY = 400 - (container.offsetHeight * 0.25) - 80; // Slightly above the bucket top
 
         const tA_Name = (App.data.teamA.teamName) ? App.data.teamA.teamName : 'Team A';
         const tB_Name = (App.data.teamB.teamName) ? App.data.teamB.teamName : 'Team B';
@@ -254,6 +254,67 @@ function chartKeyMatchups(offTeam, defTeam, chtID) {
       }
     }
     });
+    
+}
+
+
+
+//3. Win % by Simulation Type
+function chartWinPercent(chtID) {
+    //1. Get the Data
+    const obj = App.simulation.summary;
+    const labels = obj.map(a=>a.runLabel);
+    const values = obj.map(a=>a.p50);
+
+    //2. Get Team Colors.  If the colors are too close (more than 85% overlap) then use secondary color for team B.  If Secondary is black use Third color
+    const teamA_Color = App.data.teamA.primaryColor;
+    const teamB_Color = (colorSimularity(App.data.teamA.primaryColor, App.data.teamB.primaryColor) < 85) 
+                        ? App.data.teamB.primaryColor : (App.data.teamB.secondaryColor == '#000000') ? App.data.teamB.thirdColor : App.data.teamB.secondaryColor;
+    
+    //3. Check for existing chart and destroy it
+    const canvas = document.getElementById('chart_win_percent');
+    const existingChart = Chart.getChart(canvas); 
+    if (existingChart) {
+        existingChart.destroy();
+    }
+    
+    //4. Initialize Chart.js
+    const ctx = canvas.getContext('2d');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: App.data.teamA.teamName},
+                data: values,
+                backgroundColor: teamA_Color,
+                borderWidth: 1.5, 
+                borderColor: 'rgba(50,50,50,.6)',
+            },
+            App.data.teamB.teamName},
+                data: values.map(a=>1-a),
+                backgroundColor: teamB_Color,
+                borderWidth: 1.5, 
+                borderColor: 'rgba(50,50,50,.6)',
+            }]
+        },
+        options:{
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {position: 'right'},
+                title: {
+                    display: true,
+                    text: 'Win % by Simulation Type'
+                }
+            }
+        }
+      
+    });
+    
+
     
 }
 
