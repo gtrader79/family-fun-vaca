@@ -295,7 +295,7 @@ function chartWinPercent(chtID) {
                     //stack: 'Stack 0',
                 },
                 {   label: App.data.teamB.teamName,
-                    data: values.map(a=>1-a),
+                    data: values.map(a=>100-a),
                     backgroundColor: teamB_Color,
                     borderWidth: 1.5, 
                     borderColor: 'rgba(50,50,50,.6)',
