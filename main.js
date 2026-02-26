@@ -17,10 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById(DOM_IDS.mobileRunBtn)
     ];
 
-    // Initialize Physics (Visuals.js) immediately so the canvas is ready
-    if (typeof initPhysics === 'function') {
-        initPhysics();
-    }
+    
 
     // --- 2. Data Fetching ---
     try {
@@ -120,11 +117,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     
                     // 4. Render Results (Updates DOM)
                     //Renderer.renderResults();
+
+                    // 5. Initialize Physics (Visuals.js) immediately so the canvas is ready
+                    if (typeof initPhysics === 'function') {
+                        initPhysics();
+                    }
     
-                    // 5. Trigger Visuals (Physics)
-                    if (typeof dropBalls === 'function') {
-                        dropBalls();
-                    }                    
+                    // 6. Trigger Visuals (Physics).  Wait 1000 ms = 1 second to ensure step 5 finishes
+                    setTimeout(function() {
+                        if (typeof dropBalls === 'function') {
+                            dropBalls();
+                        }                    
+                    }, 1000);
                     
                 });
             }
