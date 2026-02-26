@@ -285,19 +285,20 @@ function chartWinPercent(chtID) {
         type: 'bar',
         data: {
             labels: labels,
-            datasets: [{
-                label: App.data.teamA.teamName},
-                data: values,
-                backgroundColor: teamA_Color,
-                borderWidth: 1.5, 
-                borderColor: 'rgba(50,50,50,.6)',
-            },
-            App.data.teamB.teamName},
-                data: values.map(a=>1-a),
-                backgroundColor: teamB_Color,
-                borderWidth: 1.5, 
-                borderColor: 'rgba(50,50,50,.6)',
-            }]
+            datasets: [
+                {
+                    label: App.data.teamA.teamName,
+                    data: values,
+                    backgroundColor: teamA_Color,
+                    borderWidth: 1.5, 
+                    borderColor: 'rgba(50,50,50,.6)',
+                },
+                {   label: App.data.teamB.teamName,
+                    data: values.map(a=>1-a),
+                    backgroundColor: teamB_Color,
+                    borderWidth: 1.5, 
+                    borderColor: 'rgba(50,50,50,.6)',
+                }]
         },
         options:{
             indexAxis: 'y',
@@ -309,6 +310,7 @@ function chartWinPercent(chtID) {
                     display: true,
                     text: 'Win % by Simulation Type'
                 }
+                
             }
         }
       
