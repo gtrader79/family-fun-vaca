@@ -292,25 +292,30 @@ function chartWinPercent(chtID) {
                     backgroundColor: teamA_Color,
                     borderWidth: 1.5, 
                     borderColor: 'rgba(50,50,50,.6)',
+                    stack: 'Stack 0',
                 },
                 {   label: App.data.teamB.teamName,
                     data: values.map(a=>1-a),
                     backgroundColor: teamB_Color,
                     borderWidth: 1.5, 
                     borderColor: 'rgba(50,50,50,.6)',
-                }]
+                    stack: 'Stack 0',
+                }
+            ]
         },
         options:{
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {position: 'right'},
+                legend: {position: 'top'},
                 title: {
                     display: true,
                     text: 'Win % by Simulation Type'
+                },
+                tickFormat: {
+                    style: 'percent',
                 }
-                
             }
         }
       
