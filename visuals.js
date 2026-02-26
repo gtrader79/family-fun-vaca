@@ -97,8 +97,8 @@ function initPhysics() {
         const tA_Name = (App.data.teamA.teamName) ? App.data.teamA.teamName : 'Team A';
         const tB_Name = (App.data.teamB.teamName) ? App.data.teamB.teamName : 'Team B';
         
-        context.fillText("Bucket A", container.offsetWidth * 0.25, labelY);
-        context.fillText("Bucket B", container.offsetWidth * 0.75, labelY);
+        context.fillText(tA_Name, container.offsetWidth * 0.25, labelY);
+        context.fillText(tB_Name, container.offsetWidth * 0.75, labelY);
     });
     
     // 3. Run the engine and renderer
