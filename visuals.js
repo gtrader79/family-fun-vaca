@@ -322,7 +322,7 @@ function chartWinPercent(chtID) {
                     ticks: {
                         // Include a percentage sign in the ticks
                         callback: function(value, index, values) {
-                            return value.toFixed(1) + " %"; // Appends a '%' to the value
+                            return value + " %"; // Appends a '%' to the value
                         },
                         min: 0, // Optional: ensure the scale starts at 0
                         max: 100 // Optional: ensure the scale goes to 100
