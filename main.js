@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 else if (targetId === 'analytics_win_percent') {
                     // Future function for your win percent chart!
-                    // chartWinPercent('chart_win_percent');
+                    chartWinPercent('chart_win_percent');
                 }
             }, 300);  //300 milliseconds = .3 seconds
         });
