@@ -266,7 +266,7 @@ function chartWinPercent(chtID) {
     const labels = obj.map(a=>a.runLabel);
     //const values = obj.map(a=>a.p50 * 100);
     const valuesA = obj.map(a=> [a.p5 * 100, a.p95 * 100]);
-    const valuesb = obj.map(a=> [100 - (a.p95 * 100), 100 - (a.p5 * 100]));
+    const valuesb = obj.map(a=> [100 - (a.p95 * 100), 100 - (a.p5 * 100)] );
 
     //2. Get Team Colors.  If the colors are too close (more than 85% overlap) then use secondary color for team B.  If Secondary is black use Third color
     const teamA_Color = App.data.teamA.primaryColor;
