@@ -55,11 +55,12 @@ function initPhysics() {
     // Helper function to create a bucket
     const createBucket = (x, y, width, height, thickness, color) => {
         const bucketOptions = {
-          isStatic: true          
+          isStatic: true     
+          , chamfer: {radius: 10}
           , render : {
             fillStyle: 'transparent' //make the inside clear
             , strokeStyle: color    //set the border color
-            , lineWidth: thickness  //Thickness of the border
+            , lineWidth: 1 //thickness  //Thickness of the border
           }
         };
         const bottom = Bodies.rectangle(x, y + height/2, width, thickness, bucketOptions);
