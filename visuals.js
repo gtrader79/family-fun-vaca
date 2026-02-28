@@ -55,12 +55,11 @@ function initPhysics() {
     // Helper function to create a bucket
     const createBucket = (x, y, width, height, thickness, color) => {
         const bucketOptions = {
-          isStatic: true     
-          , chamfer: {radius: 10}
+          isStatic: true               
           , render : {
             fillStyle: 'transparent' //make the inside clear
             , strokeStyle: color    //set the border color
-            , lineWidth: 1 //thickness  //Thickness of the border
+            , lineWidth: thickness  //Thickness of the border
           }
         };
         const bottom = Bodies.rectangle(x, y + height/2, width, thickness, bucketOptions);
@@ -292,6 +291,7 @@ function chartWinPercent(chtID) {
                 {
                     label: App.data.teamA.teamName,
                     data: valuesA,
+                    minBarLength: 5,
                     backgroundColor: teamA_Color,
                     borderWidth: 1.5, 
                     borderColor: 'rgba(50,50,50,.6)',
@@ -299,6 +299,7 @@ function chartWinPercent(chtID) {
                 },
                 {   label: App.data.teamB.teamName,
                     data: valuesB,
+                    minBarLength: 5,
                     backgroundColor: teamB_Color,
                     borderWidth: 1.5, 
                     borderColor: 'rgba(50,50,50,.6)',
@@ -326,9 +327,9 @@ function chartWinPercent(chtID) {
                         // Include a percentage sign in the ticks
                         callback: function(value, index, values) {
                             return value + " %"; // Appends a '%' to the value
-                        },
-                        min: 0, // Optional: ensure the scale starts at 0
-                        max: 100 // Optional: ensure the scale goes to 100
+                        }//,
+                        //min: 0, // Optional: ensure the scale starts at 0
+                        //max: 100 // Optional: ensure the scale goes to 100
                     }
                 }
             }
