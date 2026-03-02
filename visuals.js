@@ -265,11 +265,11 @@ function chartWinPercent(chtID) {
     const obj = App.simulation.summary;
     const labels = obj.map(a=>a.runLabel);
     
-    const valuesA = obj.map(a=> [a.p5.toFixed(3) * 100, a.p95.toFixed(3) * 100]);
-    const valuesB = obj.map(a=> [100 - (a.p95.toFixed(3) * 100), 100 - (a.p5.toFixed(3) * 100)] );
+    const valuesA = obj.map(a=> [a.p5 * 100, a.p95 * 100]);
+    const valuesB = obj.map(a=> [100 - (a.p95 * 100), 100 - (a.p5 * 100)] );
 
-    const maxAxisValue = Math.min(Math.max(...(obj.map(a=>a.p95)))*1.05,1) //Find Max; add 5%; take min between new value and 100% to ensure we cap at 100%
-    const minAxisValue = Math.max(Math.min(...(obj.map(a=>(1-a.p95))))*.90,0) //Find Max; remove 10%; take max between new value and 0% to ensure we cap at 0%
+    const maxAxisValue = Math.min(Math.max(...(obj.map(a=>a.p95)))*1.05,1); //Find Max; add 5%; take min between new value and 100% to ensure we cap at 100%
+    const minAxisValue = Math.max(Math.min(...(obj.map(a=>(1-a.p95))))*.90,0); //Find Max; remove 10%; take max between new value and 0% to ensure we cap at 0%
     
     //2. Get Team Colors.  If the colors are too close (more than 85% overlap) then use secondary color for team B.  If Secondary is black use Third color
     const teamA_Color = App.data.teamA.primaryColor;
@@ -313,13 +313,26 @@ function chartWinPercent(chtID) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {position: 'top'},
+                legend: { position: 'top' },
                 title: {
                     display: true,
                     text: 'Win % by Simulation Type'
                 },
-                tickFormat: {
-                    style: 'percent',
+                // 1. TOOLTIP FORMATTING
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.x !== null) {
+                                // Formats to 1 decimal place and adds %
+                                label += context.parsed.x.toFixed(1) + '%';
+                            }
+                            return label;
+                        }
+                    }
                 }
             },
             scales: {
@@ -329,8 +342,8 @@ function chartWinPercent(chtID) {
                         callback: function(value, index, values) {
                             return value + " %"; // Appends a '%' to the value
                         },
-                        min: minAxisValue, 
-                        max: maxAxisValue 
+                        min: minAxisValue * 100, 
+                        max: maxAxisValue *100
                     }
                 }
             }
