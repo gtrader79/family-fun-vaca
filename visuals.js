@@ -265,8 +265,8 @@ function chartWinPercent(chtID) {
     const obj = App.simulation.summary;
     const labels = obj.map(a=>a.runLabel);
     
-    const valuesA = obj.map(a=> [a.p5.toFixed(3) * 100, a.p95 * 100]);
-    const valuesB = obj.map(a=> [100 - (a.p95 * 100), 100 - (a.p5 * 100)] );
+    const valuesA = obj.map(a=> [a.p5.toFixed(3) * 100, a.p95.toFixed(3) * 100]);
+    const valuesB = obj.map(a=> [100 - (a.p95.toFixed(3) * 100), 100 - (a.p5.toFixed(3) * 100)] );
 
     const maxAxisValue = Math.min(Math.max(...(obj.map(a=>a.p95)))*1.05,1) //Find Max; add 5%; take min between new value and 100% to ensure we cap at 100%
     const minAxisValue = Math.max(Math.min(...(obj.map(a=>(1-a.p95))))*.90,0) //Find Max; remove 10%; take max between new value and 0% to ensure we cap at 0%
