@@ -326,8 +326,16 @@ function chartWinPercent(chtID) {
                             if (label) {
                                 label += ': ';
                             }
-                            if (context.parsed.x !== null) {
-                                // Formats to 1 decimal place and adds %
+                
+                            // Access the original [min, max] array from your data
+                            const rawData = context.raw; 
+                
+                            if (Array.isArray(rawData)) {
+                                const start = rawData[0].toFixed(1);
+                                const end = rawData[1].toFixed(1);
+                                label += `${start}% - ${end}%`;
+                            } else {
+                                // Fallback for single values
                                 label += context.parsed.x.toFixed(1) + '%';
                             }
                             return label;
