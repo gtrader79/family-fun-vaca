@@ -233,7 +233,7 @@ function chartKeyMatchups(offTeam, defTeam, chtID) {
               position: 'top',
               title: {
                 display: true,
-                text: `Positive Advantage (${App.data[offTeam].teamName} Offense Wins matchups)`,
+                text: `${App.data[offTeam].teamName} Offense Wins then match up`,
                 color: offColor,
                 font: { size: 14, weight: 'bold' }
               },
@@ -264,10 +264,13 @@ function chartWinPercent(chtID) {
     //1. Get the Data
     const obj = App.simulation.summary;
     const labels = obj.map(a=>a.runLabel);
-    //const values = obj.map(a=>a.p50 * 100);
+    
     const valuesA = obj.map(a=> [a.p5.toFixed(3) * 100, a.p95 * 100]);
     const valuesB = obj.map(a=> [100 - (a.p95 * 100), 100 - (a.p5 * 100)] );
 
+    const maxAxisValue = Math.min(Math.max(...(obj.map(a=>a.p95)))*1.05,1) //Find Max; add 5%; take min between new value and 100% to ensure we cap at 100%
+    const minAxisValue = Math.max(Math.min(...(obj.map(a=>(1-a.p95))))*.90,0) //Find Max; remove 10%; take max between new value and 0% to ensure we cap at 0%
+    
     //2. Get Team Colors.  If the colors are too close (more than 85% overlap) then use secondary color for team B.  If Secondary is black use Third color
     const teamA_Color = App.data.teamA.primaryColor;
     const teamB_Color = (colorSimularity(App.data.teamA.primaryColor, App.data.teamB.primaryColor) < 85) 
@@ -325,9 +328,9 @@ function chartWinPercent(chtID) {
                         // Include a percentage sign in the ticks
                         callback: function(value, index, values) {
                             return value + " %"; // Appends a '%' to the value
-                        }//,
-                        //min: 0, // Optional: ensure the scale starts at 0
-                        //max: 100 // Optional: ensure the scale goes to 100
+                        },
+                        min: minAxisValue, 
+                        max: maxAxisValue 
                     }
                 }
             }
