@@ -270,8 +270,8 @@ function chartWinPercent(chtID) {
 
     const objPtiles = obj.map(a=>[a.p5, a.p95, (1-a.p5), (1-a.p95)]);  
     const objPtilesFlat = objPtiles.flat();
-    const maxAxisValue = Math.max(...objPtilesFlat, 1);
-    const minAxisValue = Math.min(...objPtilesFlat, 0);
+    const maxAxisValue = Math.min(Math.max(...objPtilesFlat) * 1.05, 1);
+    const minAxisValue = Math.max(Math.min(...objPtilesFlat) * .90, 0);
     
     //2. Get Team Colors.  If the colors are too close (more than 85% overlap) then use secondary color for team B.  If Secondary is black use Third color
     const teamA_Color = App.data.teamA.primaryColor;
@@ -348,7 +348,7 @@ function chartWinPercent(chtID) {
             scales: {
                 x: {
                     min: minAxisValue * 100, 
-                    max: maxAxisValue *100,
+                    max: maxAxisValue * 100,
                     beginAtZero: false,
                     ticks: {
                         // Include a percentage sign in the ticks
