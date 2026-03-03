@@ -351,7 +351,8 @@ function chartWinPercent(chtID) {
                             return value + " %"; // Appends a '%' to the value
                         },
                         min: minAxisValue * 100, 
-                        max: maxAxisValue *100
+                        max: maxAxisValue *100,
+                        beginAtZero: false
                     }
                 }
             }
