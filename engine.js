@@ -209,7 +209,7 @@ const Engine = {
             multipliers.passVol *= .95;
             multipliers.explosive *= .95;
             multipliers.turnovers *= 1.25;
-            multipliers.fieldGoals: *= .98;
+            multipliers.fieldGoals *= .98;
         } else if (ctx.rainLevel === 2) { //Snow
             multipliers.passVol *= .92;
             multipliers.explosive *= .82;
