@@ -25,7 +25,7 @@ const Renderer = {
         { statNm: "defQB", label: "QB Rating Allowed", key: "def_passer_rating_allowed", rank: "def_passer_rating_rank", better: "Lower", category: "Position", c:2},
         { statNm: "defTE", label: "TE Yds Allowed / gm", key: "def_te_yards_allowed_per_game", rank: "def_te_performance_rank", better: "Lower", category: "Position", c:2},
         { statNm: "defWR", label: "WR Yds Allowed / gm", key: "def_wr_yards_allowed_per_game", rank: "def_wr_performance_rank", better: "Lower", category: "Position", c:2},
-        { statNm: "defTurnOver", label: "Turnovers Forced / gm", key: "def_turnovers_forced_per_game", rank: "def_turnovers_rank", better: "Higher", category: "Turnovers / Penalties", c:5},
+        { statNm: "defTurnOverForced", label: "Turnovers Forced / gm", key: "def_turnovers_forced_per_game", rank: "def_turnovers_rank", better: "Higher", category: "Turnovers / Penalties", c:5},
         { statNm: "defRZ", label: "Red Zone Efficiency Allowed %", key: "def_rz_efficiency_allowed_pct", rank: "def_rz_efficiency_rank", better: "Lower", category: "Advanced", c:6 },
         { statNm: "defExplosivePlay", label: "Explosive Plays Allowed %", key: "def_explosive_play_rate_allowed_pct", rank: "def_explosive_play_rate_rank", better: "Lower", category: "Advanced", c:6},
         { statNm: "defPressure", label: "Defensive Pressure Generated %", key: "def_pressure_generated_pct", rank: "def_pressure_generated_rank", better: "Lower", category: "Advanced", c:6},
