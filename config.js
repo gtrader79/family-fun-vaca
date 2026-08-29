@@ -73,7 +73,11 @@ const SIM_CONFIG = {
         turnover: 1.50,
         redZone: 0.70,
         explosive: 0.40,
-        pressure: 0.50
+        pressure: 0.50,
+        thirdDown: 0.75 ,
+        fourthDown: 1.00,
+        fieldPosition: 0.40,
+        penalty: 0.50
     },
     
     // Game Matchup Mappings (Spread adjustments)
