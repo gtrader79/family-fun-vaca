@@ -196,12 +196,12 @@ const Engine = {
         if (ctx.windLevel === 1) { //Medium Wind
             multipliers.passVol *= .95;
             multipliers.explosive *= .90;
-            multipliers.fieldGoals: *= .90;
+            multipliers.fieldGoals *= .90;
         } else if (ctx.windLevel === 2) { //High Wind
             multipliers.passVol *= .85;
             multipliers.explosive *= .80;
             multipliers.turnovers *= 1.05;
-            multipliers.fieldGoals: *= .80;
+            multipliers.fieldGoals *= .80;
         }
 
         //Apply Rain and Snow  
@@ -214,7 +214,7 @@ const Engine = {
             multipliers.passVol *= .92;
             multipliers.explosive *= .82;
             multipliers.turnovers *= 1.35;
-            multipliers.fieldGoals: *= .90;
+            multipliers.fieldGoals *= .90;
         }
     
         //Resistance Mode: Apply multipliers to stats.
