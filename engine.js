@@ -26,23 +26,37 @@ const Engine = {
 
         //Pressure (Offense wants low, Defense wants High)
         const pressureAdv = (Utils.getZ(tA.off_pressure_allowed_pct, App.data.leagueMetrics.offPressure, true) + (noise * Utils.boxMuller() * bm_f))
-                    - (Utils.getZ(tB.def_pressure_generated_pct, App.data.leagueMetrics.defPressure) + (noise * Utils.boxMuller() * bm_f));
+                        - (Utils.getZ(tB.def_pressure_generated_pct, App.data.leagueMetrics.defPressure) + (noise * Utils.boxMuller() * bm_f));
 
         //Conversion
+        const thirdDownAdv = (Utils.getZ(tA.off_3rd_down_pct, App.data.leagueMetrics.off3rdConversion) + (noise * Utils.boxMuller() * bm_f))
+                            - (Utils.getZ(tB.def_3rd_down_allowed_pct, App.data.leagueMetrics.def3rdConversion, true) + (noise * Utils.boxMuller() * bm_f));
+
+        const fourthDownAdv = (Utils.getZ(tA.off_4th_down_pct, App.data.leagueMetrics.off4thConversion) + (noise * Utils.boxMuller() * bm_f))
+                            - (Utils.getZ(tB.def_4th_down_allowed_pct, App.data.leagueMetrics.def4thConversion, true) + (noise * Utils.boxMuller() * bm_f));
         
-        
-        //Turnovers
+        //Turnovers (Offense wants low, Defense wants High)
+        const turnoverAdv = (Utils.getZ(tA.off_turnovers_per_game, App.data.leagueMetrics.offTurnOver, true) + (noise * Utils.boxMuller() * bm_f))
+                        - (Utils.getZ(tB.def_turnovers_forced_per_game, App.data.leagueMetrics.defTurnOverForced) + (noise * Utils.boxMuller() * bm_f));
+
+        //Yards per penalty (Offense wants low, Defense wants High)
+        const yardsPerPenaltyAdv = (Utils.getZ(tA.off_penalty_yards_per_penalty, App.data.leagueMetrics.offPen, true) + (noise * Utils.boxMuller() * bm_f))
+                            - (Utils.getZ(tB.def_penalty_yards_per_penalty, App.data.leagueMetrics.defPen) + (noise * Utils.boxMuller() * bm_f));
 
         
         //Red Zone & Explosive Plays
         const redZoneAdv = (Utils.getZ(tA.off_rz_efficiency_pct, App.data.leagueMetrics.offRZ) + (noise * Utils.boxMuller() * bm_f))
-                    - (Utils.getZ(tB.def_rz_efficiency_allowed_pct, App.data.leagueMetrics.defRZ, true) + (noise * Utils.boxMuller() * bm_f));
+                        - (Utils.getZ(tB.def_rz_efficiency_allowed_pct, App.data.leagueMetrics.defRZ, true) + (noise * Utils.boxMuller() * bm_f));
         
         const explosivePlayAdv = (Utils.getZ(tA.off_explosive_play_rate_pct, App.data.leagueMetrics.offExplosivePlay) + (noise * Utils.boxMuller() * bm_f))
-                    - (Utils.getZ(tB.def_explosive_play_rate_allowed_pct, App.data.leagueMetrics.defExplosivePlay, true) + (noise * Utils.boxMuller() * bm_f));
+                            - (Utils.getZ(tB.def_explosive_play_rate_allowed_pct, App.data.leagueMetrics.defExplosivePlay, true) + (noise * Utils.boxMuller() * bm_f));
 
         
         //Special Teams
+        const fieldPositionAdv = (Utils.getZ(tA.off_avg_starting_field_pos, App.data.leagueMetrics.offStartingFieldPos) + (noise * Utils.boxMuller() * bm_f))
+                            - (Utils.getZ(tB.def_avg_starting_field_pos_allowed, App.data.leagueMetrics.defStartingFieldPos, true) + (noise * Utils.boxMuller() * bm_f));
+
+        
         
 
         //Push to team specific matchUp Object
@@ -55,8 +69,14 @@ const Engine = {
                 , wrAdv: (wrAdv * SIM_CONFIG.weights.wr)
                 , rushAdv: (rushAdv * SIM_CONFIG.weights.rush) 
                 , pressureAdv: (pressureAdv * SIM_CONFIG.weights.pressure)
+                , thirdDownAdv: (thirdDownAdv * SIM_CONFIG.weights.thirdDown)
+                , fourthDownAdv: (fourthDownAdv * SIM_CONFIG.weights.fourthDown)
+                , turnoverAdv: (turnoverAdv * SIM_CONFIG.weights.turnover)
+                , yardsPerPenaltyAdv: (yardsPerPenaltyAdv * SIM_CONFIG.weights.penalty)
                 , redZoneAdv: (redZoneAdv * SIM_CONFIG.weights.redZone) 
                 , explosivePlayAdv: (explosivePlayAdv * SIM_CONFIG.weights.explosive)
+                , fieldPositionAdv: (fieldPositionAdv * SIM_CONFIG.weights.fieldPosition)                
+                
             });
         };
 
@@ -67,8 +87,13 @@ const Engine = {
             + (wrAdv * SIM_CONFIG.weights.wr)
             + (rushAdv * SIM_CONFIG.weights.rush) 
             + (pressureAdv * SIM_CONFIG.weights.pressure)
+            + (thirdDownAdv * SIM_CONFIG.weights.thirdDown)
+            + (fourthDownAdv * SIM_CONFIG.weights.fourthDown)
+            + (turnoverAdv * SIM_CONFIG.weights.turnover)
+            + (yardsPerPenaltyAdv * SIM_CONFIG.weights.penalty)
             + (redZoneAdv * SIM_CONFIG.weights.redZone) 
-            + (explosivePlayAdv * SIM_CONFIG.weights.explosive) 
+            + (explosivePlayAdv * SIM_CONFIG.weights.explosive)
+            + (fieldPositionAdv * SIM_CONFIG.weights.fieldPosition)
             
         ;
 
@@ -165,15 +190,18 @@ const Engine = {
             , rushDef: 1.0
             , passDef: 1.0
             , explosiveDef: 1.0
+            , fieldGoals: 1.0
         };
         //Apply Wind  
         if (ctx.windLevel === 1) { //Medium Wind
             multipliers.passVol *= .95;
             multipliers.explosive *= .90;
+            multipliers.fieldGoals: *= .90;
         } else if (ctx.windLevel === 2) { //High Wind
             multipliers.passVol *= .85;
             multipliers.explosive *= .80;
             multipliers.turnovers *= 1.05;
+            multipliers.fieldGoals: *= .80;
         }
 
         //Apply Rain and Snow  
@@ -181,10 +209,12 @@ const Engine = {
             multipliers.passVol *= .95;
             multipliers.explosive *= .95;
             multipliers.turnovers *= 1.25;
+            multipliers.fieldGoals: *= .98;
         } else if (ctx.rainLevel === 2) { //Snow
             multipliers.passVol *= .92;
             multipliers.explosive *= .82;
             multipliers.turnovers *= 1.35;
+            multipliers.fieldGoals: *= .90;
         }
     
         //Resistance Mode: Apply multipliers to stats.
@@ -194,13 +224,14 @@ const Engine = {
         adjusted.off_explosive_play_rate_pct *= multipliers.explosive;
         adjusted.off_pressure_allowed_pct *= multipliers.pressureAllowed;
         adjusted.off_turnovers_per_game *= multipliers.turnovers;
+        adjusted.off_fg_accuracy_pct *= multipliers.fieldGoals;
     
 
         return adjusted;
     },
 
 
-    //Run the Monte Carlo Simulation
+    //Run various scenarios & store results of each
     run: function(teamA, teamB, factors) {                
         
         // Reset Results
@@ -213,43 +244,62 @@ const Engine = {
         const baseA = this.getMatchUpDelta(teamA, teamB, 0);
         const baseB = this.getMatchUpDelta(teamB, teamA, 0);
         //const baseDelta = (baseA - baseB);  
-
-        //Store results
-        this.storeRun(1, 'Baseline with no adjustments', baseA, baseB);
-
-        //One-time capture Context Factor to be added to Delta        
-        const contextFactors = this.getHomeFieldAdvantage() + this.getTravelPenalty() + this.getTotalRestDelta() + this.getMomentumAdvantage();
-        console.log(`Total Factors: ${contextFactors}`);
-
-        //One-time capture Context Compressor to be multiplied to Delta
-        const contextCompressor = this.getDivisionCompressor() * this.getMatchUpCompressor();
-        console.log(`Total Compression: ${contextCompressor}`);
+        
+        //Scenario #1: Just head to head stats
+        this.storeRun(1, 'Head to Head with just Stats', baseA, baseB);
 
 
-        //Base with context factors & compressor        
-        //Store results
-        this.storeRun(2, 'Baseline with adjustments', baseA, baseB, contextFactors, contextCompressor);
-
-        //Monte Carlo with out adjustments
+        //Scenario #2: Head to Head with Monte Carlo Simulation
         for (let i = 0; i < SIM_CONFIG.iterations; i++) {
             //get team strength with slight 'noise' applied to each team stat metric
             //3rd variable is noise.  value = 1 allows boxMuller variance to be adjusted
-            const tsA = this.getMatchUpDelta(teamA, teamB, 1);  
-            const tsB = this.getMatchUpDelta(teamB, teamA, 1);  
-            this.storeRun(3, 'Monte Carlo Simulation', tsA, tsB, contextFactors, contextCompressor);
+            const tsA_1 = this.getMatchUpDelta(teamA, teamB, 1);  
+            const tsB_1 = this.getMatchUpDelta(teamB, teamA, 1);  
+            this.storeRun(2, 'Head to Head (w Monte Carlo Simulation)', tsA_1, tsB_1);
             
         }
 
-        //Monte Carlo with weather adjustments
+
+        //Scenario #3: H2H + Stadium: Venue & Weather with Monte Carlo Simulation
+        const contextHFA = this.getHomeFieldAdvantage();
+        
         const weatherAdjTeamA = this.getWeatherAdjustedStats(teamA);
         const weatherAdjTeamB = this.getWeatherAdjustedStats(teamB);
         
-        for (let j = 0; j < SIM_CONFIG.iterations; j++) {
+        for (let i = 0; i < SIM_CONFIG.iterations; i++) {
             //get team strength with slight 'noise' applied to each team stat metric
             //3rd variable is noise.  value = 1 allows boxMuller variance to be adjusted
-            const tsA_weather = this.getMatchUpDelta(weatherAdjTeamA, weatherAdjTeamB, 1, 'teamA');  //add teamA label to push matchups to App.simulation.keyMatchup object
-            const tsB_weather = this.getMatchUpDelta(weatherAdjTeamB, weatherAdjTeamA, 1, 'teamB');  //add teamB label to push matchups to App.simulation.keyMatchup object
-            this.storeRun(4, 'Monte Carlo Simulation - Weather Adjusted', tsA_weather, tsB_weather, contextFactors, contextCompressor);
+            const tsA_2 = this.getMatchUpDelta(weatherAdjTeamA, weatherAdjTeamB, 1, 'teamA');  //add teamA label to push matchups to App.simulation.keyMatchup object
+            const tsB_2 = this.getMatchUpDelta(weatherAdjTeamB, weatherAdjTeamA, 1, 'teamB');  //add teamB label to push matchups to App.simulation.keyMatchup object 
+            this.storeRun(3, 'H2H + Stadium (w Monte Carlo Simulation)', tsA_2, tsB_2, contextHFA);
+            
+        }
+
+
+        //Scenario #4: H2H + Stadium + Fatigue with Monte Carlo Simulation
+        const contextTravel = this.getTravelPenalty();
+        const contextRest = this.getTotalRestDelta();
+                
+        for (let i = 0; i < SIM_CONFIG.iterations; i++) {
+            //get team strength with slight 'noise' applied to each team stat metric
+            //3rd variable is noise.  value = 1 allows boxMuller variance to be adjusted
+            const tsA_3 = this.getMatchUpDelta(weatherAdjTeamA, weatherAdjTeamB, 1, 'teamA');  //add teamA label to push matchups to App.simulation.keyMatchup object
+            const tsB_3 = this.getMatchUpDelta(weatherAdjTeamB, weatherAdjTeamA, 1, 'teamB');  //add teamB label to push matchups to App.simulation.keyMatchup object 
+            this.storeRun(4, 'H2H + Stadium + Fatigue (w MCS)', tsA_3, tsB_3, (contextHFA + contextTravel + contextRest));
+            
+        }
+
+
+        //Scenario #5: H2H + Stadium + Fatigue + Competitive with Monte Carlo Simulation
+        const contextMomentum = this.getMomentumAdvantage();  
+        const contextCompressor = this.getDivisionCompressor() * this.getMatchUpCompressor();
+                
+        for (let i = 0; i < SIM_CONFIG.iterations; i++) {
+            //get team strength with slight 'noise' applied to each team stat metric
+            //3rd variable is noise.  value = 1 allows boxMuller variance to be adjusted
+            const tsA_3 = this.getMatchUpDelta(weatherAdjTeamA, weatherAdjTeamB, 1, 'teamA');  //add teamA label to push matchups to App.simulation.keyMatchup object
+            const tsB_3 = this.getMatchUpDelta(weatherAdjTeamB, weatherAdjTeamA, 1, 'teamB');  //add teamB label to push matchups to App.simulation.keyMatchup object 
+            this.storeRun(5, 'H2H + Stadium + Fatigue + Competitive Factors (w MCS)', tsA_3, tsB_3, (contextHFA + contextTravel + contextRest + contextMomentum), contextCompressor);
             
         }
 
