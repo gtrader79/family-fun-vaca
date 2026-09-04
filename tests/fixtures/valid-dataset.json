@@ -1,0 +1,584 @@
+{
+  "schemaVersion": "1.0.0",
+  "datasetId": "nfl-simulator",
+  "generatedAt": "2026-09-01T00:00:00Z",
+  "source": {
+    "provider": "Synthetic test fixture",
+    "description": "Compact deterministic browser-contract fixture"
+  },
+  "seasons": [
+    {
+      "season": 2024,
+      "updatedDate": "2025-01-05",
+      "period": {
+        "type": "regular-season",
+        "week": 18,
+        "postseasonRound": null
+      },
+      "teams": [
+        {
+          "teamId": "AAA",
+          "abbreviation": "AAA",
+          "teamName": "Alpha Aces",
+          "conference": "AFC",
+          "division": "AFC Test",
+          "colors": {
+            "primary": "#112233",
+            "secondary": "#AABBCC",
+            "tertiary": null
+          },
+          "record": {
+            "wins": 6,
+            "losses": 2,
+            "ties": 0,
+            "gamesPlayed": 8
+          },
+          "metrics": {
+            "offense.pass_epa_per_dropback": {
+              "value": 0.0,
+              "rank": 2,
+              "sampleSize": 120
+            },
+            "offense.rush_epa_per_attempt": {
+              "value": 0.02,
+              "rank": 1,
+              "sampleSize": 101
+            },
+            "offense.success_rate": {
+              "value": 0.03,
+              "rank": 1,
+              "sampleSize": 102
+            },
+            "offense.pressure_allowed_rate": {
+              "value": 0.04,
+              "rank": 1,
+              "sampleSize": 103
+            },
+            "offense.explosive_play_rate": {
+              "value": 0.05,
+              "rank": 1,
+              "sampleSize": 104
+            },
+            "offense.interception_rate": {
+              "value": 0.06,
+              "rank": 1,
+              "sampleSize": 105
+            },
+            "offense.fumble_rate": {
+              "value": 0.07,
+              "rank": 1,
+              "sampleSize": 106
+            },
+            "defense.pass_epa_allowed_per_dropback": {
+              "value": 0.08,
+              "rank": 1,
+              "sampleSize": 107
+            },
+            "defense.rush_epa_allowed_per_attempt": {
+              "value": 0.09,
+              "rank": 1,
+              "sampleSize": 108
+            },
+            "defense.success_rate_allowed": {
+              "value": 0.1,
+              "rank": 1,
+              "sampleSize": 109
+            },
+            "defense.pressure_generated_rate": {
+              "value": 0.11,
+              "rank": 1,
+              "sampleSize": 110
+            },
+            "defense.explosive_play_rate_allowed": {
+              "value": 0.12,
+              "rank": 1,
+              "sampleSize": 111
+            },
+            "defense.interception_forced_rate": {
+              "value": 0.13,
+              "rank": 1,
+              "sampleSize": 112
+            },
+            "defense.fumble_forced_rate": {
+              "value": 0.14,
+              "rank": 1,
+              "sampleSize": 113
+            }
+          }
+        },
+        {
+          "teamId": "BBB",
+          "abbreviation": "BBB",
+          "teamName": "Beta Bisons",
+          "conference": "NFC",
+          "division": "NFC Test",
+          "colors": {
+            "primary": "#445566",
+            "secondary": "#DDEEFF",
+            "tertiary": null
+          },
+          "record": {
+            "wins": 2,
+            "losses": 6,
+            "ties": 0,
+            "gamesPlayed": 8
+          },
+          "metrics": {
+            "offense.pass_epa_per_dropback": {
+              "value": -0.01,
+              "rank": 2,
+              "sampleSize": 100
+            },
+            "offense.rush_epa_per_attempt": {
+              "value": -0.02,
+              "rank": 2,
+              "sampleSize": 101
+            },
+            "offense.success_rate": {
+              "value": -0.03,
+              "rank": 2,
+              "sampleSize": 102
+            },
+            "offense.pressure_allowed_rate": {
+              "value": -0.04,
+              "rank": 2,
+              "sampleSize": 103
+            },
+            "offense.explosive_play_rate": {
+              "value": -0.05,
+              "rank": 2,
+              "sampleSize": 104
+            },
+            "offense.interception_rate": {
+              "value": -0.06,
+              "rank": 2,
+              "sampleSize": 105
+            },
+            "offense.fumble_rate": {
+              "value": -0.07,
+              "rank": 2,
+              "sampleSize": 106
+            },
+            "defense.pass_epa_allowed_per_dropback": {
+              "value": -0.08,
+              "rank": 2,
+              "sampleSize": 107
+            },
+            "defense.rush_epa_allowed_per_attempt": {
+              "value": -0.09,
+              "rank": 2,
+              "sampleSize": 108
+            },
+            "defense.success_rate_allowed": {
+              "value": -0.1,
+              "rank": 2,
+              "sampleSize": 109
+            },
+            "defense.pressure_generated_rate": {
+              "value": -0.11,
+              "rank": 2,
+              "sampleSize": 110
+            },
+            "defense.explosive_play_rate_allowed": {
+              "value": -0.12,
+              "rank": 2,
+              "sampleSize": 111
+            },
+            "defense.interception_forced_rate": {
+              "value": -0.13,
+              "rank": 2,
+              "sampleSize": 112
+            },
+            "defense.fumble_forced_rate": {
+              "value": -0.14,
+              "rank": 2,
+              "sampleSize": 113
+            }
+          }
+        }
+      ]
+    },
+    {
+      "season": 2026,
+      "updatedDate": "2026-10-27",
+      "period": {
+        "type": "regular-season",
+        "week": 8,
+        "postseasonRound": null
+      },
+      "teams": [
+        {
+          "teamId": "AAA",
+          "abbreviation": "AAA",
+          "teamName": "Alpha Aces",
+          "conference": "AFC",
+          "division": "AFC Test",
+          "colors": {
+            "primary": "#112233",
+            "secondary": "#AABBCC",
+            "tertiary": null
+          },
+          "record": {
+            "wins": 6,
+            "losses": 2,
+            "ties": 0,
+            "gamesPlayed": 8
+          },
+          "metrics": {
+            "offense.pass_epa_per_dropback": {
+              "value": 0.01,
+              "rank": 1,
+              "sampleSize": 100
+            },
+            "offense.rush_epa_per_attempt": {
+              "value": 0.02,
+              "rank": 1,
+              "sampleSize": 101
+            },
+            "offense.success_rate": {
+              "value": 0.03,
+              "rank": 1,
+              "sampleSize": 102
+            },
+            "offense.pressure_allowed_rate": {
+              "value": 0.04,
+              "rank": 1,
+              "sampleSize": 103
+            },
+            "offense.explosive_play_rate": {
+              "value": 0.05,
+              "rank": 1,
+              "sampleSize": 104
+            },
+            "offense.interception_rate": {
+              "value": 0.06,
+              "rank": 1,
+              "sampleSize": 105
+            },
+            "offense.fumble_rate": {
+              "value": 0.07,
+              "rank": 1,
+              "sampleSize": 106
+            },
+            "defense.pass_epa_allowed_per_dropback": {
+              "value": 0.08,
+              "rank": 1,
+              "sampleSize": 107
+            },
+            "defense.rush_epa_allowed_per_attempt": {
+              "value": 0.09,
+              "rank": 1,
+              "sampleSize": 108
+            },
+            "defense.success_rate_allowed": {
+              "value": 0.1,
+              "rank": 1,
+              "sampleSize": 109
+            },
+            "defense.pressure_generated_rate": {
+              "value": 0.11,
+              "rank": 1,
+              "sampleSize": 110
+            },
+            "defense.explosive_play_rate_allowed": {
+              "value": 0.12,
+              "rank": 1,
+              "sampleSize": 111
+            },
+            "defense.interception_forced_rate": {
+              "value": 0.13,
+              "rank": 1,
+              "sampleSize": 112
+            },
+            "defense.fumble_forced_rate": {
+              "value": 0.14,
+              "rank": 1,
+              "sampleSize": 113
+            }
+          }
+        },
+        {
+          "teamId": "BBB",
+          "abbreviation": "BBB",
+          "teamName": "Beta Bisons",
+          "conference": "NFC",
+          "division": "NFC Test",
+          "colors": {
+            "primary": "#445566",
+            "secondary": "#DDEEFF",
+            "tertiary": null
+          },
+          "record": {
+            "wins": 2,
+            "losses": 6,
+            "ties": 0,
+            "gamesPlayed": 8
+          },
+          "metrics": {
+            "offense.pass_epa_per_dropback": {
+              "value": -0.01,
+              "rank": 2,
+              "sampleSize": 100
+            },
+            "offense.rush_epa_per_attempt": {
+              "value": null,
+              "rank": null,
+              "sampleSize": 0
+            },
+            "offense.success_rate": {
+              "value": -0.03,
+              "rank": 2,
+              "sampleSize": 102
+            },
+            "offense.pressure_allowed_rate": {
+              "value": -0.04,
+              "rank": 2,
+              "sampleSize": 103
+            },
+            "offense.explosive_play_rate": {
+              "value": -0.05,
+              "rank": 2,
+              "sampleSize": 104
+            },
+            "offense.interception_rate": {
+              "value": -0.06,
+              "rank": 2,
+              "sampleSize": 105
+            },
+            "offense.fumble_rate": {
+              "value": -0.07,
+              "rank": 2,
+              "sampleSize": 106
+            },
+            "defense.pass_epa_allowed_per_dropback": {
+              "value": -0.08,
+              "rank": 2,
+              "sampleSize": 107
+            },
+            "defense.rush_epa_allowed_per_attempt": {
+              "value": -0.09,
+              "rank": 2,
+              "sampleSize": 108
+            },
+            "defense.success_rate_allowed": {
+              "value": -0.1,
+              "rank": 2,
+              "sampleSize": 109
+            },
+            "defense.pressure_generated_rate": {
+              "value": -0.11,
+              "rank": 2,
+              "sampleSize": 110
+            },
+            "defense.explosive_play_rate_allowed": {
+              "value": -0.12,
+              "rank": 2,
+              "sampleSize": 111
+            },
+            "defense.interception_forced_rate": {
+              "value": -0.13,
+              "rank": 2,
+              "sampleSize": 112
+            },
+            "defense.fumble_forced_rate": {
+              "value": -0.14,
+              "rank": 2,
+              "sampleSize": 113
+            }
+          }
+        }
+      ]
+    },
+    {
+      "season": 2025,
+      "updatedDate": "2026-01-05",
+      "period": {
+        "type": "regular-season",
+        "week": 18,
+        "postseasonRound": null
+      },
+      "teams": [
+        {
+          "teamId": "AAA",
+          "abbreviation": "AAA",
+          "teamName": "Alpha Aces",
+          "conference": "AFC",
+          "division": "AFC Test",
+          "colors": {
+            "primary": "#112233",
+            "secondary": "#AABBCC",
+            "tertiary": null
+          },
+          "record": {
+            "wins": 6,
+            "losses": 2,
+            "ties": 0,
+            "gamesPlayed": 8
+          },
+          "metrics": {
+            "offense.pass_epa_per_dropback": {
+              "value": 0.01,
+              "rank": 1,
+              "sampleSize": 100
+            },
+            "offense.rush_epa_per_attempt": {
+              "value": 0.02,
+              "rank": 1,
+              "sampleSize": 101
+            },
+            "offense.success_rate": {
+              "value": 0.03,
+              "rank": 1,
+              "sampleSize": 102
+            },
+            "offense.pressure_allowed_rate": {
+              "value": 0.04,
+              "rank": 1,
+              "sampleSize": 103
+            },
+            "offense.explosive_play_rate": {
+              "value": 0.05,
+              "rank": 1,
+              "sampleSize": 104
+            },
+            "offense.interception_rate": {
+              "value": 0.06,
+              "rank": 1,
+              "sampleSize": 105
+            },
+            "offense.fumble_rate": {
+              "value": 0.07,
+              "rank": 1,
+              "sampleSize": 106
+            },
+            "defense.pass_epa_allowed_per_dropback": {
+              "value": 0.08,
+              "rank": 1,
+              "sampleSize": 107
+            },
+            "defense.rush_epa_allowed_per_attempt": {
+              "value": 0.09,
+              "rank": 1,
+              "sampleSize": 108
+            },
+            "defense.success_rate_allowed": {
+              "value": 0.1,
+              "rank": 1,
+              "sampleSize": 109
+            },
+            "defense.pressure_generated_rate": {
+              "value": 0.11,
+              "rank": 1,
+              "sampleSize": 110
+            },
+            "defense.explosive_play_rate_allowed": {
+              "value": 0.12,
+              "rank": 1,
+              "sampleSize": 111
+            },
+            "defense.interception_forced_rate": {
+              "value": 0.13,
+              "rank": 1,
+              "sampleSize": 112
+            },
+            "defense.fumble_forced_rate": {
+              "value": 0.14,
+              "rank": 1,
+              "sampleSize": 113
+            }
+          }
+        },
+        {
+          "teamId": "BBB",
+          "abbreviation": "BBB",
+          "teamName": "Beta Bisons",
+          "conference": "NFC",
+          "division": "NFC Test",
+          "colors": {
+            "primary": "#445566",
+            "secondary": "#DDEEFF",
+            "tertiary": null
+          },
+          "record": {
+            "wins": 2,
+            "losses": 6,
+            "ties": 0,
+            "gamesPlayed": 8
+          },
+          "metrics": {
+            "offense.pass_epa_per_dropback": {
+              "value": -0.01,
+              "rank": 2,
+              "sampleSize": 100
+            },
+            "offense.rush_epa_per_attempt": {
+              "value": -0.02,
+              "rank": 2,
+              "sampleSize": 101
+            },
+            "offense.success_rate": {
+              "value": -0.03,
+              "rank": 2,
+              "sampleSize": 102
+            },
+            "offense.pressure_allowed_rate": {
+              "value": -0.04,
+              "rank": 2,
+              "sampleSize": 103
+            },
+            "offense.explosive_play_rate": {
+              "value": -0.05,
+              "rank": 2,
+              "sampleSize": 104
+            },
+            "offense.interception_rate": {
+              "value": -0.06,
+              "rank": 2,
+              "sampleSize": 105
+            },
+            "offense.fumble_rate": {
+              "value": -0.07,
+              "rank": 2,
+              "sampleSize": 106
+            },
+            "defense.pass_epa_allowed_per_dropback": {
+              "value": -0.08,
+              "rank": 2,
+              "sampleSize": 107
+            },
+            "defense.rush_epa_allowed_per_attempt": {
+              "value": -0.09,
+              "rank": 2,
+              "sampleSize": 108
+            },
+            "defense.success_rate_allowed": {
+              "value": -0.1,
+              "rank": 2,
+              "sampleSize": 109
+            },
+            "defense.pressure_generated_rate": {
+              "value": -0.11,
+              "rank": 2,
+              "sampleSize": 110
+            },
+            "defense.explosive_play_rate_allowed": {
+              "value": -0.12,
+              "rank": 2,
+              "sampleSize": 111
+            },
+            "defense.interception_forced_rate": {
+              "value": -0.13,
+              "rank": 2,
+              "sampleSize": 112
+            },
+            "defense.fumble_forced_rate": {
+              "value": -0.14,
+              "rank": 2,
+              "sampleSize": 113
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

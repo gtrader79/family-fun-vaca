@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "0.0.0",
+  "datasetId": "wrong-dataset",
+  "generatedAt": "not-a-date",
+  "source": {
+    "provider": "",
+    "description": ""
+  },
+  "seasons": [
+    {
+      "season": 2026,
+      "updatedDate": "2026-99-99",
+      "period": {
+        "type": "preseason",
+        "week": 0,
+        "postseasonRound": null
+      },
+      "teams": [
+        {
+          "teamId": "AAA",
+          "abbreviation": "AAA",
+          "teamName": "",
+          "conference": "AFC",
+          "division": "AFC Test",
+          "colors": {
+            "primary": "blue",
+            "secondary": null,
+            "tertiary": null
+          },
+          "record": {
+            "wins": 1,
+            "losses": 1,
+            "ties": 0,
+            "gamesPlayed": 99
+          },
+          "metrics": {
+            "offense.pass_epa_per_dropback": {
+              "value": "NaN",
+              "rank": 0,
+              "sampleSize": -1
+            }
+          }
+        },
+        {
+          "teamId": "AAA",
+          "abbreviation": "AAA",
+          "teamName": "Duplicate Aces",
+          "conference": "AFC",
+          "division": "AFC Test",
+          "colors": {
+            "primary": "#112233",
+            "secondary": null,
+            "tertiary": null
+          },
+          "record": {
+            "wins": 0,
+            "losses": 0,
+            "ties": 0,
+            "gamesPlayed": 0
+          },
+          "metrics": {}
+        }
+      ]
+    }
+  ]
+}
